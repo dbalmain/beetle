@@ -188,3 +188,7 @@ Package names stay `@beetle/contract`, `@beetle/vici-wasm`,
 oracle cannot drift. `fixtures/editor_cases.snap` is a copy of vici's
 insta snapshot with the `---` / `source:` / `expression:` header stripped;
 the case blocks are character-for-character.
+
+## License
+
+MIT OR Apache-2.0, at your option.

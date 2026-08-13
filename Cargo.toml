@@ -6,6 +6,10 @@ resolver = "3"
 edition = "2024"
 # Match vici: edition 2024 is the binding constraint.
 rust-version = "1.85"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/dbalmain/beetle"
+homepage = "https://github.com/dbalmain/beetle"
+authors = ["Dave Balmain <dsbalmain@agiledigital.com.au>"]
 
 [profile.release]
 opt-level = 3

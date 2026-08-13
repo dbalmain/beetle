@@ -4,6 +4,10 @@ version = "0.1.0"
 description = "WASM façade for the vici editor"
 edition.workspace = true
 rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+authors.workspace = true
 publish = false
 
 [lib]

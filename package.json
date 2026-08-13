@@ -4,6 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "description": "Beetle — Vim Web. WASM vs TypeScript vici.",
+  "license": "MIT OR Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dbalmain/beetle.git"
+  },
   "workspaces": [
     "packages/*"
   ],
