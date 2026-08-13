@@ -6,3 +6,13 @@ resolver = "3"
 edition = "2024"
 # Match vici: edition 2024 is the binding constraint.
 rust-version = "1.85"
+
+[profile.release]
+opt-level = 3
+lto = true
+
+# Size-opt artefact is phase 6. The profile exists so that build does not
+# invent flags later.
+[profile.release-size]
+inherits = "release"
+opt-level = "z"
