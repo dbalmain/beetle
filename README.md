@@ -43,7 +43,7 @@ From the repo root (POSIX `sh`):
 
 ```sh
 npm install
-npm test              # not yet — contract tests land in phase 1
+npm test              # typecheck @beetle/contract + vitest (parser, 411 cases)
 npm run build:wasm    # not yet — wasm-pack wrapper lands in phase 2
 npm run bench         # not yet — benches land in phase 6
 ```

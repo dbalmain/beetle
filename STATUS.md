@@ -7,7 +7,7 @@ Do not push. Do not tick `/home/dave/w/vici/FEATURES.txt`.
 ## Phases
 
 - [x] Phase 0 — Scaffold
-- [ ] Phase 1 — Contract package
+- [x] Phase 1 — Contract package
 - [ ] Phase 2 — WASM wrapper
 - [ ] Phase 3 — WASM is the oracle
 - [ ] Phase 4 — Idiomatic TypeScript engine
@@ -56,3 +56,25 @@ must install or otherwise obtain them; do not paper over that in phase 1.
 `rustc` 1.95 already has `wasm32-unknown-unknown` std, so the target
 itself is not a blocker on this machine. No TypeScript / vitest deps yet
 — phase 1 adds those with the contract package.
+
+## Phase 1 done-note
+
+**What landed.** `@beetle/contract` is the shared façade: `Engine`,
+`Effect`, `Key` / `KeyCode` / `Mods`, plus `parseCases` /
+`parseSettings` / `unescape` / `validName` (ported from
+`vici/crates/vici/tests/editor_cases.rs`) and `renderCase` /
+`renderEffect` / `rustDebugString` (Rust `Debug` strings, not JSON).
+Source under `packages/contract/src/{types,parse,render,index}.ts`.
+Root `npm test` runs `tsc --noEmit -p packages/contract` then vitest.
+README how-to no longer says tests are "not yet".
+
+**Gates.** `npm test` green: typecheck clean; 17 vitest tests, including
+411 unique kebab-case cases from `fixtures/editor.vici`.
+
+**Leftover risk.** Snapshot renderer is implemented but not proven
+against `fixtures/editor_cases.snap` — that is phase 3, once WASM can
+feed a real `Engine`. `rustDebugString` uses JS Unicode properties
+(`Grapheme_Extend`, `White_Space`, …); a Unicode-version skew vs Rust
+would only show up on exotic code points the current fixtures do not
+exercise. `keys()` / `render()` stay in phase 4a. `wasm-pack` /
+`wasm-opt` still not on PATH.
