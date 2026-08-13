@@ -11,7 +11,7 @@ Do not push. Do not tick `/home/dave/w/vici/FEATURES.txt`.
 - [x] Phase 2 — WASM wrapper
 - [x] Phase 3 — WASM is the oracle
 - [ ] Phase 4 — Idiomatic TypeScript engine
-  - [ ] 4a — Key notation + UTF-8 piece table + Edit/Point + undo
+  - [x] 4a — Key notation + UTF-8 piece table + Edit/Point + undo
   - [ ] 4b — Engine skeleton: typeKeys/handleKey, Normal/Insert/Replace, hjkl0^$, insert entries, x, undo/redo
   - [ ] 4c — Counts, operators d c y > <, doubles, visual, p P J r ~
   - [ ] 4d — Word/find/object/search/pair/paragraph/screen motions
@@ -142,3 +142,33 @@ untouched, so cargo fmt/clippy/test were not re-run.
 against a fake engine, not the live `WasmEngine`. Phase 5 will need
 that when `vici-js` is the subject. wasm-bindgen string copies and
 the size-opt artefact are unchanged.
+
+## Phase 4a done-note
+
+**What landed.** `@beetle/vici-js` now has the three prescribed
+structures (not a file-for-file vici port):
+
+- `src/key.ts` — `keys` / `key` / `render` plus `makeKey` (SHIFT+char
+  is ASCII-uppercase, SHIFT dropped; `<S-Tab>` keeps SHIFT). Types
+  are `@beetle/contract`'s `Key` / `KeyCode` / `Mods`.
+- `src/buffer.ts` — UTF-8 piece table. Public offsets are UTF-8
+  bytes; `Point.col` is a byte offset in the row. LF rows, `\r` is
+  content, trailing newline ⇒ phantom empty row, empty buffer has
+  one row.
+- `src/edit.ts` — `shift` / `invert*` / `advance` (new col after `\n`
+  is measured from the last newline).
+- `src/history.ts` + `src/document.ts` — self-inverting `Change`s,
+  nested groups are one step, new change truncates redo, noops are
+  not recorded, optional limit.
+
+**Flatten policy.** Collapse to a single original piece when the
+piece count exceeds 512, or after a whole-buffer replace.
+
+**Gates.** `npm test` green: `tsc --noEmit` on contract + vici-js;
+64 vitest tests (17 contract + 47 vici-js). No wasm rebuild.
+
+**Leftover risk.** `render(keys("<C-gt>"))` is `<C->>`, which does
+not parse (vici Display quirk; write `<C-gt>` in scripts). No
+Engine / modes / operators yet (4b). Unicode case mapping (`ß` →
+`SS`) is 4e; graphemes are 4d. Flatten threshold is unmeasured
+against the 1 MiB benches.

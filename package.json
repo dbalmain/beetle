@@ -8,8 +8,8 @@
     "packages/*"
   ],
   "scripts": {
-    "test": "tsc --noEmit -p packages/contract && vitest run",
-    "typecheck": "tsc --noEmit -p packages/contract",
+    "test": "tsc --noEmit -p packages/contract && tsc --noEmit -p packages/vici-js && vitest run",
+    "typecheck": "tsc --noEmit -p packages/contract && tsc --noEmit -p packages/vici-js",
     "bench": "echo 'not yet: benches land in phase 6' >&2 && exit 1",
     "build:wasm": "sh scripts/build-wasm.sh",
     "test:wasm": "tsc --noEmit -p packages/vici-wasm && vitest run --config packages/vici-wasm/vitest.config.mjs"
