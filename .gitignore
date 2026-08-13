@@ -13,6 +13,7 @@ coverage/
 
 # WASM / wasm-pack
 pkg/
+pkg-size/
 *.wasm
 
 # Tooling / editor

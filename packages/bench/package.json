@@ -2,5 +2,11 @@
   "name": "@beetle/bench",
   "version": "0.0.0",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@beetle/contract": "*",
+    "@beetle/vici-js": "*",
+    "@beetle/vici-wasm": "*",
+    "mitata": "^1.0.34"
+  }
 }

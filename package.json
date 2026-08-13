@@ -10,12 +10,13 @@
   "scripts": {
     "test": "tsc --noEmit -p packages/contract && tsc --noEmit -p packages/vici-js && vitest run",
     "typecheck": "tsc --noEmit -p packages/contract && tsc --noEmit -p packages/vici-js",
-    "bench": "echo 'not yet: benches land in phase 6' >&2 && exit 1",
+    "bench": "node --expose-gc --import ./scripts/register-ts.mjs packages/bench/src/run.ts",
     "build:wasm": "sh scripts/build-wasm.sh",
     "test:wasm": "tsc --noEmit -p packages/vici-wasm && vitest run --config packages/vici-wasm/vitest.config.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.1.2",
+    "esbuild": "^0.28.1",
     "typescript": "^7.0.2",
     "vitest": "^4.1.10"
   }
