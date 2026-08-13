@@ -73,6 +73,7 @@ const MEASURE_OPTS = {
   batch_samples: 1,
   batch_threshold: 0,
   min_samples: 24,
+  max_samples: 200,
   min_cpu_time: 800 * 1e6,
   warmup_samples: 8,
 };
@@ -244,7 +245,7 @@ async function runSpeed(workloads: Workload[]): Promise<BenchReport> {
       simd: SIMD,
       runtime: "node/v8",
       notes: [
-        "Hot benches: mitata, warmup then ≥24 samples or 800ms. setText is a computed parameter and is not timed.",
+        "Hot benches: mitata, warmup then ≥24 samples or 800ms (cap 200). setText is a computed parameter and is not timed.",
         "text() is never called in the hot loop (wasm-bindgen copies UTF-8↔UTF-16 on text()/typeKeys).",
         "Bulk is typeKeys(script) inside the engine. Per-key is handleKey for each keys(script) token.",
         "Cold start is a fresh Node process: await import() + first constructor. Not mixed into hot benches.",
@@ -302,7 +303,13 @@ function coldOnce(specifier: string, exportName: string): number {
   `;
   const result = spawnSync(
     process.execPath,
-    ["--input-type=module", "--eval", source],
+    [
+      "--import",
+      join(repoRoot, "scripts/register-ts.mjs"),
+      "--input-type=module",
+      "--eval",
+      source,
+    ],
     {
       cwd: repoRoot,
       encoding: "utf8",
@@ -347,28 +354,32 @@ async function runSize(): Promise<{ meta: BenchReport["meta"]; artifacts: SizeRo
     logLevel: "warning",
   });
 
-  const files: { artifact: string; path: string }[] = [
+  const files: { artifact: string; file: string; label: string }[] = [
     {
       artifact: "vici.wasm speed (opt-level=3, LTO, wasm-opt -O3)",
-      path: join(repoRoot, "packages/vici-wasm/pkg/vici_wasm_bg.wasm"),
+      file: join(repoRoot, "packages/vici-wasm/pkg/vici_wasm_bg.wasm"),
+      label: "packages/vici-wasm/pkg/vici_wasm_bg.wasm",
     },
     {
       artifact: "vici.wasm size (release-size / opt-level=z, wasm-opt -Oz)",
-      path: join(repoRoot, "packages/vici-wasm/pkg-size/vici_wasm_bg.wasm"),
+      file: join(repoRoot, "packages/vici-wasm/pkg-size/vici_wasm_bg.wasm"),
+      label: "packages/vici-wasm/pkg-size/vici_wasm_bg.wasm",
     },
     {
       artifact: "wasm glue JS (vici_wasm.cjs)",
-      path: join(repoRoot, "packages/vici-wasm/pkg/vici_wasm.cjs"),
+      file: join(repoRoot, "packages/vici-wasm/pkg/vici_wasm.cjs"),
+      label: "packages/vici-wasm/pkg/vici_wasm.cjs",
     },
     {
       artifact: "vici-js esbuild minify ESM",
-      path: jsOut,
+      file: jsOut,
+      label: "packages/vici-js/src/index.ts (esbuild --bundle --minify --format=esm)",
     },
   ];
 
   const artifacts: SizeRow[] = files.map((file) => {
-    const buf = readFileSync(file.path);
-    return { artifact: file.artifact, path: file.path, ...weigh(buf) };
+    const buf = readFileSync(file.file);
+    return { artifact: file.artifact, path: file.label, ...weigh(buf) };
   });
 
   return {

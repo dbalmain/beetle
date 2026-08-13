@@ -1,0 +1,476 @@
+{
+  "meta": {
+    "generatedAt": "2026-08-13T12:41:43.673Z",
+    "node": "v24.18.1",
+    "cpu": "AMD Ryzen 9 9955HX 16-Core Processor",
+    "platform": "linux",
+    "arch": "x64",
+    "simd": true,
+    "runtime": "node/v8",
+    "notes": [
+      "Hot benches: mitata, warmup then ≥24 samples or 800ms (cap 200). setText is a computed parameter and is not timed.",
+      "text() is never called in the hot loop (wasm-bindgen copies UTF-8↔UTF-16 on text()/typeKeys).",
+      "Bulk is typeKeys(script) inside the engine. Per-key is handleKey for each keys(script) token.",
+      "Cold start is a fresh Node process: await import() + first constructor. Not mixed into hot benches.",
+      "Speed wasm is the opt-level=3 / wasm-opt -O3 artefact in packages/vici-wasm/pkg. simd is on."
+    ]
+  },
+  "coldStart": [
+    {
+      "engine": "wasm",
+      "p50_ns": 47004178.99999999,
+      "p95_ns": 48240994.00000001,
+      "mean_ns": 46860188.916666664,
+      "iters": 12
+    },
+    {
+      "engine": "js",
+      "p50_ns": 88694145.99999999,
+      "p95_ns": 91938249.00000001,
+      "mean_ns": 89161672.66666667,
+      "iters": 12
+    }
+  ],
+  "benches": [
+    {
+      "name": "insert-1k",
+      "engine": "wasm",
+      "mode": "bulk",
+      "bufferBytes": 0,
+      "scriptKeys": 1002,
+      "p50_ns": 83834190,
+      "p95_ns": 85848023,
+      "mean_ns": 84246704.75,
+      "iters": 20
+    },
+    {
+      "name": "insert-1k",
+      "engine": "wasm",
+      "mode": "per-key",
+      "bufferBytes": 0,
+      "scriptKeys": 1002,
+      "p50_ns": 86644546.0000019,
+      "p95_ns": 87044651,
+      "mean_ns": 86658369.90000014,
+      "iters": 20
+    },
+    {
+      "name": "insert-1k",
+      "engine": "js",
+      "mode": "bulk",
+      "bufferBytes": 0,
+      "scriptKeys": 1002,
+      "p50_ns": 1465618131,
+      "p95_ns": 1551852435,
+      "mean_ns": 1479807593.6499999,
+      "iters": 20
+    },
+    {
+      "name": "insert-1k",
+      "engine": "js",
+      "mode": "per-key",
+      "bufferBytes": 0,
+      "scriptKeys": 1002,
+      "p50_ns": 1678390855,
+      "p95_ns": 1704827973,
+      "mean_ns": 1683406379.6000004,
+      "iters": 20
+    },
+    {
+      "name": "words-small",
+      "engine": "wasm",
+      "mode": "bulk",
+      "bufferBytes": 1024,
+      "scriptKeys": 9,
+      "p50_ns": 113755,
+      "p95_ns": 121760,
+      "mean_ns": 116113.9030612245,
+      "iters": 196
+    },
+    {
+      "name": "words-small",
+      "engine": "wasm",
+      "mode": "per-key",
+      "bufferBytes": 1024,
+      "scriptKeys": 9,
+      "p50_ns": 120007,
+      "p95_ns": 142258,
+      "mean_ns": 123587.6836734694,
+      "iters": 196
+    },
+    {
+      "name": "words-small",
+      "engine": "js",
+      "mode": "bulk",
+      "bufferBytes": 1024,
+      "scriptKeys": 9,
+      "p50_ns": 1120916,
+      "p95_ns": 2011968,
+      "mean_ns": 1303893.8469387756,
+      "iters": 196
+    },
+    {
+      "name": "words-small",
+      "engine": "js",
+      "mode": "per-key",
+      "bufferBytes": 1024,
+      "scriptKeys": 9,
+      "p50_ns": 1127308,
+      "p95_ns": 2212577,
+      "mean_ns": 1406067.0102040817,
+      "iters": 196
+    },
+    {
+      "name": "words-100k",
+      "engine": "wasm",
+      "mode": "bulk",
+      "bufferBytes": 102400,
+      "scriptKeys": 6,
+      "p50_ns": 131318,
+      "p95_ns": 153640,
+      "mean_ns": 134665.75,
+      "iters": 196
+    },
+    {
+      "name": "words-100k",
+      "engine": "wasm",
+      "mode": "per-key",
+      "bufferBytes": 102400,
+      "scriptKeys": 6,
+      "p50_ns": 129865,
+      "p95_ns": 135356,
+      "mean_ns": 130885.67346938775,
+      "iters": 196
+    },
+    {
+      "name": "words-100k",
+      "engine": "js",
+      "mode": "bulk",
+      "bufferBytes": 102400,
+      "scriptKeys": 6,
+      "p50_ns": 863881,
+      "p95_ns": 1853630,
+      "mean_ns": 984492.5459183673,
+      "iters": 196
+    },
+    {
+      "name": "words-100k",
+      "engine": "js",
+      "mode": "per-key",
+      "bufferBytes": 102400,
+      "scriptKeys": 6,
+      "p50_ns": 932010,
+      "p95_ns": 1968977,
+      "mean_ns": 1104178.224489796,
+      "iters": 196
+    },
+    {
+      "name": "words-1m",
+      "engine": "wasm",
+      "mode": "bulk",
+      "bufferBytes": 1048576,
+      "scriptKeys": 6,
+      "p50_ns": 137018,
+      "p95_ns": 143090,
+      "mean_ns": 138068.41836734695,
+      "iters": 196
+    },
+    {
+      "name": "words-1m",
+      "engine": "wasm",
+      "mode": "per-key",
+      "bufferBytes": 1048576,
+      "scriptKeys": 6,
+      "p50_ns": 135787,
+      "p95_ns": 142318,
+      "mean_ns": 136977.48469387754,
+      "iters": 196
+    },
+    {
+      "name": "words-1m",
+      "engine": "js",
+      "mode": "bulk",
+      "bufferBytes": 1048576,
+      "scriptKeys": 6,
+      "p50_ns": 880683,
+      "p95_ns": 1560065,
+      "mean_ns": 965252.862244898,
+      "iters": 196
+    },
+    {
+      "name": "words-1m",
+      "engine": "js",
+      "mode": "per-key",
+      "bufferBytes": 1048576,
+      "scriptKeys": 6,
+      "p50_ns": 810049,
+      "p95_ns": 1194876,
+      "mean_ns": 925429.5408163265,
+      "iters": 196
+    },
+    {
+      "name": "delete-word",
+      "engine": "wasm",
+      "mode": "bulk",
+      "bufferBytes": 102400,
+      "scriptKeys": 402,
+      "p50_ns": 7858545,
+      "p95_ns": 8396972,
+      "mean_ns": 7910114.731958763,
+      "iters": 97
+    },
+    {
+      "name": "delete-word",
+      "engine": "wasm",
+      "mode": "per-key",
+      "bufferBytes": 102400,
+      "scriptKeys": 402,
+      "p50_ns": 8318303,
+      "p95_ns": 9314293,
+      "mean_ns": 8449423.879120879,
+      "iters": 91
+    },
+    {
+      "name": "delete-word",
+      "engine": "js",
+      "mode": "bulk",
+      "bufferBytes": 102400,
+      "scriptKeys": 402,
+      "p50_ns": 155778674,
+      "p95_ns": 189025406,
+      "mean_ns": 160413199.7,
+      "iters": 20
+    },
+    {
+      "name": "delete-word",
+      "engine": "js",
+      "mode": "per-key",
+      "bufferBytes": 102400,
+      "scriptKeys": 402,
+      "p50_ns": 157673238,
+      "p95_ns": 178923734,
+      "mean_ns": 159560872.15,
+      "iters": 20
+    },
+    {
+      "name": "undo-storm",
+      "engine": "wasm",
+      "mode": "bulk",
+      "bufferBytes": 10240,
+      "scriptKeys": 608,
+      "p50_ns": 25182117,
+      "p95_ns": 26733236,
+      "mean_ns": 25399016.222222224,
+      "iters": 27
+    },
+    {
+      "name": "undo-storm",
+      "engine": "wasm",
+      "mode": "per-key",
+      "bufferBytes": 10240,
+      "scriptKeys": 608,
+      "p50_ns": 27550569,
+      "p95_ns": 28750393,
+      "mean_ns": 27306767.846153848,
+      "iters": 26
+    },
+    {
+      "name": "undo-storm",
+      "engine": "js",
+      "mode": "bulk",
+      "bufferBytes": 10240,
+      "scriptKeys": 608,
+      "p50_ns": 531042469,
+      "p95_ns": 560754463,
+      "mean_ns": 530127569.8,
+      "iters": 20
+    },
+    {
+      "name": "undo-storm",
+      "engine": "js",
+      "mode": "per-key",
+      "bufferBytes": 10240,
+      "scriptKeys": 608,
+      "p50_ns": 528680820,
+      "p95_ns": 546243757,
+      "mean_ns": 530590399.6000023,
+      "iters": 20
+    },
+    {
+      "name": "macro",
+      "engine": "wasm",
+      "mode": "bulk",
+      "bufferBytes": 44,
+      "scriptKeys": 10,
+      "p50_ns": 371802.0000152588,
+      "p95_ns": 444218.0000305176,
+      "mean_ns": 424839.2959194573,
+      "iters": 196
+    },
+    {
+      "name": "macro",
+      "engine": "wasm",
+      "mode": "per-key",
+      "bufferBytes": 44,
+      "scriptKeys": 10,
+      "p50_ns": 375088,
+      "p95_ns": 415203.9999847412,
+      "mean_ns": 390350.94387871877,
+      "iters": 196
+    },
+    {
+      "name": "macro",
+      "engine": "js",
+      "mode": "bulk",
+      "bufferBytes": 44,
+      "scriptKeys": 10,
+      "p50_ns": 2990584.999984741,
+      "p95_ns": 3715434.000015259,
+      "mean_ns": 2947391.530386909,
+      "iters": 181
+    },
+    {
+      "name": "macro",
+      "engine": "js",
+      "mode": "per-key",
+      "bufferBytes": 44,
+      "scriptKeys": 10,
+      "p50_ns": 2212546.0000305176,
+      "p95_ns": 2543632.000015259,
+      "mean_ns": 2272048.7499998445,
+      "iters": 196
+    },
+    {
+      "name": "search",
+      "engine": "wasm",
+      "mode": "bulk",
+      "bufferBytes": 102424,
+      "scriptKeys": 11,
+      "p50_ns": 27079238,
+      "p95_ns": 27256541.99998474,
+      "mean_ns": 27118156.49999589,
+      "iters": 26
+    },
+    {
+      "name": "search",
+      "engine": "wasm",
+      "mode": "per-key",
+      "bufferBytes": 102424,
+      "scriptKeys": 11,
+      "p50_ns": 27242165,
+      "p95_ns": 27372701,
+      "mean_ns": 27271593.115384616,
+      "iters": 26
+    },
+    {
+      "name": "search",
+      "engine": "js",
+      "mode": "bulk",
+      "bufferBytes": 102424,
+      "scriptKeys": 11,
+      "p50_ns": 367269224,
+      "p95_ns": 409424821,
+      "mean_ns": 367029560.9,
+      "iters": 20
+    },
+    {
+      "name": "search",
+      "engine": "js",
+      "mode": "per-key",
+      "bufferBytes": 102424,
+      "scriptKeys": 11,
+      "p50_ns": 350942451,
+      "p95_ns": 405234715,
+      "mean_ns": 363718706.55,
+      "iters": 20
+    },
+    {
+      "name": "operator-all",
+      "engine": "wasm",
+      "mode": "bulk",
+      "bufferBytes": 102400,
+      "scriptKeys": 4,
+      "p50_ns": 75984,
+      "p95_ns": 418680,
+      "mean_ns": 103088.0612244898,
+      "iters": 196
+    },
+    {
+      "name": "operator-all",
+      "engine": "wasm",
+      "mode": "per-key",
+      "bufferBytes": 102400,
+      "scriptKeys": 4,
+      "p50_ns": 75162,
+      "p95_ns": 445962,
+      "mean_ns": 120028.69897959183,
+      "iters": 196
+    },
+    {
+      "name": "operator-all",
+      "engine": "js",
+      "mode": "bulk",
+      "bufferBytes": 102400,
+      "scriptKeys": 4,
+      "p50_ns": 249801,
+      "p95_ns": 476840,
+      "mean_ns": 267663.80102040817,
+      "iters": 196
+    },
+    {
+      "name": "operator-all",
+      "engine": "js",
+      "mode": "per-key",
+      "bufferBytes": 102400,
+      "scriptKeys": 4,
+      "p50_ns": 227330,
+      "p95_ns": 426175,
+      "mean_ns": 254004.47959183675,
+      "iters": 196
+    },
+    {
+      "name": "edit-session",
+      "engine": "wasm",
+      "mode": "bulk",
+      "bufferBytes": 19471,
+      "scriptKeys": 20,
+      "p50_ns": 243750,
+      "p95_ns": 251134,
+      "mean_ns": 244452.83673469388,
+      "iters": 196
+    },
+    {
+      "name": "edit-session",
+      "engine": "wasm",
+      "mode": "per-key",
+      "bufferBytes": 19471,
+      "scriptKeys": 20,
+      "p50_ns": 265541,
+      "p95_ns": 272745,
+      "mean_ns": 266760.0816326531,
+      "iters": 196
+    },
+    {
+      "name": "edit-session",
+      "engine": "js",
+      "mode": "bulk",
+      "bufferBytes": 19471,
+      "scriptKeys": 20,
+      "p50_ns": 2309520,
+      "p95_ns": 4302262,
+      "mean_ns": 2699181.8418367347,
+      "iters": 196
+    },
+    {
+      "name": "edit-session",
+      "engine": "js",
+      "mode": "per-key",
+      "bufferBytes": 19471,
+      "scriptKeys": 20,
+      "p50_ns": 2462368,
+      "p95_ns": 4642333,
+      "mean_ns": 2822217.852040816,
+      "iters": 196
+    }
+  ]
+}

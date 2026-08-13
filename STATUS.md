@@ -17,7 +17,7 @@ Do not push. Do not tick `/home/dave/w/vici/FEATURES.txt`.
   - [x] 4d — Word/find/object/search/pair/paragraph/screen motions
   - [x] 4e — Surround, marks, jumps, macros, ., gu gU g~, remaining edges
 - [x] Phase 5 — Fixture parity for TS
-- [ ] Phase 6 — Benchmarks and size
+- [x] Phase 6 — Benchmarks and size
 - [ ] Phase 7 — README results + wrap
 
 ## Resume
@@ -26,9 +26,9 @@ Read the compact-safe playbook at
 
 `/home/dave/.grok/sessions/%2Fhome%2Fdave%2Fw%2Fbeetle/019ffa97-3d6c-7730-a423-600054622b16/plan.md`
 
-and this file. Start at the first unchecked phase. Commit at each green
-boundary. Write a done-note here (what landed, gates run, leftover risk) —
-not a transcript.
+and this file. Start at the first unchecked phase (Phase 7). Commit at
+each green boundary. Write a done-note here (what landed, gates run,
+leftover risk) — not a transcript.
 
 ## Phase 0 done-note
 
@@ -334,5 +334,34 @@ rebuild.
 table; `Intl.Segmenter` vs `unicode-segmentation` could still diverge
 on ZWJ / flags not in this suite. None of the 411 disagree.
 
-**Phase 6.** Benchmarks and size. Do not start until this phase is
-committed.
+## Phase 6 done-note
+
+**What landed.** `npm run bench` drives both engines on the same scripts
+(bulk `typeKeys` × per-key `handleKey` via `keys()`), writes
+`reports/bench.md` + `reports/bench.json`, weighs speed wasm / size wasm /
+glue / minified `vici-js` into `reports/size.md` (+ `size.json`). Size
+build is `scripts/build-wasm.sh --size` → `packages/vici-wasm/pkg-size/`
+(`opt-level=z`, `wasm-opt -Oz`), kept off the speed `pkg/` benches use.
+Cold start is a fresh Node process (`await import()` + first constructor),
+not mixed into hot benches. `setText` is untimed; `text()` is never called
+in the hot loop. JS search was accidental O(n²) (`byteToJs` + tail `slice`
+per grapheme); one-pass scan so the prescribed 100 KiB `/needle` finishes.
+Search fixtures still match.
+
+**Reproduce.** From the repo root: `npm run bench`. Missing wasm artefacts
+are built first. Node / V8 only (`--expose-gc`). Reports are the artefact.
+
+**Headline.** Node v24.18.1, Ryzen 9 9955HX, simd on. WASM insert-1k
+84 ms vs JS 1.47 s; words-1m `50w50b` 137 µs vs 881 µs; 100 KiB search
+27 ms vs 367 ms; 200× `dw` 7.9 ms vs 156 ms. Cold start: wasm 47 ms, js
+89 ms. Speed wasm 273.5 KiB (83 KiB brotli); size wasm 229.4 KiB
+(76 KiB brotli); vici-js minify ESM 47.3 KiB (12.6 KiB brotli).
+
+**Gates.** `npm run bench` wrote the three report files. Numbers are
+nonzero, both engines present, p50 ≤ p95, 1 MiB did not OOM. README
+links the reports. `npm test` green after the search fix (478 tests).
+
+**Leftover risk.** Piece-table flatten (512 / whole-buffer replace) still
+shapes large-edit numbers. wasm-bindgen copies the script and serializes
+effects on every `typeKeys` / `handleKey`. V8-only. JS search still
+`toString()`s the buffer each time. Phase 7 writes the comparison essay.

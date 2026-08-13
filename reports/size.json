@@ -1,0 +1,47 @@
+{
+  "meta": {
+    "generatedAt": "2026-08-13T12:39:01.461Z",
+    "node": "v24.18.1",
+    "cpu": "AMD Ryzen 9 9955HX 16-Core Processor",
+    "platform": "linux",
+    "arch": "x64",
+    "simd": true,
+    "runtime": "node/v8",
+    "notes": [
+      "Speed-build wasm is the binary the benches actually ran.",
+      "Size-build wasm lives in packages/vici-wasm/pkg-size and is not loaded by tests or benches.",
+      "vici-js row is esbuild --bundle --minify --format=esm of packages/vici-js/src/index.ts. contract parse/render is not included; Mods is.",
+      "simd is on (ropey simd feature; both wasm profiles)."
+    ]
+  },
+  "artifacts": [
+    {
+      "artifact": "vici.wasm speed (opt-level=3, LTO, wasm-opt -O3)",
+      "path": "packages/vici-wasm/pkg/vici_wasm_bg.wasm",
+      "raw": 280068,
+      "gzip": 109993,
+      "brotli": 85033
+    },
+    {
+      "artifact": "vici.wasm size (release-size / opt-level=z, wasm-opt -Oz)",
+      "path": "packages/vici-wasm/pkg-size/vici_wasm_bg.wasm",
+      "raw": 234890,
+      "gzip": 99615,
+      "brotli": 77744
+    },
+    {
+      "artifact": "wasm glue JS (vici_wasm.cjs)",
+      "path": "packages/vici-wasm/pkg/vici_wasm.cjs",
+      "raw": 14463,
+      "gzip": 3042,
+      "brotli": 2703
+    },
+    {
+      "artifact": "vici-js esbuild minify ESM",
+      "path": "packages/vici-js/src/index.ts (esbuild --bundle --minify --format=esm)",
+      "raw": 48467,
+      "gzip": 14399,
+      "brotli": 12920
+    }
+  ]
+}
