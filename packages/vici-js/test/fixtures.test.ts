@@ -12,8 +12,9 @@ const fixturesDir = join(
   "../../../fixtures",
 );
 
-/** 4b allowlist — skip anything that needs operators, visual, or later motions. */
+/** 4b + 4c allowlist. Dropped: cases that need 4d motions (`w`/`iw`/`f`/`{`). */
 const ALLOWLIST = [
+  // 4b
   "move-right-count",
   "move-down",
   "move-dollar-and-home",
@@ -46,13 +47,112 @@ const ALLOWLIST = [
   "redo-caret-open",
   "typing-effects",
   "mode-effects",
+  // 4c — goto
+  "move-goto-last-and-first",
+  "move-goto-counted-row",
+  // 4c — operators / linewise / last-row
+  "delete-row",
+  "delete-two-rows",
+  "delete-row-after-motion",
+  "delete-last-row",
+  "delete-to-row-end",
+  "delete-linewise-motion",
+  "delete-dollar-before-newline",
+  "delete-last-char-with-motion",
+  "change-row",
+  "change-final-row-no-newline",
+  "change-middle-row-no-newline",
+  "change-final-row-trailing-newline",
+  "delete-final-row-trailing-newline",
+  "change-first-row-no-newline",
+  "change-two-rows-no-newline",
+  "change-first-row-trailing-newline",
+  "change-middle-row-trailing-newline",
+  "change-final-only-trailing-newline",
+  "change-two-rows-trailing-newline",
+  "visual-change-final-row-no-newline",
+  "visual-change-final-row-trailing-newline",
+  "shift-row-right",
+  "shift-row-left",
+  "shift-count",
+  "shift-motion",
+  "shift-indent-tabs",
+  "shift-noop",
+  "shift-whitespace-to-empty",
+  "shift-empty-noop",
+  "shift-cursor-first-nonblank",
+  "shift-final-row",
+  "shift-final-row-up",
+  "yank-line-put-after",
+  "yank-line-put-before",
+  "yank-final-row-put-after",
+  "yank-final-row-put-before",
+  "yank-first-row-put-final-after",
+  "yank-first-row-put-final-before",
+  "delete-then-put",
+  "delete-end-count",
+  "empty-delete-row",
+  "empty-put-join-swap",
+  "empty-replace",
+  "empty-delete-before",
+  "empty-undo-redo",
+  "empty-visual-operators",
+  "empty-delete-end",
+  "pending-command",
+  "invalid-sequence",
+  "invalid-cancelled-sequence",
+  "command-prompt-effect",
+  "edit-geometry",
+  // 4c — visual
+  "visual-char-selection",
+  "visual-char-delete",
+  "visual-line-delete",
+  "visual-two-line-delete",
+  "visual-line-selection",
+  "visual-toggle",
+  "visual-escape",
+  "shift-visual",
+  "shift-visual-count",
+  // 4c — p P J r ~
+  "replace-char",
+  "replace-char-count",
+  "swap-char",
+  "swap-char-count",
+  "join-rows",
+  "join-trims-indent",
+  "join-count",
+  // 4c — linewise matrix (no gU/gu/g~)
+  ...linewise("dd"),
+  ...linewise("cc"),
+  ...linewise("yank-put"),
+  ...linewise("shift-right"),
+  ...linewise("shift-left"),
+  ...linewise("visual-delete"),
+  ...linewise("visual-change"),
+  ...linewise("visual-yank"),
+  ...linewise("visual-shift-right"),
+  "lines-dd-counted-off-end",
+  "lines-cc-counted-off-end",
 ] as const;
+
+function linewise(kind: string): string[] {
+  const positions = [
+    "first-no-newline",
+    "middle-no-newline",
+    "final-no-newline",
+    "first-trailing-newline",
+    "middle-trailing-newline",
+    "final-trailing-newline",
+    "single-row",
+  ];
+  return positions.map((position) => `lines-${kind}-${position}`);
+}
 
 const fixture = readFileSync(join(fixturesDir, "editor.vici"), "utf8");
 const snap = readFileSync(join(fixturesDir, "editor_cases.snap"), "utf8");
 const cases = new Map(parseCases(fixture).map((c) => [c.name, c]));
 
-describe("vici-js 4b editor.vici allowlist", () => {
+describe("vici-js 4c editor.vici allowlist", () => {
   for (const name of ALLOWLIST) {
     it(name, () => {
       const c = cases.get(name);

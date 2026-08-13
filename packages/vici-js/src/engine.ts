@@ -1,6 +1,6 @@
-// Single-dispatcher Engine. Matches vici outcomes for 4b (modes, hjkl0^$,
-// the six insert entries, replace, x/X, undo/redo). `dd` is the only
-// operator double, so the undo-delete fixtures can restore a caret.
+// Single-dispatcher Engine. Matches vici outcomes for 4c: operators
+// `d c y > <` (and doubles), visual char/line, `p P J r ~`, `G`/`gg`,
+// `D`/`C`, and `:`. Operator-pending is parser state, not a mode.
 
 import type {
   Edit,
@@ -20,12 +20,18 @@ import { asDigit, asText, keys, render } from "./key.js";
 import {
   STICKY_END,
   clamp,
-  firstNonBlank,
   graphemeCol,
+  isInclusive,
+  isLinewise,
   resolve,
   rowSpan,
+  spanContentRange,
+  spanDeleteRange,
+  spanHome,
+  spanIsLinewise,
   type Bound,
   type Motion,
+  type Span,
 } from "./motion.js";
 
 const DEFAULT_INDENT: Indent = {
@@ -34,13 +40,32 @@ const DEFAULT_INDENT: Indent = {
   useTabs: false,
 };
 
-type ChangeKind =
-  | "enterInsert"
-  | "enterReplace"
-  | "enterNormal"
-  | "deleteChar"
-  | "deleteRow"
-  | "other";
+const MAX_JUMPS = 100;
+
+type Operator = "delete" | "change" | "yank" | "shiftRight" | "shiftLeft";
+
+type Target =
+  | { type: "motion"; motion: Motion }
+  | { type: "currentRow" }
+  | { type: "selection" };
+
+type Cmd =
+  | { type: "move"; motion: Motion }
+  | { type: "operate"; operator: Operator; target: Target }
+  | { type: "enterInsert"; at: InsertAt }
+  | { type: "enterReplace" }
+  | { type: "enterVisual"; kind: "Char" | "Line" }
+  | { type: "enterNormal" }
+  | { type: "deleteChar"; before: boolean }
+  | { type: "replaceChar"; char: string }
+  | { type: "joinRows" }
+  | { type: "put"; before: boolean }
+  | { type: "swapCase" }
+  | { type: "undo" }
+  | { type: "redo" }
+  | { type: "commandPrompt" };
+
+type Awaiting = "g" | "replace";
 
 export class JsEngine implements Engine {
   #doc: Document;
@@ -49,14 +74,19 @@ export class JsEngine implements Engine {
   #mode: Mode = "Normal";
   #cursor = 0;
   #sticky = 0;
+  #anchor: number | undefined;
   #register = { text: "", linewise: false };
   #marks = new Map<string, number>();
   #jumps: number[] = [];
+  #jumpAt = 0;
   #pending: Key[] = [];
-  #count: number | undefined;
-  #operator: "delete" | undefined;
+  #countBefore: number | undefined;
+  #countAfter: number | undefined;
+  #operator: Operator | undefined;
+  #awaiting: Awaiting | undefined;
   #lastChange: Key[] = [];
   #changeKeys: Key[] | null = null;
+  #visualKeys: Key[] = [];
   #insertGroup = false;
 
   constructor(text = "") {
@@ -82,20 +112,23 @@ export class JsEngine implements Engine {
     if (this.#mode === "Insert" || this.#mode === "Replace") {
       return this.#handleInsert(key);
     }
-    return this.#handleNormal(key);
+    return this.#handleCommand(key);
   }
 
   setText(text: string): void {
     this.#doc = Document.fromText(text);
     this.#cursor = 0;
     this.#sticky = 0;
+    this.#anchor = undefined;
     this.#mode = "Normal";
     this.#register = { text: "", linewise: false };
     this.#marks.clear();
     this.#jumps = [];
+    this.#jumpAt = 0;
     this.#resetPending();
     this.#lastChange = [];
     this.#changeKeys = null;
+    this.#visualKeys = [];
     this.#insertGroup = false;
   }
 
@@ -124,6 +157,23 @@ export class JsEngine implements Engine {
   }
 
   selection(): { start: number; end: number } | null {
+    if (this.#anchor === undefined) {
+      return null;
+    }
+    const buffer = this.#buffer();
+    if (this.#mode === "Visual(Char)") {
+      const start = Math.min(this.#anchor, this.#cursor);
+      const end = Math.max(this.#anchor, this.#cursor);
+      return {
+        start,
+        end: resolve(buffer, end, "Right", undefined, 0, "PastEnd"),
+      };
+    }
+    if (this.#mode === "Visual(Line)") {
+      const first = buffer.byteToPoint(Math.min(this.#anchor, this.#cursor)).row;
+      const last = buffer.byteToPoint(Math.max(this.#anchor, this.#cursor)).row;
+      return rowSpan(buffer, first, last);
+    }
     return null;
   }
 
@@ -172,150 +222,343 @@ export class JsEngine implements Engine {
       : "OnChar";
   }
 
+  #isVisual(): boolean {
+    return this.#mode === "Visual(Char)" || this.#mode === "Visual(Line)";
+  }
+
   #handleInsert(key: Key): Effect[] {
     if (isCode(key, "Esc") || isCtrl(key, "c")) {
-      return this.#run("enterNormal", [], (effects) => this.#enterNormal(effects));
+      return this.#finish({ type: "enterNormal" }, [key]);
     }
     if (isCode(key, "Enter")) {
-      return this.#run("other", [], (effects) => this.#insertNewline(effects));
+      return this.#execute({ type: "insertNewline" }, key);
     }
     if (isCode(key, "Backspace")) {
-      return this.#run("other", [], (effects) => this.#deleteBack(effects));
+      return this.#execute({ type: "deleteBack" }, key);
     }
     if (isCtrl(key, "w")) {
-      return this.#run("other", [], (effects) => this.#deleteWordBack(effects));
+      return this.#execute({ type: "deleteWordBack" }, key);
     }
     if (isCode(key, "Tab")) {
-      return this.#run("other", [], (effects) => this.#insertText("\t", effects));
+      return this.#execute({ type: "insertText", text: "\t" }, key);
     }
     const motion = insertMotion(key);
     if (motion !== undefined) {
-      return this.#run("other", [], (effects) =>
-        this.#move(motion, 1, effects),
-      );
+      return this.#execute({ type: "insertMove", motion }, key);
     }
     const ch = asText(key);
     if (ch !== undefined) {
-      return this.#run("other", [], (effects) => this.#insertText(ch, effects));
+      return this.#execute({ type: "insertText", text: ch }, key);
     }
     return [{ type: "Bell" }];
   }
 
-  #handleNormal(key: Key): Effect[] {
+  #handleCommand(key: Key): Effect[] {
     if (isCode(key, "Esc") && !this.#isIdle()) {
       this.#resetPending();
       return [];
     }
 
-    const digit = asDigit(key);
-    if (digit !== undefined && !(digit === 0 && this.#count === undefined)) {
+    if (this.#awaiting === "replace") {
       this.#pending.push(key);
-      this.#count = (this.#count ?? 0) * 10 + digit;
+      const ch = asText(key);
+      if (ch === undefined) {
+        return this.#reject();
+      }
+      return this.#finish({ type: "replaceChar", char: ch });
+    }
+
+    if (this.#awaiting === "g") {
+      this.#pending.push(key);
+      if (asText(key) === "g") {
+        return this.#finishMotion("GotoFirstRow");
+      }
+      return this.#reject();
+    }
+
+    const digit = asDigit(key);
+    if (digit !== undefined && !(digit === 0 && this.#countSlot() === undefined)) {
+      this.#pending.push(key);
+      this.#addDigit(digit);
       return [];
     }
 
     this.#pending.push(key);
 
-    if (this.#operator === "delete") {
-      if (asText(key) === "d") {
-        const count = this.#count;
-        const consumed = this.#takePending();
-        return this.#run("deleteRow", consumed, (effects) =>
-          this.#deleteRow(count ?? 1, effects),
-        );
+    const op = operatorOf(key);
+    if (op !== undefined) {
+      if (this.#isVisual()) {
+        return this.#finish({
+          type: "operate",
+          operator: op,
+          target: { type: "selection" },
+        });
       }
-      this.#resetPending();
-      return [{ type: "Bell" }];
+      if (this.#operator === undefined) {
+        this.#operator = op;
+        return [];
+      }
+      if (this.#operator === op) {
+        return this.#finish({
+          type: "operate",
+          operator: op,
+          target: { type: "currentRow" },
+        });
+      }
+      return this.#reject();
     }
 
-    const motion = normalMotion(key);
+    const ch = asText(key);
+    if (this.#isVisual() && ch === "x") {
+      return this.#finish({
+        type: "operate",
+        operator: "delete",
+        target: { type: "selection" },
+      });
+    }
+
+    if (ch === "g") {
+      this.#awaiting = "g";
+      return [];
+    }
+
+    const motion = commandMotion(key);
     if (motion !== undefined) {
-      const count = this.#count;
-      const consumed = this.#takePending();
-      return this.#run("other", consumed, (effects) =>
-        this.#move(motion, count ?? 1, effects),
-      );
+      return this.#finishMotion(motion);
+    }
+
+    if (this.#operator !== undefined) {
+      return this.#reject();
+    }
+
+    if (ch === "v") {
+      return this.#finish({ type: "enterVisual", kind: "Char" });
+    }
+    if (ch === "V") {
+      return this.#finish({ type: "enterVisual", kind: "Line" });
+    }
+
+    if (this.#isVisual()) {
+      if (isCode(key, "Esc")) {
+        return this.#finish({ type: "enterNormal" });
+      }
+      return this.#reject();
     }
 
     const insertAt = insertEntry(key);
     if (insertAt !== undefined) {
-      const consumed = this.#takePending();
-      return this.#run("enterInsert", consumed, (effects) =>
-        this.#enterInsert(insertAt, effects),
-      );
+      return this.#finish({ type: "enterInsert", at: insertAt });
     }
 
-    if (asText(key) === "R") {
-      const consumed = this.#takePending();
-      return this.#run("enterReplace", consumed, (effects) => {
-        this.#openInsertGroup();
-        this.#setMode("Replace", effects);
-      });
+    if (ch === "R") {
+      return this.#finish({ type: "enterReplace" });
     }
-
-    if (asText(key) === "x" || isCode(key, "Delete")) {
-      const count = this.#count;
-      const consumed = this.#takePending();
-      return this.#run("deleteChar", consumed, (effects) =>
-        this.#deleteChar(false, count ?? 1, effects),
-      );
+    if (ch === "x" || isCode(key, "Delete")) {
+      return this.#finish({ type: "deleteChar", before: false });
     }
-
-    if (asText(key) === "X") {
-      const count = this.#count;
-      const consumed = this.#takePending();
-      return this.#run("deleteChar", consumed, (effects) =>
-        this.#deleteChar(true, count ?? 1, effects),
-      );
+    if (ch === "X") {
+      return this.#finish({ type: "deleteChar", before: true });
     }
-
-    if (asText(key) === "u") {
-      const consumed = this.#takePending();
-      return this.#run("other", consumed, (effects) => this.#undo(effects));
+    if (ch === "u") {
+      return this.#finish({ type: "undo" });
     }
-
     if (isCtrl(key, "r")) {
-      const consumed = this.#takePending();
-      return this.#run("other", consumed, (effects) => this.#redo(effects));
+      return this.#finish({ type: "redo" });
     }
-
     if (isCode(key, "Esc")) {
-      const consumed = this.#takePending();
-      return this.#run("enterNormal", consumed, (effects) =>
-        this.#enterNormal(effects),
-      );
+      return this.#finish({ type: "enterNormal" });
     }
-
-    if (asText(key) === "d") {
-      this.#operator = "delete";
+    if (ch === "r") {
+      this.#awaiting = "replace";
       return [];
     }
+    if (ch === "p") {
+      return this.#finish({ type: "put", before: false });
+    }
+    if (ch === "P") {
+      return this.#finish({ type: "put", before: true });
+    }
+    if (ch === "J") {
+      return this.#finish({ type: "joinRows" });
+    }
+    if (ch === "~") {
+      return this.#finish({ type: "swapCase" });
+    }
+    if (ch === "D") {
+      return this.#finish({
+        type: "operate",
+        operator: "delete",
+        target: { type: "motion", motion: "LastColumn" },
+      });
+    }
+    if (ch === "C") {
+      return this.#finish({
+        type: "operate",
+        operator: "change",
+        target: { type: "motion", motion: "LastColumn" },
+      });
+    }
+    if (ch === ":") {
+      return this.#finish({ type: "commandPrompt" });
+    }
 
-    this.#resetPending();
-    return [{ type: "Bell" }];
+    return this.#reject();
   }
 
-  #run(
-    kind: ChangeKind,
-    consumed: readonly Key[],
-    body: (effects: Effect[]) => void,
-  ): Effect[] {
-    const before = this.#cursor;
-    this.#doc.history.beginGroup(before);
-    const effects: Effect[] = [];
-    body(effects);
-    this.#rememberChange(effects);
-    this.#doc.history.endGroup(this.#cursor);
-    this.#noteChange(kind, consumed);
+  #finishMotion(motion: Motion): Effect[] {
+    if (this.#operator !== undefined) {
+      return this.#finish({
+        type: "operate",
+        operator: this.#operator,
+        target: { type: "motion", motion },
+      });
+    }
+    return this.#finish({ type: "move", motion });
+  }
+
+  #finish(cmd: Cmd, insertConsumed?: readonly Key[]): Effect[] {
+    const count = this.#effectiveCount();
+    const consumed = insertConsumed ?? this.#takePending();
+    const wasVisual = this.#isVisual();
+    const effects = this.#run(cmd, count);
+    if (this.#isVisual()) {
+      if (!wasVisual) {
+        this.#visualKeys = [];
+      }
+      this.#visualKeys.push(...consumed);
+    }
+    this.#noteChange(cmd, consumed);
     return effects;
   }
 
-  #noteChange(kind: ChangeKind, consumed: readonly Key[]): void {
-    const script = consumed.slice();
-    switch (kind) {
+  #execute(
+    insert: InsertAction,
+    key: Key,
+  ): Effect[] {
+    return this.#runInsert(insert, [key]);
+  }
+
+  #run(cmd: Cmd, count: number | undefined): Effect[] {
+    const before = this.#cursor;
+    this.#doc.history.beginGroup(before);
+    const effects: Effect[] = [];
+    this.#dispatch(cmd, count, effects);
+    this.#rememberChange(effects);
+    this.#doc.history.endGroup(this.#cursor);
+    return effects;
+  }
+
+  #runInsert(action: InsertAction, _consumed: readonly Key[]): Effect[] {
+    const before = this.#cursor;
+    this.#doc.history.beginGroup(before);
+    const effects: Effect[] = [];
+    switch (action.type) {
+      case "insertText":
+        this.#insertText(action.text, effects);
+        break;
+      case "insertNewline":
+        this.#insertNewline(effects);
+        break;
+      case "deleteBack":
+        this.#deleteBack(effects);
+        break;
+      case "deleteWordBack":
+        this.#deleteWordBack(effects);
+        break;
+      case "insertMove":
+        this.#move(action.motion, 1, effects);
+        break;
+    }
+    this.#rememberChange(effects);
+    this.#doc.history.endGroup(this.#cursor);
+    return effects;
+  }
+
+  #dispatch(cmd: Cmd, count: number | undefined, effects: Effect[]): void {
+    const repeat = count ?? 1;
+    switch (cmd.type) {
+      case "move": {
+        const landed = this.#resolveMotion(cmd.motion, count, this.#bound());
+        if (landed !== this.#cursor && pushesJump(cmd.motion)) {
+          this.#pushJump();
+        }
+        this.#cursor = landed;
+        this.#updateSticky(cmd.motion);
+        break;
+      }
+      case "operate": {
+        const span = this.#spanOf(cmd.operator, cmd.target, count);
+        if (span === undefined) {
+          effects.push({ type: "Bell" });
+          break;
+        }
+        const amount = this.#isVisual() ? repeat : 1;
+        this.#operate(cmd.operator, span, amount, effects);
+        break;
+      }
+      case "enterInsert":
+        this.#enterInsert(cmd.at, effects);
+        break;
+      case "enterReplace":
+        this.#openInsertGroup();
+        this.#setMode("Replace", effects);
+        break;
+      case "enterVisual":
+        this.#enterVisual(cmd.kind, effects);
+        break;
+      case "enterNormal":
+        this.#enterNormal(effects);
+        break;
+      case "deleteChar":
+        this.#deleteChar(cmd.before, repeat, effects);
+        break;
+      case "replaceChar":
+        this.#replaceChar(cmd.char, repeat, effects);
+        break;
+      case "joinRows":
+        this.#joinRows(Math.max(repeat, 2), effects);
+        break;
+      case "put":
+        this.#put(cmd.before, repeat, effects);
+        break;
+      case "swapCase":
+        this.#swapCase(repeat, effects);
+        break;
+      case "undo":
+        this.#undo(effects);
+        break;
+      case "redo":
+        this.#redo(effects);
+        break;
+      case "commandPrompt":
+        effects.push({ type: "CommandPrompt" });
+        break;
+    }
+  }
+
+  #noteChange(cmd: Cmd, consumed: readonly Key[]): void {
+    const script =
+      cmd.type === "operate" && cmd.target.type === "selection"
+        ? this.#visualKeys.splice(0)
+        : [];
+    script.push(...consumed);
+
+    switch (cmd.type) {
       case "enterInsert":
       case "enterReplace":
         this.#changeKeys = script;
+        break;
+      case "operate":
+        if (cmd.operator === "change") {
+          this.#changeKeys = script;
+        } else if (
+          this.#changeKeys === null &&
+          (cmd.operator === "delete" ||
+            cmd.operator === "shiftRight" ||
+            cmd.operator === "shiftLeft")
+        ) {
+          this.#lastChange = script;
+        }
         break;
       case "enterNormal":
         if (this.#changeKeys !== null) {
@@ -324,7 +567,10 @@ export class JsEngine implements Engine {
         }
         break;
       case "deleteChar":
-      case "deleteRow":
+      case "replaceChar":
+      case "joinRows":
+      case "put":
+      case "swapCase":
         if (this.#changeKeys === null) {
           this.#lastChange = script;
         }
@@ -334,15 +580,242 @@ export class JsEngine implements Engine {
     }
   }
 
-  #move(motion: Motion, count: number, _effects: Effect[]): void {
-    const landed = resolve(
-      this.#buffer(),
-      this.#cursor,
-      motion,
-      count,
-      this.#sticky,
-      this.#bound(),
-    );
+  #spanOf(
+    operator: Operator,
+    target: Target,
+    count: number | undefined,
+  ): Span | undefined {
+    const buffer = this.#buffer();
+    let span: Span;
+    switch (target.type) {
+      case "motion": {
+        const motion = target.motion;
+        const inclusive = isInclusive(motion);
+        const bound: Bound = inclusive ? "OnChar" : "PastEnd";
+        const landed = this.#resolveMotion(motion, count, bound);
+        if (isLinewise(motion)) {
+          const first = buffer.byteToPoint(Math.min(this.#cursor, landed)).row;
+          const last = buffer.byteToPoint(Math.max(this.#cursor, landed)).row;
+          span = { kind: "lines", first, last };
+        } else {
+          let start = Math.min(this.#cursor, landed);
+          let end = Math.max(this.#cursor, landed);
+          if (inclusive) {
+            end = resolve(buffer, end, "Right", undefined, 0, "PastEnd");
+          }
+          span = { kind: "chars", start, end };
+        }
+        break;
+      }
+      case "currentRow": {
+        const first = this.cursorPoint().row;
+        const last = Math.min(
+          first + (count ?? 1) - 1,
+          buffer.lenRows() - 1,
+        );
+        span = { kind: "lines", first, last };
+        break;
+      }
+      case "selection": {
+        if (this.#mode === "Visual(Char)") {
+          const selection = this.selection();
+          if (selection === null) {
+            return undefined;
+          }
+          span = { kind: "chars", start: selection.start, end: selection.end };
+        } else if (this.#mode === "Visual(Line)" && this.#anchor !== undefined) {
+          const first = buffer.byteToPoint(
+            Math.min(this.#anchor, this.#cursor),
+          ).row;
+          const last = buffer.byteToPoint(
+            Math.max(this.#anchor, this.#cursor),
+          ).row;
+          span = { kind: "lines", first, last };
+        } else {
+          return undefined;
+        }
+        break;
+      }
+    }
+    if (forcesLinewise(operator) && span.kind === "chars") {
+      const first = buffer.byteToPoint(span.start).row;
+      const last = buffer.byteToPoint(
+        Math.max(span.end - 1, span.start),
+      ).row;
+      return { kind: "lines", first, last };
+    }
+    return span;
+  }
+
+  #operate(
+    operator: Operator,
+    span: Span,
+    amount: number,
+    effects: Effect[],
+  ): void {
+    const wasVisual = this.#isVisual();
+    if (wasVisual) {
+      this.#rememberVisualSelection();
+    }
+    const empty =
+      span.kind === "chars"
+        ? span.start === span.end
+        : this.#buffer().lenBytes() === 0;
+    if (empty && operator !== "change" && !forcesLinewise(operator)) {
+      effects.push({ type: "Bell" });
+      if (this.#isVisual()) {
+        this.#leaveVisual(false, effects);
+      }
+      return;
+    }
+    if (yanks(operator)) {
+      this.#yank(span);
+    }
+    switch (operator) {
+      case "shiftRight":
+      case "shiftLeft": {
+        if (span.kind !== "lines") {
+          throw new Error("shift spans are widened to rows");
+        }
+        this.#shiftRows(span.first, span.last, operator, amount, effects);
+        this.#cursor = this.#buffer().rowContentRange(span.first).start;
+        this.#cursor = this.#step("FirstNonBlank", 1, "OnChar");
+        break;
+      }
+      case "yank": {
+        const home = spanHome(this.#buffer(), span);
+        this.#cursor = clamp(this.#buffer(), home, this.#bound());
+        break;
+      }
+      case "delete": {
+        const range = spanDeleteRange(this.#buffer(), span);
+        const start = spanHome(this.#buffer(), span);
+        const linewise = spanIsLinewise(span);
+        this.#edit(range.start, range.end, "", effects);
+        this.#cursor = clamp(this.#buffer(), start, this.#bound());
+        if (linewise) {
+          this.#cursor = this.#step("FirstNonBlank", 1, "OnChar");
+        }
+        break;
+      }
+      case "change": {
+        const range = spanContentRange(this.#buffer(), span);
+        this.#edit(range.start, range.end, "", effects);
+        this.#cursor = range.start;
+        this.#openInsertGroup();
+        this.#setMode("Insert", effects);
+        break;
+      }
+    }
+    if (wasVisual && this.#isVisual()) {
+      this.#leaveVisual(false, effects);
+    }
+    this.#sticky = graphemeCol(this.#buffer(), this.#cursor);
+  }
+
+  #shiftRows(
+    first: number,
+    last: number,
+    operator: "shiftRight" | "shiftLeft",
+    amount: number,
+    effects: Effect[],
+  ): void {
+    const columns = Math.max(0, this.#indent.shiftWidth) * Math.max(0, amount);
+    const tabWidth = Math.max(1, this.#indent.tabWidth);
+    for (let row = last; row >= first; row--) {
+      const content = this.#buffer().rowContentRange(row);
+      if (content.start === content.end) {
+        continue;
+      }
+      const text = this.#buffer().textIn(content.start, content.end);
+      let indentLen = 0;
+      while (indentLen < text.length) {
+        const ch = text[indentLen];
+        if (ch !== " " && ch !== "\t") {
+          break;
+        }
+        indentLen += 1;
+      }
+      let old = 0;
+      for (let i = 0; i < indentLen; i++) {
+        if (text[i] === " ") {
+          old += 1;
+        } else {
+          old += tabWidth - (old % tabWidth);
+        }
+      }
+      const next =
+        operator === "shiftRight"
+          ? old + columns
+          : Math.max(0, old - columns);
+      const rendered = this.#indent.useTabs
+        ? "\t".repeat(Math.floor(next / tabWidth)) + " ".repeat(next % tabWidth)
+        : " ".repeat(next);
+      if (rendered !== text.slice(0, indentLen)) {
+        this.#edit(
+          content.start,
+          content.start + indentLen,
+          rendered,
+          effects,
+        );
+      }
+    }
+  }
+
+  #yank(span: Span): void {
+    const buffer = this.#buffer();
+    if (span.kind === "chars") {
+      this.#register = {
+        text: buffer.textIn(span.start, span.end),
+        linewise: false,
+      };
+      this.#setMark("[", span.start);
+      this.#setMark("]", this.#previousGrapheme(span.end));
+      return;
+    }
+    const start = buffer.rowRange(span.first).start;
+    const end = buffer.rowRange(span.last).end;
+    let text = buffer.textIn(start, end);
+    if (!text.endsWith("\n")) {
+      text += "\n";
+    }
+    this.#register = { text, linewise: true };
+    this.#setMark("[", start);
+    this.#setMark("]", this.#previousGrapheme(end));
+  }
+
+  #enterVisual(kind: "Char" | "Line", effects: Effect[]): void {
+    const mode: Mode = kind === "Char" ? "Visual(Char)" : "Visual(Line)";
+    if (this.#mode === mode) {
+      this.#leaveVisual(true, effects);
+      return;
+    }
+    this.#anchor = this.#cursor;
+    this.#setMode(mode, effects);
+  }
+
+  #leaveVisual(rememberSelection: boolean, effects: Effect[]): void {
+    if (rememberSelection) {
+      this.#rememberVisualSelection();
+    }
+    this.#anchor = undefined;
+    this.#setMode("Normal", effects);
+  }
+
+  #rememberVisualSelection(): void {
+    const selection = this.selection();
+    if (selection === null) {
+      return;
+    }
+    this.#setMark("<", selection.start);
+    this.#setMark(">", this.#previousGrapheme(selection.end));
+  }
+
+  #move(motion: Motion, count: number | undefined, _effects: Effect[]): void {
+    const landed = this.#resolveMotion(motion, count, this.#bound());
+    if (landed !== this.#cursor && pushesJump(motion)) {
+      this.#pushJump();
+    }
     this.#cursor = landed;
     this.#updateSticky(motion);
   }
@@ -385,7 +858,12 @@ export class JsEngine implements Engine {
       this.#cursor = this.#step("Left", 1, "PastEnd");
       this.#setMark("^", this.#cursor);
     }
-    this.#setMode("Normal", effects);
+    if (this.#isVisual()) {
+      this.#leaveVisual(true, effects);
+    } else {
+      this.#anchor = undefined;
+      this.#setMode("Normal", effects);
+    }
     if (leavingInsert) {
       this.#sticky = graphemeCol(this.#buffer(), this.#cursor);
     }
@@ -445,21 +923,90 @@ export class JsEngine implements Engine {
       effects.push({ type: "Bell" });
       return;
     }
-    this.#yankChars(range.start, range.end);
+    this.#yank({ kind: "chars", start: range.start, end: range.end });
     this.#edit(range.start, range.end, "", effects);
     this.#placeCursor(range.start);
   }
 
-  #deleteRow(repeat: number, effects: Effect[]): void {
-    const buffer = this.#buffer();
-    const first = this.cursorPoint().row;
-    const last = Math.min(first + Math.max(1, repeat) - 1, buffer.lenRows() - 1);
-    const span = rowSpan(buffer, first, last);
-    const home = buffer.rowContentRange(first).start;
-    this.#yankLines(first, last);
-    this.#edit(span.start, span.end, "", effects);
-    this.#cursor = clamp(this.#buffer(), home, this.#bound());
-    this.#cursor = firstNonBlank(this.#buffer(), this.cursorPoint().row);
+  #replaceChar(ch: string, repeat: number, effects: Effect[]): void {
+    const end = this.#step("Right", repeat, "PastEnd");
+    if (end === this.#cursor) {
+      effects.push({ type: "Bell" });
+      return;
+    }
+    this.#edit(this.#cursor, end, ch.repeat(repeat), effects);
+  }
+
+  #swapCase(repeat: number, effects: Effect[]): void {
+    const end = this.#step("Right", repeat, "PastEnd");
+    if (end === this.#cursor) {
+      effects.push({ type: "Bell" });
+      return;
+    }
+    const swapped = [...this.#buffer().textIn(this.#cursor, end)]
+      .map(swapCase)
+      .join("");
+    this.#edit(this.#cursor, end, swapped, effects);
+    this.#placeCursor(end);
+  }
+
+  #joinRows(rows: number, effects: Effect[]): void {
+    for (let i = 1; i < Math.max(rows, 2); i++) {
+      const row = this.cursorPoint().row;
+      if (row + 1 >= this.#buffer().lenRows()) {
+        effects.push({ type: "Bell" });
+        return;
+      }
+      const end = this.#buffer().rowContentRange(row).end;
+      const next = this.#buffer().rowRange(row + 1);
+      const nextText = this.#buffer().textIn(next.start, next.end);
+      const trimmed = nextText.trimStart();
+      const leading = nextText.length - trimmed.length;
+      const separator =
+        trimmed === "" || end === this.#buffer().rowRange(row).start ? "" : " ";
+      this.#edit(end, next.start + leading, separator, effects);
+      this.#cursor = end;
+    }
+    this.#sticky = graphemeCol(this.#buffer(), this.#cursor);
+  }
+
+  #put(before: boolean, repeat: number, effects: Effect[]): void {
+    if (this.#register.text === "") {
+      effects.push({ type: "Bell" });
+      return;
+    }
+    let text = this.#register.text.repeat(repeat);
+    if (this.#register.linewise) {
+      const row = this.cursorPoint().row;
+      const rows = this.#buffer().rowRange(row);
+      if (!text.endsWith("\n")) {
+        text += "\n";
+      }
+      const lastByte = this.#buffer().lenBytes();
+      const breakFirst =
+        !before &&
+        rows.end === lastByte &&
+        lastByte > 0 &&
+        this.#buffer().byte(lastByte - 1) !== 0x0a;
+      let at: number;
+      if (before) {
+        at = rows.start;
+      } else if (breakFirst) {
+        at = rows.end;
+        text = `\n${text.endsWith("\n") ? text.slice(0, -1) : text}`;
+      } else {
+        at = rows.end;
+      }
+      this.#edit(at, at, text, effects);
+      const home = breakFirst ? at + 1 : at;
+      this.#cursor = this.#stepFrom(home, "FirstNonBlank", 1, "OnChar");
+    } else {
+      const at = before
+        ? this.#cursor
+        : this.#step("Right", 1, "PastEnd");
+      this.#edit(at, at, text, effects);
+      this.#cursor = clamp(this.#buffer(), at + utf8Len(text) - 1, "OnChar");
+    }
     this.#sticky = graphemeCol(this.#buffer(), this.#cursor);
   }
 
@@ -506,15 +1053,27 @@ export class JsEngine implements Engine {
     effects.push({ type: "ModeChanged", mode });
   }
 
-  #step(motion: Motion, times: number, bound: Bound): number {
+  #resolveMotion(
+    motion: Motion,
+    count: number | undefined,
+    bound: Bound,
+  ): number {
     return resolve(
       this.#buffer(),
       this.#cursor,
       motion,
-      times,
+      count,
       this.#sticky,
       bound,
     );
+  }
+
+  #step(motion: Motion, times: number, bound: Bound): number {
+    return this.#stepFrom(this.#cursor, motion, times, bound);
+  }
+
+  #stepFrom(at: number, motion: Motion, times: number, bound: Bound): number {
+    return resolve(this.#buffer(), at, motion, times, this.#sticky, bound);
   }
 
   #prevPosition(): number {
@@ -564,6 +1123,15 @@ export class JsEngine implements Engine {
     this.#marks.set(name, offset);
   }
 
+  #pushJump(): void {
+    this.#jumps.length = this.#jumpAt;
+    this.#jumps.push(this.#cursor);
+    if (this.#jumps.length > MAX_JUMPS) {
+      this.#jumps.shift();
+    }
+    this.#jumpAt = this.#jumps.length;
+  }
+
   #shiftPositions(edit: Edit): void {
     for (let i = 0; i < this.#jumps.length; i++) {
       this.#jumps[i] = shift(edit, this.#jumps[i] ?? 0);
@@ -597,28 +1165,6 @@ export class JsEngine implements Engine {
     this.#setMark("]", this.#previousGrapheme(end));
   }
 
-  #yankChars(start: number, end: number): void {
-    this.#register = {
-      text: this.#buffer().textIn(start, end),
-      linewise: false,
-    };
-    this.#setMark("[", start);
-    this.#setMark("]", this.#previousGrapheme(end));
-  }
-
-  #yankLines(first: number, last: number): void {
-    const buffer = this.#buffer();
-    const start = buffer.rowRange(first).start;
-    const end = buffer.rowRange(last).end;
-    let text = buffer.textIn(start, end);
-    if (!text.endsWith("\n")) {
-      text += "\n";
-    }
-    this.#register = { text, linewise: true };
-    this.#setMark("[", start);
-    this.#setMark("]", this.#previousGrapheme(end));
-  }
-
   #openInsertGroup(): void {
     if (!this.#insertGroup) {
       this.#doc.history.beginGroup(this.#cursor);
@@ -633,8 +1179,33 @@ export class JsEngine implements Engine {
     }
   }
 
+  #countSlot(): number | undefined {
+    return this.#operator === undefined ? this.#countBefore : this.#countAfter;
+  }
+
+  #addDigit(digit: number): void {
+    if (this.#operator === undefined) {
+      this.#countBefore = (this.#countBefore ?? 0) * 10 + digit;
+    } else {
+      this.#countAfter = (this.#countAfter ?? 0) * 10 + digit;
+    }
+  }
+
+  #effectiveCount(): number | undefined {
+    if (this.#countBefore === undefined && this.#countAfter === undefined) {
+      return undefined;
+    }
+    return (this.#countBefore ?? 1) * (this.#countAfter ?? 1);
+  }
+
   #isIdle(): boolean {
-    return this.#pending.length === 0 && this.#count === undefined && this.#operator === undefined;
+    return (
+      this.#pending.length === 0 &&
+      this.#countBefore === undefined &&
+      this.#countAfter === undefined &&
+      this.#operator === undefined &&
+      this.#awaiting === undefined
+    );
   }
 
   #takePending(): Key[] {
@@ -645,8 +1216,15 @@ export class JsEngine implements Engine {
 
   #resetPending(): void {
     this.#pending = [];
-    this.#count = undefined;
+    this.#countBefore = undefined;
+    this.#countAfter = undefined;
     this.#operator = undefined;
+    this.#awaiting = undefined;
+  }
+
+  #reject(): Effect[] {
+    this.#resetPending();
+    return [{ type: "Bell" }];
   }
 }
 
@@ -661,6 +1239,13 @@ type InsertAt =
   | "EndOfRow"
   | "RowBelow"
   | "RowAbove";
+
+type InsertAction =
+  | { type: "insertText"; text: string }
+  | { type: "insertNewline" }
+  | { type: "deleteBack" }
+  | { type: "deleteWordBack" }
+  | { type: "insertMove"; motion: Motion };
 
 function insertEntry(key: Key): InsertAt | undefined {
   switch (asText(key)) {
@@ -681,7 +1266,7 @@ function insertEntry(key: Key): InsertAt | undefined {
   }
 }
 
-function normalMotion(key: Key): Motion | undefined {
+function commandMotion(key: Key): Motion | undefined {
   const ch = asText(key);
   if (ch === "h") {
     return "Left";
@@ -703,6 +1288,9 @@ function normalMotion(key: Key): Motion | undefined {
   }
   if (ch === "$") {
     return "LastColumn";
+  }
+  if (ch === "G") {
+    return "GotoRow";
   }
   if (isCode(key, "Left")) {
     return "Left";
@@ -739,6 +1327,45 @@ function insertMotion(key: Key): Motion | undefined {
     return "Up";
   }
   return undefined;
+}
+
+function operatorOf(key: Key): Operator | undefined {
+  switch (asText(key)) {
+    case "d":
+      return "delete";
+    case "c":
+      return "change";
+    case "y":
+      return "yank";
+    case ">":
+      return "shiftRight";
+    case "<":
+      return "shiftLeft";
+    default:
+      return undefined;
+  }
+}
+
+function yanks(operator: Operator): boolean {
+  return operator === "delete" || operator === "change" || operator === "yank";
+}
+
+function forcesLinewise(operator: Operator): boolean {
+  return operator === "shiftRight" || operator === "shiftLeft";
+}
+
+function pushesJump(motion: Motion): boolean {
+  return motion === "GotoRow" || motion === "GotoFirstRow";
+}
+
+function swapCase(ch: string): string {
+  if (ch !== ch.toLowerCase()) {
+    return [...ch.toLowerCase()][0] ?? ch;
+  }
+  if (ch !== ch.toUpperCase()) {
+    return [...ch.toUpperCase()][0] ?? ch;
+  }
+  return ch;
 }
 
 function isCode(key: Key, type: Key["code"]["type"]): boolean {

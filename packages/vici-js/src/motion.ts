@@ -1,5 +1,5 @@
-// Grapheme / word motions. Outcomes match vici `motion.rs` for the 4b
-// subset: `h j k l 0 ^ $` plus a word-backward used by insert `<C-w>`.
+// Grapheme / word motions. Outcomes match vici `motion.rs` for the 4c
+// subset: `h j k l 0 ^ $ G gg` plus a word-backward used by insert `<C-w>`.
 
 import type { Buffer } from "./buffer.js";
 
@@ -23,7 +23,64 @@ export type Motion =
   | "FirstColumn"
   | "FirstNonBlank"
   | "LastColumn"
-  | "WordBackward";
+  | "WordBackward"
+  | "GotoRow"
+  | "GotoFirstRow";
+
+export type Span =
+  | { kind: "chars"; start: number; end: number }
+  | { kind: "lines"; first: number; last: number };
+
+/** Whole-row operator target: `j`/`k`/`G`/`gg`. */
+export function isLinewise(motion: Motion): boolean {
+  return (
+    motion === "Down" ||
+    motion === "Up" ||
+    motion === "GotoRow" ||
+    motion === "GotoFirstRow"
+  );
+}
+
+/** Destination character is included: `$` in this slice. */
+export function isInclusive(motion: Motion): boolean {
+  return motion === "LastColumn";
+}
+
+export function spanIsLinewise(span: Span): boolean {
+  return span.kind === "lines";
+}
+
+/** In-place rewrite: linewise stops before the last row's terminator. */
+export function spanContentRange(
+  buffer: Buffer,
+  span: Span,
+): { start: number; end: number } {
+  if (span.kind === "chars") {
+    return { start: span.start, end: span.end };
+  }
+  return {
+    start: buffer.rowRange(span.first).start,
+    end: buffer.rowContentRange(span.last).end,
+  };
+}
+
+/** Delete range: linewise takes a row break with it (`rowSpan`). */
+export function spanDeleteRange(
+  buffer: Buffer,
+  span: Span,
+): { start: number; end: number } {
+  if (span.kind === "chars") {
+    return { start: span.start, end: span.end };
+  }
+  return rowSpan(buffer, span.first, span.last);
+}
+
+export function spanHome(buffer: Buffer, span: Span): number {
+  if (span.kind === "chars") {
+    return span.start;
+  }
+  return buffer.rowContentRange(span.first).start;
+}
 
 /** Byte offsets of every grapheme boundary in `row`, including the row end. */
 export function graphemeBoundaries(buffer: Buffer, row: number): number[] {
@@ -110,11 +167,11 @@ export function resolve(
   buffer: Buffer,
   from: number,
   motion: Motion,
-  count: number,
+  count: number | undefined,
   sticky: number,
   bound: Bound,
 ): number {
-  const repeat = Math.max(1, count);
+  const repeat = count === undefined ? 1 : Math.max(1, count);
   const point = buffer.byteToPoint(from);
   const rows = buffer.lenRows();
   let target: number;
@@ -165,6 +222,20 @@ export function resolve(
         bound,
       );
       break;
+    case "GotoRow": {
+      const targetRow =
+        count === undefined
+          ? rows - 1
+          : Math.min(Math.max(0, count - 1), rows - 1);
+      target = firstNonBlank(buffer, targetRow);
+      break;
+    }
+    case "GotoFirstRow": {
+      const targetRow =
+        count === undefined ? 0 : Math.min(Math.max(0, count - 1), rows - 1);
+      target = firstNonBlank(buffer, targetRow);
+      break;
+    }
     case "WordBackward": {
       let pos = from;
       for (let i = 0; i < repeat; i++) {

@@ -13,7 +13,7 @@ Do not push. Do not tick `/home/dave/w/vici/FEATURES.txt`.
 - [ ] Phase 4 — Idiomatic TypeScript engine
   - [x] 4a — Key notation + UTF-8 piece table + Edit/Point + undo
   - [x] 4b — Engine skeleton: typeKeys/handleKey, Normal/Insert/Replace, hjkl0^$, insert entries, x, undo/redo
-  - [ ] 4c — Counts, operators d c y > <, doubles, visual, p P J r ~
+  - [x] 4c — Counts, operators d c y > <, doubles, visual, p P J r ~
   - [ ] 4d — Word/find/object/search/pair/paragraph/screen motions
   - [ ] 4e — Surround, marks, jumps, macros, ., gu gU g~, remaining edges
 - [ ] Phase 5 — Fixture parity for TS
@@ -199,3 +199,33 @@ operator grammar — 4c must replace it. `2d` stays pending and is
 not in the allowlist. `Intl.Segmenter` vs `unicode-segmentation`
 is untested on combining-mark fixtures (none in 4b). Indent /
 viewport are stored but unused until 4c.
+
+## Phase 4c done-note
+
+**What landed.** The 4b `dd` special case is a real operator
+grammar on the same single dispatcher. Prefix × motion counts
+multiply (`2d3j` → 6); `None` vs `Some(1)` is load-bearing for
+`G`/`gg`/`1G`. Doubles `dd`/`cc`/`yy`/`>>`/`<<` are linewise on
+the current row. Motions this slice: `h j k l 0 ^ $ G gg`. `$`
+is inclusive; `j`/`k`/`G`/`gg` are linewise. Visual `v`/`V`
+toggle or switch; selection includes the character under the
+cursor; visual `d c y > <` act on it. `p`/`P` honour the
+register's linewise flag; `J` joins (count is rows, default 2);
+`r{char}` and `~` take a count; `:` emits `CommandPrompt`.
+`D`/`C` are `d$`/`c$`. Change-session is one undo group. Last-row
+`dd` still eats the previous `\n`.
+
+**Fixtures.** 167 allowlist cases match `editor_cases.snap` via
+`renderCase` (32 from 4b + 135 new). Dropped three that need 4d
+`w`: `change-session-undo` (`cw`), `delete-end-command` (`wD`),
+`change-end-command` (`wC`). No `cw` README smoke — left for 4d.
+
+**Gates.** `npm test` green: `tsc --noEmit` on contract + vici-js;
+232 vitest tests (17 contract + 47 4a + 168 4b/4c fixtures).
+No wasm rebuild.
+
+**Leftover risk.** Last-row newline and count multiplication are
+the easy places to regress (covered by the linewise matrix and
+`2dd`/`d3j`/`2D`, but `2d3j` itself is not a named case). `~`
+uses JS case mapping; `ß` → `SS` is 4e. No word/find/object
+motions, no `.` / surround / marks / macros.
