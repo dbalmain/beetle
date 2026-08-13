@@ -10,13 +10,13 @@ Do not push. Do not tick `/home/dave/w/vici/FEATURES.txt`.
 - [x] Phase 1 — Contract package
 - [x] Phase 2 — WASM wrapper
 - [x] Phase 3 — WASM is the oracle
-- [ ] Phase 4 — Idiomatic TypeScript engine
+- [x] Phase 4 — Idiomatic TypeScript engine
   - [x] 4a — Key notation + UTF-8 piece table + Edit/Point + undo
   - [x] 4b — Engine skeleton: typeKeys/handleKey, Normal/Insert/Replace, hjkl0^$, insert entries, x, undo/redo
   - [x] 4c — Counts, operators d c y > <, doubles, visual, p P J r ~
   - [x] 4d — Word/find/object/search/pair/paragraph/screen motions
-  - [ ] 4e — Surround, marks, jumps, macros, ., gu gU g~, remaining edges
-- [ ] Phase 5 — Fixture parity for TS
+  - [x] 4e — Surround, marks, jumps, macros, ., gu gU g~, remaining edges
+- [ ] Phase 5 — Fixture parity for TS (harness-only: drop the allowlist; all 411 already match)
 - [ ] Phase 6 — Benchmarks and size
 - [ ] Phase 7 — README results + wrap
 
@@ -276,3 +276,44 @@ mapping" rather than Rust `is_uppercase`; ASCII + `日本` is
 what the suite hits. `cw`≡`ce` is a Change-only rewrite of
 `w`/`W`. Jump *navigation* is in; `'a` / `` `a `` / surround /
 macros / `.` / `gu` `gU` `g~` are 4e.
+
+## Phase 4e done-note
+
+**What landed.** The remaining editor surface on the same dispatcher.
+Outcomes copied from vici `editor.rs` / `keymap.rs` / `pending.rs`:
+
+- `gu` `gU` `g~` (and visual `u` `U` `~`) over motions / objects /
+  current-row / visual. They do not fill the register. Recase is an
+  explicit mapper (`src/case.ts`) matching Rust `char::to_uppercase` /
+  `to_lowercase` / one-to-one `swap_case` — not JS `toUpperCase`.
+  `ß` → `SS`. Doubled `gUU` / `gUgU` / `guu` / `g~~`.
+- `.` stores and replays **keys**. `3.` replays the whole script three
+  times. Visual `.` prepends the keys that shaped the selection.
+  `MAX_REPLAY_DEPTH = 64`, shared with macros.
+- `q{reg}` / `q` macros. Closing `q` is not recorded. `@a` replays
+  keys with count. Self-referential macros stop at depth 64.
+- User marks `a–z`; `` `a `` exact, `'a` first-non-blank. Auto `'<`
+  `'>` `'[` `']` `'^`. `''` / ```` toggle the last jump. Gravity via
+  `Edit.shift`; deleted offsets collapse. Jump list cap 100.
+- Surround: `cs` / `ds` / visual `S`. Opening delimiter pads, closing
+  does not. `ys` stays unbound. Undo is one step.
+
+**Fixtures.** 411 allowlist cases match `editor_cases.snap` via
+`renderCase` (269 from 4b–4d + 142 remaining, including leftover
+`put-after-multibyte-yank` / `put-before-multibyte-yank` /
+`paragraph-jump`). None skipped. The last snap block
+(`surround-leaves-register-untouched`) needs the same insta trailing-
+newline trim as phase 3 — engine output is a blank line; insta
+collapsed it.
+
+**Gates.** `npm test` green: `tsc --noEmit` on contract + vici-js;
+all 411 fixture cases plus 4a unit tests. No wasm rebuild.
+
+**Leftover risk.** Case mapper covers SpecialCasing one-to-many, ASCII,
+Latin-1, and Latin Extended-A even/odd pairs. Full Unicode Simple
+mapping is not vendored; a scalar outside that set stays unchanged.
+`Intl.Segmenter` vs `unicode-segmentation` is still the only other
+known skew (none of the 411 disagree).
+
+**Phase 5.** Harness-only: drop the allowlist and iterate every parsed
+case. Behaviour is already at 411/411.

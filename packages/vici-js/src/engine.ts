@@ -1,6 +1,6 @@
-// Single-dispatcher Engine. Matches vici outcomes for 4d: word / find /
-// object / search / pair / paragraph / screen motions on the 4c operator
-// grammar. Operator-pending is parser state, not a mode.
+// Single-dispatcher Engine. Matches vici outcomes for 4e: case operators,
+// `.` key-replay, macros, marks / jumps, and nvim-surround-shaped cs/ds/S.
+// Operator-pending is parser state, not a mode.
 
 import type {
   Edit,
@@ -15,12 +15,14 @@ import type {
 } from "@beetle/contract";
 import { Mods } from "@beetle/contract";
 
+import { recase, swapCase } from "./case.js";
 import { shift } from "./edit.js";
 import { Document } from "./document.js";
 import { asDigit, asText, keys, render } from "./key.js";
 import {
   STICKY_END,
   clamp,
+  delimiters,
   findOf,
   graphemeCol,
   isInclusive,
@@ -49,8 +51,17 @@ const DEFAULT_INDENT: Indent = {
 };
 
 const MAX_JUMPS = 100;
+const MAX_REPLAY_DEPTH = 64;
 
-type Operator = "delete" | "change" | "yank" | "shiftRight" | "shiftLeft";
+type Operator =
+  | "delete"
+  | "change"
+  | "yank"
+  | "shiftRight"
+  | "shiftLeft"
+  | "lower"
+  | "upper"
+  | "swapCase";
 
 type Target =
   | { type: "motion"; motion: Motion }
@@ -73,6 +84,13 @@ type Cmd =
   | { type: "swapCase" }
   | { type: "undo" }
   | { type: "redo" }
+  | { type: "repeat" }
+  | { type: "recordMacro"; register: string }
+  | { type: "playMacro"; register: string }
+  | { type: "setMark"; name: string }
+  | { type: "changeSurround"; from: string; to: string }
+  | { type: "deleteSurround"; target: string }
+  | { type: "surroundSelection"; delimiter: string }
   | { type: "scroll"; scroll: Scroll }
   | { type: "jumpBack" }
   | { type: "jumpForward" }
@@ -82,8 +100,15 @@ type Awaiting =
   | "g"
   | "z"
   | "replace"
+  | "recordMacro"
+  | "playMacro"
+  | "setMark"
   | { kind: "find"; backward: boolean; till: boolean }
-  | { kind: "object"; scope: ObjectScope };
+  | { kind: "object"; scope: ObjectScope }
+  | { kind: "surroundTarget" }
+  | { kind: "surroundTo"; from: string }
+  | { kind: "surroundSelection" }
+  | { kind: "gotoMark"; exact: boolean };
 
 export class JsEngine implements Engine {
   #doc: Document;
@@ -108,6 +133,9 @@ export class JsEngine implements Engine {
   #lastChange: Key[] = [];
   #changeKeys: Key[] | null = null;
   #visualKeys: Key[] = [];
+  #recording: { register: string; script: Key[] } | null = null;
+  #macros = new Map<string, Key[]>();
+  #replayDepth = 0;
   #insertGroup = false;
 
   constructor(text = "") {
@@ -127,6 +155,23 @@ export class JsEngine implements Engine {
   }
 
   handleKey(key: Key): Effect[] {
+    // A bare `q` stops recording before the parser can treat it as
+    // "await a register". Closing `q` is not recorded.
+    if (
+      this.#replayDepth === 0 &&
+      this.#mode === "Normal" &&
+      this.#isIdle() &&
+      asText(key) === "q" &&
+      this.#recording !== null
+    ) {
+      const register = this.#recording.register;
+      this.#macros.set(register, this.#recording.script);
+      this.#recording = null;
+      return [{ type: "RecordingStopped", register }];
+    }
+    if (this.#replayDepth === 0 && this.#recording !== null) {
+      this.#recording.script.push(key);
+    }
     if (this.#changeKeys !== null) {
       this.#changeKeys.push(key);
     }
@@ -152,6 +197,7 @@ export class JsEngine implements Engine {
     this.#lastChange = [];
     this.#changeKeys = null;
     this.#visualKeys = [];
+    this.#recording = null;
     this.#insertGroup = false;
   }
 
@@ -232,7 +278,7 @@ export class JsEngine implements Engine {
   }
 
   recording(): string | null {
-    return null;
+    return this.#recording?.register ?? null;
   }
 
   #buffer() {
@@ -296,10 +342,99 @@ export class JsEngine implements Engine {
       return this.#finish({ type: "replaceChar", char: ch });
     }
 
+    if (this.#awaiting === "recordMacro") {
+      this.#pending.push(key);
+      const ch = asText(key);
+      if (ch === undefined) {
+        return this.#reject();
+      }
+      return this.#finish({ type: "recordMacro", register: ch });
+    }
+
+    if (this.#awaiting === "playMacro") {
+      this.#pending.push(key);
+      const ch = asText(key);
+      if (ch === undefined) {
+        return this.#reject();
+      }
+      return this.#finish({ type: "playMacro", register: ch });
+    }
+
+    if (this.#awaiting === "setMark") {
+      this.#pending.push(key);
+      const ch = asText(key);
+      if (ch === undefined || !isAsciiLower(ch)) {
+        return this.#reject();
+      }
+      return this.#finish({ type: "setMark", name: ch });
+    }
+
+    if (typeof this.#awaiting === "object" && this.#awaiting.kind === "gotoMark") {
+      this.#pending.push(key);
+      const ch = asText(key);
+      const exact = this.#awaiting.exact;
+      if (ch === undefined || !isGotoMarkName(ch)) {
+        return this.#reject();
+      }
+      return this.#finishMotion({ type: "Mark", name: ch, exact });
+    }
+
+    if (
+      typeof this.#awaiting === "object" &&
+      this.#awaiting.kind === "surroundTarget"
+    ) {
+      this.#pending.push(key);
+      const ch = asText(key);
+      if (ch === undefined) {
+        return this.#reject();
+      }
+      if (this.#operator === "delete") {
+        return this.#finish({ type: "deleteSurround", target: ch });
+      }
+      if (this.#operator === "change") {
+        this.#awaiting = { kind: "surroundTo", from: ch };
+        return [];
+      }
+      return this.#reject();
+    }
+
+    if (
+      typeof this.#awaiting === "object" &&
+      this.#awaiting.kind === "surroundTo"
+    ) {
+      this.#pending.push(key);
+      const ch = asText(key);
+      if (ch === undefined) {
+        return this.#reject();
+      }
+      return this.#finish({
+        type: "changeSurround",
+        from: this.#awaiting.from,
+        to: ch,
+      });
+    }
+
+    if (
+      typeof this.#awaiting === "object" &&
+      this.#awaiting.kind === "surroundSelection"
+    ) {
+      this.#pending.push(key);
+      const ch = asText(key);
+      if (ch === undefined) {
+        return this.#reject();
+      }
+      return this.#finish({ type: "surroundSelection", delimiter: ch });
+    }
+
     if (this.#awaiting === "g") {
       this.#pending.push(key);
+      this.#awaiting = undefined;
       if (asText(key) === "g") {
         return this.#finishMotion("GotoFirstRow");
+      }
+      const caseOp = caseOperatorOf(asText(key));
+      if (caseOp !== undefined) {
+        return this.#applyOperator(caseOp);
       }
       return this.#reject();
     }
@@ -362,25 +497,7 @@ export class JsEngine implements Engine {
 
     const op = operatorOf(key);
     if (op !== undefined) {
-      if (this.#isVisual()) {
-        return this.#finish({
-          type: "operate",
-          operator: op,
-          target: { type: "selection" },
-        });
-      }
-      if (this.#operator === undefined) {
-        this.#operator = op;
-        return [];
-      }
-      if (this.#operator === op) {
-        return this.#finish({
-          type: "operate",
-          operator: op,
-          target: { type: "currentRow" },
-        });
-      }
-      return this.#reject();
+      return this.#applyOperator(op);
     }
 
     const ch = asText(key);
@@ -391,9 +508,36 @@ export class JsEngine implements Engine {
         target: { type: "selection" },
       });
     }
+    if (this.#isVisual() && ch === "s") {
+      return this.#applyOperator("change");
+    }
+    if (this.#isVisual() && ch === "S") {
+      this.#awaiting = { kind: "surroundSelection" };
+      return [];
+    }
+    const caseOp = caseOperatorOf(ch);
+    if (caseOp !== undefined && (this.#operator !== undefined || this.#isVisual())) {
+      return this.#applyOperator(caseOp);
+    }
+    if (ch === "s" && this.#operator !== undefined) {
+      if (this.#operator === "change" || this.#operator === "delete") {
+        this.#awaiting = { kind: "surroundTarget" };
+        return [];
+      }
+      return this.#reject();
+    }
 
     if (ch === "g") {
       this.#awaiting = "g";
+      return [];
+    }
+
+    if (ch === "'") {
+      this.#awaiting = { kind: "gotoMark", exact: false };
+      return [];
+    }
+    if (ch === "`") {
+      this.#awaiting = { kind: "gotoMark", exact: true };
       return [];
     }
 
@@ -442,6 +586,22 @@ export class JsEngine implements Engine {
 
     if (this.#operator !== undefined) {
       return this.#reject();
+    }
+
+    if (ch === ".") {
+      return this.#finish({ type: "repeat" });
+    }
+    if (ch === "q") {
+      this.#awaiting = "recordMacro";
+      return [];
+    }
+    if (ch === "@") {
+      this.#awaiting = "playMacro";
+      return [];
+    }
+    if (ch === "m") {
+      this.#awaiting = "setMark";
+      return [];
     }
 
     if (ch === "v") {
@@ -568,6 +728,28 @@ export class JsEngine implements Engine {
     return this.#finish({ type: "move", motion });
   }
 
+  #applyOperator(op: Operator): Effect[] {
+    if (this.#isVisual()) {
+      return this.#finish({
+        type: "operate",
+        operator: op,
+        target: { type: "selection" },
+      });
+    }
+    if (this.#operator === undefined) {
+      this.#operator = op;
+      return [];
+    }
+    if (this.#operator === op) {
+      return this.#finish({
+        type: "operate",
+        operator: op,
+        target: { type: "currentRow" },
+      });
+    }
+    return this.#reject();
+  }
+
   #finish(cmd: Cmd, insertConsumed?: readonly Key[]): Effect[] {
     const count = this.#effectiveCount();
     const consumed = insertConsumed ?? this.#takePending();
@@ -630,18 +812,23 @@ export class JsEngine implements Engine {
     const repeat = count ?? 1;
     switch (cmd.type) {
       case "move": {
-        this.#rememberSearch(cmd.motion);
-        const landed = this.#resolveMotion(cmd.motion, count, this.#bound());
+        const motion = this.#resolveMark(cmd.motion);
+        if (motion === undefined) {
+          effects.push({ type: "Bell" });
+          break;
+        }
+        this.#rememberSearch(motion);
+        const landed = this.#resolveMotion(motion, count, this.#bound());
         if (landed === undefined) {
           effects.push({ type: "Bell" });
           break;
         }
-        if (landed !== this.#cursor && pushesJump(cmd.motion)) {
+        if (landed !== this.#cursor && pushesJump(motion)) {
           this.#pushJump();
         }
         this.#cursor = landed;
-        this.#rememberFind(cmd.motion);
-        this.#updateSticky(cmd.motion);
+        this.#rememberFind(motion);
+        this.#updateSticky(motion);
         break;
       }
       case "operate": {
@@ -713,6 +900,40 @@ export class JsEngine implements Engine {
       case "redo":
         this.#redo(effects);
         break;
+      case "repeat": {
+        const script = this.#lastChange.slice();
+        if (script.length === 0) {
+          effects.push({ type: "Bell" });
+        } else {
+          effects.push(...this.#replay(script, repeat));
+        }
+        break;
+      }
+      case "recordMacro":
+        this.#recording = { register: cmd.register, script: [] };
+        effects.push({ type: "RecordingStarted", register: cmd.register });
+        break;
+      case "playMacro": {
+        const script = this.#macros.get(cmd.register);
+        if (script === undefined) {
+          effects.push({ type: "Bell" });
+        } else {
+          effects.push(...this.#replay(script, repeat));
+        }
+        break;
+      }
+      case "setMark":
+        this.#setMark(cmd.name, this.#cursor);
+        break;
+      case "changeSurround":
+        this.#changeSurround(cmd.from, cmd.to, effects);
+        break;
+      case "deleteSurround":
+        this.#deleteSurround(cmd.target, effects);
+        break;
+      case "surroundSelection":
+        this.#surroundSelection(cmd.delimiter, effects);
+        break;
       case "commandPrompt":
         effects.push({ type: "CommandPrompt" });
         break;
@@ -730,7 +951,8 @@ export class JsEngine implements Engine {
 
   #noteChange(cmd: Cmd, consumed: readonly Key[]): void {
     const script =
-      cmd.type === "operate" && cmd.target.type === "selection"
+      (cmd.type === "operate" && cmd.target.type === "selection") ||
+      cmd.type === "surroundSelection"
         ? this.#visualKeys.splice(0)
         : [];
     script.push(...consumed);
@@ -746,6 +968,9 @@ export class JsEngine implements Engine {
         } else if (
           this.#changeKeys === null &&
           (cmd.operator === "delete" ||
+            cmd.operator === "lower" ||
+            cmd.operator === "upper" ||
+            cmd.operator === "swapCase" ||
             cmd.operator === "shiftRight" ||
             cmd.operator === "shiftLeft")
         ) {
@@ -763,6 +988,9 @@ export class JsEngine implements Engine {
       case "joinRows":
       case "put":
       case "swapCase":
+      case "changeSurround":
+      case "deleteSurround":
+      case "surroundSelection":
         if (this.#changeKeys === null) {
           this.#lastChange = script;
         }
@@ -781,7 +1009,11 @@ export class JsEngine implements Engine {
     let span: Span;
     switch (target.type) {
       case "motion": {
-        let motion = target.motion;
+        const resolved = this.#resolveMark(target.motion);
+        if (resolved === undefined) {
+          return undefined;
+        }
+        let motion = resolved;
         if (
           operator === "change" &&
           (motion === "WordForward" || motion === "BigWordForward")
@@ -896,6 +1128,20 @@ export class JsEngine implements Engine {
         this.#shiftRows(span.first, span.last, operator, amount, effects);
         this.#cursor = this.#buffer().rowContentRange(span.first).start;
         this.#cursor = this.#step("FirstNonBlank", 1, "OnChar");
+        break;
+      }
+      case "lower":
+      case "upper":
+      case "swapCase": {
+        const range = spanContentRange(this.#buffer(), span);
+        const start = spanHome(this.#buffer(), span);
+        const linewise = spanIsLinewise(span);
+        const text = this.#buffer().textIn(range.start, range.end);
+        this.#edit(range.start, range.end, recase(text, operator), effects);
+        this.#cursor = clamp(this.#buffer(), start, this.#bound());
+        if (linewise) {
+          this.#cursor = this.#step("FirstNonBlank", 1, "OnChar");
+        }
         break;
       }
       case "yank": {
@@ -1227,6 +1473,147 @@ export class JsEngine implements Engine {
       this.#cursor = clamp(this.#buffer(), at + utf8Len(text) - 1, "OnChar");
     }
     this.#sticky = graphemeCol(this.#buffer(), this.#cursor);
+  }
+
+  #changeSurround(from: string, to: string, effects: Effect[]): void {
+    const pair = surroundPair(to);
+    if (pair === undefined) {
+      effects.push({ type: "Bell" });
+      return;
+    }
+    const found = this.#surroundOffsets(from);
+    if (found === undefined) {
+      effects.push({ type: "Bell" });
+      return;
+    }
+    const { open, close, openWidth, closeWidth } = found;
+    const oldPadding = this.#surroundHasPadding(open, close, openWidth);
+    const closeStart = oldPadding ? close - 1 : close;
+    const closeText = pair.padding ? ` ${pair.close}` : pair.close;
+    this.#edit(closeStart, close + closeWidth, closeText, effects);
+    const openEnd = open + openWidth + (oldPadding ? 1 : 0);
+    const openText = pair.padding ? `${pair.open} ` : pair.open;
+    this.#edit(open, openEnd, openText, effects);
+    this.#placeCursor(open);
+  }
+
+  #deleteSurround(target: string, effects: Effect[]): void {
+    const found = this.#surroundOffsets(target);
+    if (found === undefined) {
+      effects.push({ type: "Bell" });
+      return;
+    }
+    const { open, close, openWidth, closeWidth } = found;
+    const padding = this.#surroundHasPadding(open, close, openWidth);
+    const closeStart = padding ? close - 1 : close;
+    this.#edit(closeStart, close + closeWidth, "", effects);
+    const openEnd = open + openWidth + (padding ? 1 : 0);
+    this.#edit(open, openEnd, "", effects);
+    this.#placeCursor(open);
+  }
+
+  #surroundSelection(delimiter: string, effects: Effect[]): void {
+    const pair = surroundPair(delimiter);
+    if (pair === undefined) {
+      effects.push({ type: "Bell" });
+      return;
+    }
+    const selection = this.selection();
+    if (selection === null) {
+      effects.push({ type: "Bell" });
+      return;
+    }
+    this.#rememberVisualSelection();
+    let home: number;
+    if (this.#mode === "Visual(Line)") {
+      const anchor = this.#anchor ?? this.#cursor;
+      const buffer = this.#buffer();
+      const first = buffer.byteToPoint(Math.min(anchor, this.#cursor)).row;
+      const last = buffer.byteToPoint(Math.max(anchor, this.#cursor)).row;
+      const start = buffer.rowRange(first).start;
+      const end = buffer.rowContentRange(last).end;
+      this.#edit(end, end, `\n${pair.close}`, effects);
+      this.#edit(start, start, `${pair.open}\n`, effects);
+      home = start;
+    } else {
+      const closeText = pair.padding ? ` ${pair.close}` : pair.close;
+      this.#edit(selection.end, selection.end, closeText, effects);
+      const openText = pair.padding ? `${pair.open} ` : pair.open;
+      this.#edit(selection.start, selection.start, openText, effects);
+      home = selection.start;
+    }
+    this.#leaveVisual(false, effects);
+    this.#placeCursor(home);
+  }
+
+  #surroundOffsets(
+    target: string,
+  ):
+    | { open: number; close: number; openWidth: number; closeWidth: number }
+    | undefined {
+    const object = textObjectOfChar(target);
+    if (object === undefined) {
+      return undefined;
+    }
+    let openCh: string;
+    let closeCh: string;
+    if (object.type === "Delimited") {
+      openCh = object.open;
+      closeCh = object.close;
+    } else if (object.type === "Quoted") {
+      openCh = object.quote;
+      closeCh = object.quote;
+    } else {
+      return undefined;
+    }
+    const found = delimiters(this.#buffer(), this.#cursor, object);
+    if (found === undefined) {
+      return undefined;
+    }
+    return {
+      open: found.start,
+      close: found.end,
+      openWidth: utf8Len(openCh),
+      closeWidth: utf8Len(closeCh),
+    };
+  }
+
+  #surroundHasPadding(open: number, close: number, openWidth: number): boolean {
+    const innerStart = open + openWidth;
+    return (
+      innerStart < close - 1 &&
+      this.#buffer().byte(innerStart) === 0x20 &&
+      this.#buffer().byte(close - 1) === 0x20
+    );
+  }
+
+  #replay(script: readonly Key[], times: number): Effect[] {
+    if (this.#replayDepth >= MAX_REPLAY_DEPTH) {
+      return [{ type: "Bell" }];
+    }
+    this.#replayDepth += 1;
+    const effects: Effect[] = [];
+    for (let i = 0; i < times; i++) {
+      for (const key of script) {
+        effects.push(...this.handleKey(key));
+      }
+    }
+    this.#replayDepth -= 1;
+    return effects;
+  }
+
+  #resolveMark(motion: Motion): Motion | undefined {
+    if (typeof motion !== "object" || motion.type !== "Mark") {
+      return motion;
+    }
+    const offset =
+      motion.name === "'" || motion.name === "`"
+        ? this.#jumps[this.#jumps.length - 1]
+        : this.#marks.get(motion.name);
+    if (offset === undefined) {
+      return undefined;
+    }
+    return { type: "ToOffset", offset, linewise: !motion.exact };
   }
 
   #undo(effects: Effect[]): void {
@@ -1734,7 +2121,11 @@ function forcesLinewise(operator: Operator): boolean {
 
 function pushesJump(motion: Motion): boolean {
   if (typeof motion === "object") {
-    return motion.type === "Search";
+    return (
+      motion.type === "Search" ||
+      motion.type === "ToOffset" ||
+      motion.type === "Mark"
+    );
   }
   return (
     motion === "GotoRow" ||
@@ -1819,14 +2210,58 @@ function scrollOf(key: Key): Scroll | undefined {
   return undefined;
 }
 
-function swapCase(ch: string): string {
-  if (ch !== ch.toLowerCase()) {
-    return [...ch.toLowerCase()][0] ?? ch;
+function caseOperatorOf(ch: string | undefined): Operator | undefined {
+  if (ch === "u") {
+    return "lower";
   }
-  if (ch !== ch.toUpperCase()) {
-    return [...ch.toUpperCase()][0] ?? ch;
+  if (ch === "U") {
+    return "upper";
   }
-  return ch;
+  if (ch === "~") {
+    return "swapCase";
+  }
+  return undefined;
+}
+
+function isAsciiLower(ch: string): boolean {
+  return ch.length === 1 && ch >= "a" && ch <= "z";
+}
+
+function isGotoMarkName(ch: string): boolean {
+  return isAsciiLower(ch) || "<>[]^'`".includes(ch);
+}
+
+function surroundPair(
+  delimiter: string,
+): { open: string; close: string; padding: boolean } | undefined {
+  switch (delimiter) {
+    case "(":
+      return { open: "(", close: ")", padding: true };
+    case "[":
+      return { open: "[", close: "]", padding: true };
+    case "{":
+      return { open: "{", close: "}", padding: true };
+    case "<":
+      return { open: "<", close: ">", padding: true };
+    case ")":
+      return { open: "(", close: ")", padding: false };
+    case "]":
+      return { open: "[", close: "]", padding: false };
+    case "}":
+      return { open: "{", close: "}", padding: false };
+    case ">":
+      return { open: "<", close: ">", padding: false };
+    case '"':
+    case "'":
+    case "`":
+      return { open: delimiter, close: delimiter, padding: false };
+    default:
+      return undefined;
+  }
+}
+
+function textObjectOfChar(ch: string): TextObject | undefined {
+  return textObjectOf({ code: { type: "Char", char: ch }, mods: Mods.NONE });
 }
 
 function isCode(key: Key, type: Key["code"]["type"]): boolean {

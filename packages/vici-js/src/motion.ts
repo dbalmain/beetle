@@ -56,7 +56,9 @@ export type Motion =
   | "RepeatSearch"
   | "RepeatSearchReverse"
   | { type: "Find"; target: string; backward: boolean; till: boolean }
-  | { type: "Search"; pattern: string; backward: boolean };
+  | { type: "Search"; pattern: string; backward: boolean }
+  | { type: "Mark"; name: string; exact: boolean }
+  | { type: "ToOffset"; offset: number; linewise: boolean };
 
 export type ObjectScope = "Inner" | "Around";
 
@@ -72,7 +74,13 @@ export type Span =
 
 /** Whole-row operator target: `j`/`k`/`G`/`gg`/`H`/`M`/`L`. */
 export function isLinewise(motion: Motion): boolean {
-  if (typeof motion !== "string") {
+  if (typeof motion === "object") {
+    if (motion.type === "ToOffset") {
+      return motion.linewise;
+    }
+    if (motion.type === "Mark") {
+      return !motion.exact;
+    }
     return false;
   }
   return (
@@ -694,8 +702,16 @@ export function resolve(
         repeat,
         false,
       );
-    } else {
+    } else if (motion.type === "Search") {
       target = search(buffer, from, motion.pattern, motion.backward, repeat);
+    } else if (motion.type === "ToOffset") {
+      const offset = clamp(buffer, motion.offset, bound);
+      target = motion.linewise
+        ? firstNonBlank(buffer, buffer.byteToPoint(offset).row)
+        : offset;
+    } else {
+      // Mark — Editor turns this into ToOffset before calling resolve.
+      return undefined;
     }
   } else {
     switch (motion) {
@@ -1157,6 +1173,23 @@ function paragraphObject(
     }
   }
   return { kind: "lines", first, last };
+}
+
+/** Byte offsets of the delimiters enclosing `at`. Word / paragraph: none. */
+export function delimiters(
+  buffer: Buffer,
+  at: number,
+  object: TextObject,
+): { start: number; end: number } | undefined {
+  switch (object.type) {
+    case "Delimited":
+      return enclosingPair(buffer, at, object.open, object.close);
+    case "Quoted":
+      return enclosingQuotes(buffer, at, object.quote);
+    case "Word":
+    case "Paragraph":
+      return undefined;
+  }
 }
 
 export function objectSpan(

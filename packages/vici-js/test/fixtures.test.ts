@@ -12,7 +12,7 @@ const fixturesDir = join(
   "../../../fixtures",
 );
 
-/** 4b + 4c + 4d allowlist. Dropped: 4e surround / marks / macros / `.` / `gU`. */
+/** 4b + 4c + 4d + 4e. Every remaining editor.vici case is in this list. */
 const ALLOWLIST = [
   // 4b
   "move-right-count",
@@ -241,6 +241,136 @@ const ALLOWLIST = [
   "combining-grapheme-delete",
   "multibyte-motion-and-edit",
   "empty-motions",
+  // leftover 4c/4d that already passed
+  "put-after-multibyte-yank",
+  "put-before-multibyte-yank",
+  "paragraph-jump",
+  // 4e — case operators
+  "uppercase-exclusive-end",
+  "upper-word",
+  "lower-word",
+  "swap-word",
+  "upper-count-multiplied",
+  "upper-inner-word",
+  "upper-till-space",
+  "upper-inner-paren",
+  "upper-current-row-short",
+  "upper-current-row-long",
+  "swap-current-row",
+  "lower-current-rows",
+  "upper-bad-double",
+  "upper-keeps-register",
+  "visual-upper-word",
+  "visual-lower-word",
+  "visual-swap-dollar",
+  "visual-upper-lines",
+  "visual-upper-counted-motion",
+  "upper-undo-and-repeat",
+  "upper-sharp-s",
+  "lower-multibyte",
+  ...linewise("upper"),
+  ...linewise("lower"),
+  ...linewise("swap"),
+  // 4e — `.` dot-repeat
+  "shift-repeat",
+  "delete-end-repeat",
+  "dot-delete-word",
+  "dot-delete-row",
+  "dot-change",
+  "dot-insert-session",
+  "dot-count",
+  "dot-empty",
+  "dot-visual-shift",
+  "dot-visual-delete",
+  "dot-visual-change",
+  "dot-keeps-last-change-after-motion-undo",
+  "search-dot-operator",
+  // 4e — macros
+  "macro-record-play",
+  "macro-count",
+  "macro-diagonal",
+  "macro-recording-events",
+  "macro-unrecorded",
+  "macro-self-referential",
+  "empty-macro",
+  "macro-closing-q-excluded",
+  "search-in-macro",
+  // 4e — marks / jumps
+  "jumps-back-after-goto-last",
+  "jumps-forward-after-going-back",
+  "jumps-back-empty-rings",
+  "jumps-forward-at-present-rings",
+  "jumps-forward-past-newest-rings",
+  "jumps-gg-pushes",
+  "jumps-g-pushes",
+  "jumps-percent-pushes",
+  "jumps-screen-top-pushes",
+  "jumps-screen-middle-pushes",
+  "jumps-screen-bottom-pushes",
+  "jumps-word-motion-does-not-push",
+  "jumps-shift-after-insert-before",
+  "jumps-shift-after-delete-before",
+  "jumps-collapse-when-deleted",
+  "marks-set-and-return",
+  "marks-exact-offset",
+  "marks-linewise-first-non-blank",
+  "marks-delete-characterwise-to-mark",
+  "marks-delete-linewise-to-mark",
+  "marks-unset-rings",
+  "marks-shift-after-insert-before",
+  "marks-shift-after-delete-before",
+  "marks-collapse-when-deleted",
+  "marks-double-quote-returns-after-goto",
+  "marks-double-quote-toggles",
+  "marks-backtick-backtick-exact",
+  "marks-delete-linewise-to-previous",
+  "marks-delete-characterwise-to-previous",
+  "marks-double-quote-unset-rings",
+  "marks-invalid-name-rings",
+  "automatic-visual-start-return",
+  "automatic-visual-end-is-last-character",
+  "automatic-visual-toggle-return",
+  "automatic-visual-operator-captures-before-edit",
+  "automatic-change-brackets-multi-row-shift",
+  "automatic-yank-brackets-return",
+  "automatic-insert-end-return",
+  "automatic-visual-mark-shifts-through-later-edit",
+  "automatic-visual-mark-characterwise-operator",
+  "automatic-visual-mark-linewise-operator",
+  "automatic-marks-crlf-recase-end",
+  "automatic-marks-crlf-yank-end",
+  "automatic-marks-unset-ring",
+  // 4e — surround
+  "surround-change-opening-adds-padding",
+  "surround-change-closing-removes-padding",
+  "surround-change-closing-target",
+  "surround-change-alias-target",
+  "surround-change-quotes",
+  "surround-change-quotes-to-brackets-and-back",
+  "surround-change-multi-row",
+  "surround-change-no-pair",
+  "surround-change-unknown-target",
+  "surround-change-unknown-replacement",
+  "surround-delete-opening-target",
+  "surround-delete-closing-target",
+  "surround-delete-unpadded",
+  "surround-delete-no-pair",
+  "surround-selection-delete-round-trip",
+  "surround-change-does-not-double-padding",
+  "surround-selection-opening-adds-padding",
+  "surround-selection-closing-has-no-padding",
+  "surround-selection-linewise-multi-row",
+  "surround-selection-linewise-padding-is-moot",
+  "surround-selection-linewise-single-row",
+  "surround-selection-linewise-final-row",
+  "surround-yank-is-out-of-scope",
+  "surround-yank-shaped-input-resets",
+  "surround-dot-change",
+  "surround-dot-delete",
+  "surround-dot-visual-selection",
+  "surround-change-undo-one-step",
+  "surround-multibyte-payload",
+  "surround-leaves-register-untouched",
 ] as const;
 
 function linewise(kind: string): string[] {
@@ -260,7 +390,7 @@ const fixture = readFileSync(join(fixturesDir, "editor.vici"), "utf8");
 const snap = readFileSync(join(fixturesDir, "editor_cases.snap"), "utf8");
 const cases = new Map(parseCases(fixture).map((c) => [c.name, c]));
 
-describe("vici-js 4d editor.vici allowlist", () => {
+describe("vici-js 4e editor.vici allowlist", () => {
   for (const name of ALLOWLIST) {
     it(name, () => {
       const c = cases.get(name);
@@ -275,8 +405,10 @@ describe("vici-js 4d editor.vici allowlist", () => {
         engine.setIndent(c.settings.indent);
       }
       const effects = engine.typeKeys(c.keys);
-      const got = renderCase(name, engine, effects);
-      const expected = sliceBlock(snap, name);
+      const rendered = renderCase(name, engine, effects);
+      const { body: expected, last } = sliceBlock(snap, name);
+      // insta collapses the last render_case trailing blank to one newline.
+      const got = last ? rendered.replace(/\n+$/, "\n") : rendered;
       expect(got).toBe(expected);
     });
   }
@@ -293,7 +425,10 @@ describe("vici-js README smoke", () => {
   });
 });
 
-function sliceBlock(text: string, name: string): string {
+function sliceBlock(
+  text: string,
+  name: string,
+): { body: string; last: boolean } {
   const startToken = `== ${name} ==\n`;
   const start = text.indexOf(startToken);
   if (start < 0) {
@@ -303,7 +438,7 @@ function sliceBlock(text: string, name: string): string {
   const next = text.indexOf("\n== ", from + startToken.length);
   if (next < 0) {
     // Last block: insta collapses the render_case trailing blank to one newline.
-    return text.slice(from).replace(/\n+$/, "\n");
+    return { body: text.slice(from).replace(/\n+$/, "\n"), last: true };
   }
-  return text.slice(from, next + 1);
+  return { body: text.slice(from, next + 1), last: false };
 }
