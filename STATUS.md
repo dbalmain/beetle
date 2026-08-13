@@ -1,8 +1,7 @@
 # Beetle status
 
-Orchestrator progress. After compact, read the plan and this file, then
-resume at the first non-done phase. One writer at a time. Isolation none.
-Do not push. Do not tick `/home/dave/w/vici/FEATURES.txt`.
+Orchestrator progress. All phases are done. Isolation none. Do not push.
+Do not tick `/home/dave/w/vici/FEATURES.txt`.
 
 ## Phases
 
@@ -18,17 +17,13 @@ Do not push. Do not tick `/home/dave/w/vici/FEATURES.txt`.
   - [x] 4e — Surround, marks, jumps, macros, ., gu gU g~, remaining edges
 - [x] Phase 5 — Fixture parity for TS
 - [x] Phase 6 — Benchmarks and size
-- [ ] Phase 7 — README results + wrap
+- [x] Phase 7 — README results + wrap
 
 ## Resume
 
-Read the compact-safe playbook at
-
-`/home/dave/.grok/sessions/%2Fhome%2Fdave%2Fw%2Fbeetle/019ffa97-3d6c-7730-a423-600054622b16/plan.md`
-
-and this file. Start at the first unchecked phase (Phase 7). Commit at
-each green boundary. Write a done-note here (what landed, gates run,
-leftover risk) — not a transcript.
+The experiment is complete. Both engines pass all 411 `editor.vici`
+snapshots. Numbers live in `reports/` and the README. Do not start new
+work. Do not push.
 
 ## Phase 0 done-note
 
@@ -365,3 +360,20 @@ links the reports. `npm test` green after the search fix (478 tests).
 shapes large-edit numbers. wasm-bindgen copies the script and serializes
 effects on every `typeKeys` / `handleKey`. V8-only. JS search still
 `toString()`s the buffer each time. Phase 7 writes the comparison essay.
+
+## Phase 7 done-note
+
+**What landed.** README is the results front page: Beetle / VW = Vim Web,
+411/411 on both engines, bulk-p50 speed highlights and size from the
+Phase 6 reports (Node v24.18.1, Ryzen 9 9955HX, simd on), how to
+reproduce (no rustup / ephemeral nix-shell), and the comparison
+caveats. STATUS.md marks every phase done.
+
+**Gates.** Numbers copied from `reports/bench.md`
+(2026-08-13T12:41:43.673Z) and `reports/size.md`
+(2026-08-13T12:39:01.461Z); benches were not re-run. No vici edits.
+`FEATURES.txt` not ticked.
+
+**Leftover risk.** Same as Phase 6: piece-table flatten, wasm-bindgen
+copies, V8-only, incomplete Unicode case table, no native-Rust column.
+None of those block the write-up.
