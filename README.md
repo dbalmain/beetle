@@ -44,19 +44,40 @@ From the repo root (POSIX `sh`):
 ```sh
 npm install
 npm test              # typecheck @beetle/contract + vitest (parser, 411 cases)
-npm run build:wasm    # not yet — wasm-pack wrapper lands in phase 2
+npm run build:wasm    # cargo + wasm-bindgen → packages/vici-wasm/pkg
+npm run test:wasm     # one-case smoke (needs build:wasm first)
 npm run bench         # not yet — benches land in phase 6
 ```
 
-The Cargo workspace is valid now so later phases can land in
-`crates/vici-wasm`:
+`npm test` stays the contract suite. The wasm smoke is separate so a
+contract run does not rebuild the artefact.
+
+`npm run build:wasm` does **not** use rustup or `wasm-pack`. This machine
+has Nix `rustc` with `wasm32-unknown-unknown` std; `wasm-pack` wants rustup
+to add the target. The script runs:
+
+```sh
+cargo build -p vici-wasm --target wasm32-unknown-unknown --release
+wasm-bindgen --target nodejs --out-dir packages/vici-wasm/pkg \
+  target/wasm32-unknown-unknown/release/vici_wasm.wasm
+# glue is renamed to vici_wasm.cjs (parent package is ESM)
+wasm-opt -O3 packages/vici-wasm/pkg/vici_wasm_bg.wasm   # if present
+```
+
+If `wasm-bindgen` / `lld` / `wasm-opt` are not on `PATH`, the script re-execs
+inside an ephemeral `nix shell nixpkgs#wasm-bindgen-cli nixpkgs#lld
+nixpkgs#binaryen`. Nix `rustc` links wasm with `lld -flavor wasm` and does
+not ship `rust-lld`. Do not `nix profile install`. The `wasm-bindgen` crate
+is pinned to the CLI (0.2.121). ropey's `simd` feature stays on — the wasm32
+build accepted it.
+
+The Cargo workspace is `crates/vici-wasm` only (vici is a path-dep):
 
 ```sh
 cargo metadata
 cargo check -p vici-wasm
+cargo check -p vici-wasm --target wasm32-unknown-unknown
 ```
-
-`wasm-pack` and `wasm-opt` are not wired yet.
 
 ## Fixtures
 
@@ -65,6 +86,5 @@ cannot drift. `fixtures/editor_cases.snap` is a copy of vici's insta snapshot
 with the `---` / `source:` / `expression:` header stripped; the case blocks
 are character-for-character.
 
-Do not tick `../vici/FEATURES.txt`. Do not edit anything under `../vici`
-from this experiment except the smallest possible wasm `simd` feature flip,
-and only if phase 2 cannot compile without it.
+Do not tick `../vici/FEATURES.txt`. Phase 2 built wasm32 with ropey's
+`simd` feature on, so vici was not touched.

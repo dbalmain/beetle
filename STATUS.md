@@ -8,7 +8,7 @@ Do not push. Do not tick `/home/dave/w/vici/FEATURES.txt`.
 
 - [x] Phase 0 — Scaffold
 - [x] Phase 1 — Contract package
-- [ ] Phase 2 — WASM wrapper
+- [x] Phase 2 — WASM wrapper
 - [ ] Phase 3 — WASM is the oracle
 - [ ] Phase 4 — Idiomatic TypeScript engine
   - [ ] 4a — Key notation + UTF-8 piece table + Edit/Point + undo
@@ -78,3 +78,45 @@ feed a real `Engine`. `rustDebugString` uses JS Unicode properties
 would only show up on exotic code points the current fixtures do not
 exercise. `keys()` / `render()` stay in phase 4a. `wasm-pack` /
 `wasm-opt` still not on PATH.
+
+## Phase 2 done-note
+
+**What landed.** `crates/vici-wasm` is a wasm-bindgen class over
+`vici::Editor` (path-dep `../../../vici/crates/vici`). Methods map onto
+the TypeScript `Engine`. `type_keys` stays in Rust. `run_case` copies
+vici's `render_case` / `render_effect` so snapshot `Debug` strings cannot
+drift. Effects cross the ABI as JSON and are rebuilt in
+`@beetle/vici-wasm`. `Editor` clone and `Buffer::rope` are not exported.
+`packages/vici-wasm` is a thin `WasmEngine` / `createWasmEngine` /
+`runCase` wrapper. Release profile is `opt-level=3` + LTO; `release-size`
+(`opt-level=z`) exists for phase 6. `npm run build:wasm` writes
+`packages/vici-wasm/pkg/` (gitignored). `npm run test:wasm` is the
+README smoke; `npm test` stays contract-only.
+
+**How wasm is built (no rustup).** Nix `rustc` 1.95 already has
+`wasm32-unknown-unknown` std. `wasm-pack` wants rustup, so the script is
+`cargo build --target wasm32-unknown-unknown --release` then
+`wasm-bindgen --target nodejs` (crate pinned to CLI 0.2.121). Missing
+tools come from an ephemeral
+`nix shell nixpkgs#wasm-bindgen-cli nixpkgs#lld nixpkgs#binaryen` —
+Nix rustc links wasm with `lld -flavor wasm` and does not ship
+`rust-lld`. Glue is renamed to `vici_wasm.cjs` because the package is
+ESM. Speed build is `wasm-opt -O3`'d. Do not `nix profile install`.
+
+**simd.** On. `cargo check -p vici-wasm --target wasm32-unknown-unknown`
+accepted ropey's `simd` feature. vici was not touched. `FEATURES.txt`
+was not ticked.
+
+**Gates.** `cargo fmt --all --check`. `cargo clippy --workspace
+--all-targets -- -D warnings`. `cargo test --workspace` (6 host unit
+tests, including two snapshot blocks that match
+`fixtures/editor_cases.snap`). `npm run build:wasm` produced a loadable
+nodejs artefact. `npm run test:wasm` green (README
+`cwSELECT<Esc>` smoke). `npm test` still 17 contract tests, typecheck
+clean.
+
+**Leftover risk.** Full 411-case snap is phase 3. Host tests cannot
+construct `JsError` (wasm-bindgen imported fn); parse errors are
+checked via `run_case_inner`. wasm-bindgen string crossing still copies
+UTF-8 ↔ UTF-16 on every `text()` / `typeKeys` — bulk benches must not
+call `text()` per iteration. Size-opt artefact is phase 6.

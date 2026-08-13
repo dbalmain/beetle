@@ -11,7 +11,8 @@
     "test": "tsc --noEmit -p packages/contract && vitest run",
     "typecheck": "tsc --noEmit -p packages/contract",
     "bench": "echo 'not yet: benches land in phase 6' >&2 && exit 1",
-    "build:wasm": "echo 'not yet: wasm-pack wrapper lands in phase 2' >&2 && exit 1"
+    "build:wasm": "sh scripts/build-wasm.sh",
+    "test:wasm": "tsc --noEmit -p packages/vici-wasm && vitest run --config packages/vici-wasm/vitest.config.mjs"
   },
   "devDependencies": {
     "@types/node": "^26.1.2",
