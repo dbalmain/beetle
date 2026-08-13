@@ -16,7 +16,7 @@ Do not push. Do not tick `/home/dave/w/vici/FEATURES.txt`.
   - [x] 4c — Counts, operators d c y > <, doubles, visual, p P J r ~
   - [x] 4d — Word/find/object/search/pair/paragraph/screen motions
   - [x] 4e — Surround, marks, jumps, macros, ., gu gU g~, remaining edges
-- [ ] Phase 5 — Fixture parity for TS (harness-only: drop the allowlist; all 411 already match)
+- [x] Phase 5 — Fixture parity for TS
 - [ ] Phase 6 — Benchmarks and size
 - [ ] Phase 7 — README results + wrap
 
@@ -315,5 +315,24 @@ mapping is not vendored; a scalar outside that set stays unchanged.
 `Intl.Segmenter` vs `unicode-segmentation` is still the only other
 known skew (none of the 411 disagree).
 
-**Phase 5.** Harness-only: drop the allowlist and iterate every parsed
-case. Behaviour is already at 411/411.
+## Phase 5 done-note
+
+**What landed.** Harness-only. `packages/vici-js/test/fixtures.test.ts`
+iterates every `parseCases(fixtures/editor.vici)` case — no allowlist,
+no skip list. Each `renderCase` block matches the corresponding
+`== name ==` snap block (same insta trailing-newline trim as phase 3).
+A length assert pins `parseCases(...).length === 411`. A second test
+concatenates all rendered blocks and compares to the whole snap. No
+4e scratch (`remaining.json` / `remaining.test.ts`) was left to delete.
+Engine code unchanged.
+
+**Gates.** `npm test` green: `tsc --noEmit` on contract + vici-js;
+411/411 fixture cases plus concat + smoke + 4a unit tests. No wasm
+rebuild.
+
+**Leftover risk.** Same as 4e: case mapper is not a full Unicode Simple
+table; `Intl.Segmenter` vs `unicode-segmentation` could still diverge
+on ZWJ / flags not in this suite. None of the 411 disagree.
+
+**Phase 6.** Benchmarks and size. Do not start until this phase is
+committed.
