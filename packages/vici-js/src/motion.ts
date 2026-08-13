@@ -605,16 +605,24 @@ function foldLower(text: string): string {
   return out;
 }
 
-function literalPrefix(
+function literalPrefixAt(
   text: string,
+  jsIndex: number,
   pattern: string,
   foldedPattern: string | undefined,
 ): boolean {
   if (foldedPattern === undefined) {
-    return text.startsWith(pattern);
+    return text.startsWith(pattern, jsIndex);
   }
   let candidate = "";
-  for (const ch of text) {
+  let i = jsIndex;
+  while (i < text.length) {
+    const code = text.codePointAt(i);
+    if (code === undefined) {
+      return false;
+    }
+    const ch = String.fromCodePoint(code);
+    i += ch.length;
     candidate += ch.toLowerCase();
     if (candidate === foldedPattern) {
       return true;
@@ -624,16 +632,6 @@ function literalPrefix(
     }
   }
   return false;
-}
-
-function graphemeStarts(text: string): number[] {
-  const out: number[] = [];
-  let byte = 0;
-  for (const { segment } of segmenter.segment(text)) {
-    out.push(byte);
-    byte += utf8.encode(segment).length;
-  }
-  return out;
 }
 
 function search(
@@ -649,9 +647,18 @@ function search(
   const text = buffer.toString();
   const sensitive = [...pattern].some(isUppercase);
   const folded = sensitive ? undefined : foldLower(pattern);
-  const matches = graphemeStarts(text).filter((offset) =>
-    literalPrefix(text.slice(byteToJs(text, offset)), pattern, folded),
-  );
+  // One pass over grapheme starts. Per-offset `byteToJs` + `slice(tail)`
+  // was O(n²) and made the 100 KiB search bench unusable.
+  const matches: number[] = [];
+  let byte = 0;
+  let js = 0;
+  for (const { segment } of segmenter.segment(text)) {
+    if (literalPrefixAt(text, js, pattern, folded)) {
+      matches.push(byte);
+    }
+    byte += utf8.encode(segment).length;
+    js += segment.length;
+  }
   if (matches.length === 0) {
     return undefined;
   }
