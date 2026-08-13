@@ -1,0 +1,35 @@
+# JS
+node_modules/
+dist/
+*.tsbuildinfo
+coverage/
+.nyc_output/
+.vitest/
+.vite/
+
+# Rust
+/target
+**/*.rs.bk
+
+# WASM / wasm-pack
+pkg/
+*.wasm
+
+# Tooling / editor
+.ai/
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Reports stay tracked; temps do not
+reports/*.tmp
+
+# Env / logs
+.env
+.env.*
+npm-debug.log*
+.npm/

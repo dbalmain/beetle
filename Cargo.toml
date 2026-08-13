@@ -1,0 +1,8 @@
+[workspace]
+members = ["crates/vici-wasm"]
+resolver = "3"
+
+[workspace.package]
+edition = "2024"
+# Match vici: edition 2024 is the binding constraint.
+rust-version = "1.85"

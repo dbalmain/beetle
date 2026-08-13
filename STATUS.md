@@ -1,0 +1,58 @@
+# Beetle status
+
+Orchestrator progress. After compact, read the plan and this file, then
+resume at the first non-done phase. One writer at a time. Isolation none.
+Do not push. Do not tick `/home/dave/w/vici/FEATURES.txt`.
+
+## Phases
+
+- [x] Phase 0 — Scaffold
+- [ ] Phase 1 — Contract package
+- [ ] Phase 2 — WASM wrapper
+- [ ] Phase 3 — WASM is the oracle
+- [ ] Phase 4 — Idiomatic TypeScript engine
+  - [ ] 4a — Key notation + UTF-8 piece table + Edit/Point + undo
+  - [ ] 4b — Engine skeleton: typeKeys/handleKey, Normal/Insert/Replace, hjkl0^$, insert entries, x, undo/redo
+  - [ ] 4c — Counts, operators d c y > <, doubles, visual, p P J r ~
+  - [ ] 4d — Word/find/object/search/pair/paragraph/screen motions
+  - [ ] 4e — Surround, marks, jumps, macros, ., gu gU g~, remaining edges
+- [ ] Phase 5 — Fixture parity for TS
+- [ ] Phase 6 — Benchmarks and size
+- [ ] Phase 7 — README results + wrap
+
+## Resume
+
+Read the compact-safe playbook at
+
+`/home/dave/.grok/sessions/%2Fhome%2Fdave%2Fw%2Fbeetle/019ffa97-3d6c-7730-a423-600054622b16/plan.md`
+
+and this file. Start at the first unchecked phase. Commit at each green
+boundary. Write a done-note here (what landed, gates run, leftover risk) —
+not a transcript.
+
+## Phase 0 done-note
+
+**What landed.** Git repo at `/home/dave/w/beetle`. npm workspaces
+(`packages/*`) and a Cargo workspace (`crates/vici-wasm` only — vici is not
+a member). Stub packages `@beetle/contract`, `@beetle/vici-wasm`,
+`@beetle/vici-js`, `@beetle/bench`. Stub crate `vici-wasm` (`cdylib`, no
+wasm-bindgen, no vici path-dep). `rust-toolchain.toml` asks for stable +
+`wasm32-unknown-unknown`. README leads with Beetle / VW = Vim Web.
+`fixtures/editor.vici` is a relative symlink to the sibling vici oracle.
+`fixtures/editor_cases.snap` is a copy of the insta snap with the YAML
+prelude stripped; 411 case blocks, body matches character-for-character.
+`reports/` is empty (`.gitkeep`). Root scripts `test` / `bench` /
+`build:wasm` fail with a clear "not yet" message.
+
+**Gates.** `git init` + first commit. `test -e fixtures/editor.vici`.
+411 `== name ==` blocks in the snap. `npm install` at root. `cargo
+metadata` and `cargo check -p vici-wasm` (host and
+`wasm32-unknown-unknown`). `cargo fmt --all --check`. README names Beetle
+/ VW = Vim Web and the tree has no "Volkswagen".
+
+**Leftover risk.** `wasm-pack` and `wasm-opt` are not on PATH — phase 2
+must install or otherwise obtain them; do not paper over that in phase 1.
+`rustup` is not installed; `rust-toolchain.toml` is advisory. The Nix
+`rustc` 1.95 already has `wasm32-unknown-unknown` std, so the target
+itself is not a blocker on this machine. No TypeScript / vitest deps yet
+— phase 1 adds those with the contract package.

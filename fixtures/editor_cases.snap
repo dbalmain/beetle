@@ -1,0 +1,5361 @@
+== move-right-count ==
+text: "select id, name\nfrom users\nwhere id = 1"
+cursor: 3 @ 0:3
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== move-down ==
+text: "select id, name\nfrom users\nwhere id = 1"
+cursor: 27 @ 2:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== move-dollar-and-home ==
+text: "select id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== move-goto-last-and-first ==
+text: "select id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0, 27]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== move-goto-counted-row ==
+text: "select id, name\nfrom users\nwhere id = 1"
+cursor: 16 @ 1:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== move-dollar-sticky-short-row ==
+text: "ab\nlonger row\nxy"
+cursor: 15 @ 2:1
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== move-dollar-sticky-long-row ==
+text: "ab\nlonger row\nxy"
+cursor: 12 @ 1:9
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== move-clamps-at-last-char ==
+text: "ab"
+cursor: 1 @ 0:1
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== viewport-half-page ==
+text: "0\n1\n2\n3\n4\n5\n6\n7"
+cursor: 8 @ 4:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [2]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  scroll HalfPageDown
+
+== viewport-full-page ==
+text: "0\n1\n2\n3\n4\n5\n6\n7"
+cursor: 10 @ 5:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [2]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  scroll PageDown
+
+== viewport-clamps-ends ==
+text: "0\n1\n2"
+cursor: 4 @ 2:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  scroll HalfPageUp
+  scroll PageUp
+  scroll HalfPageDown
+  scroll PageDown
+
+== viewport-dollar-sticky ==
+text: "xx\nlong second\nlong third\nx"
+cursor: 24 @ 2:9
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [1]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  scroll HalfPageDown
+
+== viewport-screen-motions ==
+text: "zero\n one\n two\n three\n four\n five\n six\nseven"
+cursor: 29 @ 5:1
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0, 11, 16, 23, 35]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== viewport-screen-operator-top ==
+text: "0\n1"
+cursor: 2 @ 1:0
+mode: Normal; selection: -
+register: line "2\n3\n4\n5\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:3, ]:2]
+pending: ""; last-change: "dH"; recording: -
+effects:
+  edit 3..11 -> 3; (1,1)..(5,1) -> (1,1)
+
+== viewport-screen-operator-bottom ==
+text: "5"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "0\n1\n2\n3\n4\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "dL"; recording: -
+effects:
+  edit 0..10 -> 0; (0,0)..(5,0) -> (0,0)
+
+== viewport-zero-height-scroll ==
+text: "0\n1\n2"
+cursor: 2 @ 1:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  scroll HalfPageDown
+  scroll HalfPageUp
+  scroll PageDown
+  scroll PageUp
+
+== screen-motion-without-viewport ==
+text: "zero\none"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  bell
+  bell
+  bell
+
+== delete-word ==
+text: "id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "select "
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "dw"; recording: -
+effects:
+  edit 0..7 -> 0; (0,0)..(0,7) -> (0,0)
+
+== delete-word-motion-count ==
+text: ", name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "select id"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "d2w"; recording: -
+effects:
+  edit 0..9 -> 0; (0,0)..(0,9) -> (0,0)
+
+== delete-word-operator-count ==
+text: ", name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "select id"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "2dw"; recording: -
+effects:
+  edit 0..9 -> 0; (0,0)..(0,9) -> (0,0)
+
+== delete-row ==
+text: "from users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "select id, name\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "dd"; recording: -
+effects:
+  edit 0..16 -> 0; (0,0)..(1,0) -> (0,0)
+
+== delete-two-rows ==
+text: "where id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "select id, name\nfrom users\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "2dd"; recording: -
+effects:
+  edit 0..27 -> 0; (0,0)..(2,0) -> (0,0)
+
+== delete-row-after-motion ==
+text: "select id, name\nwhere id = 1"
+cursor: 16 @ 1:0
+mode: Normal; selection: -
+register: line "from users\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:16, ]:15]
+pending: ""; last-change: "dd"; recording: -
+effects:
+  edit 16..27 -> 16; (1,0)..(2,0) -> (1,0)
+
+== delete-last-row ==
+text: "select id, name\nfrom users"
+cursor: 16 @ 1:0
+mode: Normal; selection: -
+register: line "where id = 1\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:26, ]:25]
+pending: ""; last-change: "dd"; recording: -
+effects:
+  edit 26..39 -> 26; (1,10)..(2,12) -> (1,10)
+
+== delete-to-row-end ==
+text: "\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "select id, name"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "d$"; recording: -
+effects:
+  edit 0..15 -> 0; (0,0)..(0,15) -> (0,0)
+
+== delete-find-inclusive ==
+text: " name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "select id,"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "df,"; recording: -
+effects:
+  edit 0..10 -> 0; (0,0)..(0,10) -> (0,0)
+
+== delete-till-exclusive ==
+text: ", name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "select id"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "dt,"; recording: -
+effects:
+  edit 0..9 -> 0; (0,0)..(0,9) -> (0,0)
+
+== delete-linewise-motion ==
+text: "where id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "select id, name\nfrom users\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "dj"; recording: -
+effects:
+  edit 0..27 -> 0; (0,0)..(2,0) -> (0,0)
+
+== delete-percent-forward ==
+text: "x  y"
+cursor: 2 @ 0:2
+mode: Normal; selection: -
+register: char "(a (b) c)"
+history: undo=1 redo=0
+jumps: []
+marks: [[:2, ]:1]
+pending: ""; last-change: "d%"; recording: -
+effects:
+  edit 2..11 -> 2; (0,2)..(0,11) -> (0,2)
+
+== delete-percent-backward ==
+text: "x  y"
+cursor: 2 @ 0:2
+mode: Normal; selection: -
+register: char "(a (b) c)"
+history: undo=1 redo=0
+jumps: []
+marks: [[:2, ]:1]
+pending: ""; last-change: "d%"; recording: -
+effects:
+  edit 2..11 -> 2; (0,2)..(0,11) -> (0,2)
+
+== delete-percent-quote ==
+text: " there"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "say 'hi'"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "d%"; recording: -
+effects:
+  edit 0..8 -> 0; (0,0)..(0,8) -> (0,0)
+
+== delete-percent-no-match ==
+text: "no brackets here"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  bell
+
+== delete-inner-word ==
+text: " id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "select"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "diw"; recording: -
+effects:
+  edit 0..6 -> 0; (0,0)..(0,6) -> (0,0)
+
+== delete-around-word ==
+text: "id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "select "
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "daw"; recording: -
+effects:
+  edit 0..7 -> 0; (0,0)..(0,7) -> (0,0)
+
+== change-inner-quote ==
+text: "where name = 'bob'"
+cursor: 16 @ 0:16
+mode: Normal; selection: -
+register: char "dave"
+history: undo=1 redo=0
+jumps: []
+marks: [[:16, ]:16, ^:16]
+pending: ""; last-change: "ci'bob<Esc>"; recording: -
+effects:
+  edit 14..18 -> 14; (0,14)..(0,18) -> (0,14)
+  mode Insert
+  edit 14..14 -> 15; (0,14)..(0,14) -> (0,15)
+  edit 15..15 -> 16; (0,15)..(0,15) -> (0,16)
+  edit 16..16 -> 17; (0,16)..(0,16) -> (0,17)
+  mode Normal
+
+== change-inner-paren-delimiter ==
+text: "f(x)"
+cursor: 2 @ 0:2
+mode: Normal; selection: -
+register: char "a, b"
+history: undo=1 redo=0
+jumps: []
+marks: [[:2, ]:2, ^:2]
+pending: ""; last-change: "ci(x<Esc>"; recording: -
+effects:
+  edit 2..6 -> 2; (0,2)..(0,6) -> (0,2)
+  mode Insert
+  edit 2..2 -> 3; (0,2)..(0,2) -> (0,3)
+  mode Normal
+
+== change-inner-paren-seeks ==
+text: "f(x)"
+cursor: 2 @ 0:2
+mode: Normal; selection: -
+register: char "a, b"
+history: undo=1 redo=0
+jumps: []
+marks: [[:2, ]:2, ^:2]
+pending: ""; last-change: "ci(x<Esc>"; recording: -
+effects:
+  edit 2..6 -> 2; (0,2)..(0,6) -> (0,2)
+  mode Insert
+  edit 2..2 -> 3; (0,2)..(0,2) -> (0,3)
+  mode Normal
+
+== delete-inner-brace-multiline ==
+text: "fn f()\n{\n}"
+cursor: 9 @ 2:0
+mode: Normal; selection: -
+register: char "    body\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:9, ]:8]
+pending: ""; last-change: "di{"; recording: -
+effects:
+  edit 9..18 -> 9; (2,0)..(3,0) -> (2,0)
+
+== delete-around-brace-seeks ==
+text: "outer  end"
+cursor: 6 @ 0:6
+mode: Normal; selection: -
+register: char "{ mid { deep } here }"
+history: undo=1 redo=0
+jumps: []
+marks: [[:6, ]:5]
+pending: ""; last-change: "da{"; recording: -
+effects:
+  edit 6..27 -> 6; (0,6)..(0,27) -> (0,6)
+
+== delete-inner-brace-seek-one ==
+text: "outer {} end"
+cursor: 7 @ 0:7
+mode: Normal; selection: -
+register: char " mid { deep } here "
+history: undo=1 redo=0
+jumps: []
+marks: [[:7, ]:6]
+pending: ""; last-change: "di{"; recording: -
+effects:
+  edit 7..26 -> 7; (0,7)..(0,26) -> (0,7)
+
+== delete-inner-brace-seek-two ==
+text: "outer { mid {} here } end"
+cursor: 13 @ 0:13
+mode: Normal; selection: -
+register: char " deep "
+history: undo=1 redo=0
+jumps: []
+marks: [[:13, ]:12]
+pending: ""; last-change: "2di{"; recording: -
+effects:
+  edit 13..19 -> 13; (0,13)..(0,19) -> (0,13)
+
+== delete-inner-brace-operator-count ==
+text: "outer { mid {} here } end"
+cursor: 13 @ 0:13
+mode: Normal; selection: -
+register: char " deep "
+history: undo=1 redo=0
+jumps: []
+marks: [[:13, ]:12]
+pending: ""; last-change: "d2i{"; recording: -
+effects:
+  edit 13..19 -> 13; (0,13)..(0,19) -> (0,13)
+
+== delete-around-brace-count ==
+text: "outer { mid  here } end"
+cursor: 12 @ 0:12
+mode: Normal; selection: -
+register: char "{ deep }"
+history: undo=1 redo=0
+jumps: []
+marks: [[:12, ]:11]
+pending: ""; last-change: "2da{"; recording: -
+effects:
+  edit 12..20 -> 12; (0,12)..(0,20) -> (0,12)
+
+== delete-inner-brace-too-deep ==
+text: "outer { mid { deep } here } end"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: "3di{"; recording: -
+effects:
+  bell
+
+== visual-inner-brace-count ==
+text: "outer { mid { deep } here } end"
+cursor: 18 @ 0:18
+mode: Visual(Char); selection: 13..19
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  mode Visual(Char)
+
+== delete-inner-word-count-two ==
+text: "two three"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "one "
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "2diw"; recording: -
+effects:
+  edit 0..4 -> 0; (0,0)..(0,4) -> (0,0)
+
+== delete-inner-word-count-three ==
+text: " three"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "one two"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "3diw"; recording: -
+effects:
+  edit 0..7 -> 0; (0,0)..(0,7) -> (0,0)
+
+== delete-around-word-count-two ==
+text: "three"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "one two "
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "2daw"; recording: -
+effects:
+  edit 0..8 -> 0; (0,0)..(0,8) -> (0,0)
+
+== delete-exclusive-end ==
+text: "one "
+cursor: 3 @ 0:3
+mode: Normal; selection: -
+register: char "two"
+history: undo=1 redo=0
+jumps: []
+marks: [[:4, ]:3]
+pending: ""; last-change: "dw"; recording: -
+effects:
+  edit 4..7 -> 4; (0,4)..(0,7) -> (0,4)
+
+== delete-exclusive-end-count ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "one two"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "d2w"; recording: -
+effects:
+  edit 0..7 -> 0; (0,0)..(0,7) -> (0,0)
+
+== delete-big-word-end ==
+text: "one "
+cursor: 3 @ 0:3
+mode: Normal; selection: -
+register: char "two"
+history: undo=1 redo=0
+jumps: []
+marks: [[:4, ]:3]
+pending: ""; last-change: "dW"; recording: -
+effects:
+  edit 4..7 -> 4; (0,4)..(0,7) -> (0,4)
+
+== uppercase-exclusive-end ==
+text: "one TWO"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:4, ]:6]
+pending: ""; last-change: "gUw"; recording: -
+effects:
+  edit 4..7 -> 7; (0,4)..(0,7) -> (0,7)
+
+== delete-last-char-with-motion ==
+text: "ab"
+cursor: 1 @ 0:1
+mode: Normal; selection: -
+register: char "c"
+history: undo=1 redo=0
+jumps: []
+marks: [[:2, ]:1]
+pending: ""; last-change: "dl"; recording: -
+effects:
+  edit 2..3 -> 2; (0,2)..(0,3) -> (0,2)
+
+== delete-last-char-x ==
+text: "ab"
+cursor: 1 @ 0:1
+mode: Normal; selection: -
+register: char "c"
+history: undo=1 redo=0
+jumps: []
+marks: [[:2, ]:1]
+pending: ""; last-change: "x"; recording: -
+effects:
+  edit 2..3 -> 2; (0,2)..(0,3) -> (0,2)
+
+== delete-dollar-before-newline ==
+text: "\ncd"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "ab"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "d$"; recording: -
+effects:
+  edit 0..2 -> 0; (0,0)..(0,2) -> (0,0)
+
+== delete-word-end-inclusive ==
+text: " two"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "one"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "de"; recording: -
+effects:
+  edit 0..3 -> 0; (0,0)..(0,3) -> (0,0)
+
+== change-word ==
+text: "SELECT id, name\nfrom users\nwhere id = 1"
+cursor: 5 @ 0:5
+mode: Normal; selection: -
+register: char "select"
+history: undo=1 redo=0
+jumps: []
+marks: [[:5, ]:5, ^:5]
+pending: ""; last-change: "cwSELECT<Esc>"; recording: -
+effects:
+  edit 0..6 -> 0; (0,0)..(0,6) -> (0,0)
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  edit 1..1 -> 2; (0,1)..(0,1) -> (0,2)
+  edit 2..2 -> 3; (0,2)..(0,2) -> (0,3)
+  edit 3..3 -> 4; (0,3)..(0,3) -> (0,4)
+  edit 4..4 -> 5; (0,4)..(0,4) -> (0,5)
+  edit 5..5 -> 6; (0,5)..(0,5) -> (0,6)
+  mode Normal
+
+== change-row ==
+text: "select 1\nfrom users\nwhere id = 1"
+cursor: 7 @ 0:7
+mode: Normal; selection: -
+register: line "select id, name\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:7, ]:7, ^:7]
+pending: ""; last-change: "ccselect<Space>1<Esc>"; recording: -
+effects:
+  edit 0..15 -> 0; (0,0)..(0,15) -> (0,0)
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  edit 1..1 -> 2; (0,1)..(0,1) -> (0,2)
+  edit 2..2 -> 3; (0,2)..(0,2) -> (0,3)
+  edit 3..3 -> 4; (0,3)..(0,3) -> (0,4)
+  edit 4..4 -> 5; (0,4)..(0,4) -> (0,5)
+  edit 5..5 -> 6; (0,5)..(0,5) -> (0,6)
+  edit 6..6 -> 7; (0,6)..(0,6) -> (0,7)
+  edit 7..7 -> 8; (0,7)..(0,7) -> (0,8)
+  mode Normal
+
+== change-final-row-no-newline ==
+text: "aa\nbb\nX"
+cursor: 6 @ 2:0
+mode: Normal; selection: -
+register: line "cc\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:6, ]:6, ^:6]
+pending: ""; last-change: "ccX<Esc>"; recording: -
+effects:
+  edit 6..8 -> 6; (2,0)..(2,2) -> (2,0)
+  mode Insert
+  edit 6..6 -> 7; (2,0)..(2,0) -> (2,1)
+  mode Normal
+
+== change-middle-row-no-newline ==
+text: "aa\nX\ncc"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: line "bb\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:3, ]:3, ^:3]
+pending: ""; last-change: "ccX<Esc>"; recording: -
+effects:
+  edit 3..5 -> 3; (1,0)..(1,2) -> (1,0)
+  mode Insert
+  edit 3..3 -> 4; (1,0)..(1,0) -> (1,1)
+  mode Normal
+
+== change-final-row-trailing-newline ==
+text: "aa\nbb\nX\n"
+cursor: 6 @ 2:0
+mode: Normal; selection: -
+register: line "cc\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:6, ]:6, ^:6]
+pending: ""; last-change: "ccX<Esc>"; recording: -
+effects:
+  edit 6..8 -> 6; (2,0)..(2,2) -> (2,0)
+  mode Insert
+  edit 6..6 -> 7; (2,0)..(2,0) -> (2,1)
+  mode Normal
+
+== delete-final-row-trailing-newline ==
+text: "aa\nbb"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: line "cc\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:5, ]:4]
+pending: ""; last-change: "dd"; recording: -
+effects:
+  edit 5..9 -> 5; (1,2)..(3,0) -> (1,2)
+
+== shift-row-right ==
+text: "    one\ntwo\nthree"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:3]
+pending: ""; last-change: ">>"; recording: -
+effects:
+  edit 0..0 -> 4; (0,0)..(0,0) -> (0,4)
+
+== shift-row-left ==
+text: "one\ntwo"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "<lt><lt>"; recording: -
+effects:
+  edit 0..4 -> 0; (0,0)..(0,4) -> (0,0)
+
+== shift-count ==
+text: "    one\n    two\n    three"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:19]
+pending: ""; last-change: "3>>"; recording: -
+effects:
+  edit 8..8 -> 12; (2,0)..(2,0) -> (2,4)
+  edit 4..4 -> 8; (1,0)..(1,0) -> (1,4)
+  edit 0..0 -> 4; (0,0)..(0,0) -> (0,4)
+
+== shift-motion ==
+text: "    one\n    two\nthree"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:11]
+pending: ""; last-change: ">j"; recording: -
+effects:
+  edit 4..4 -> 8; (1,0)..(1,0) -> (1,4)
+  edit 0..0 -> 4; (0,0)..(0,0) -> (0,4)
+
+== shift-paragraph ==
+text: "    one\n\ntwo"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:3]
+pending: ""; last-change: ">ip"; recording: -
+effects:
+  edit 0..0 -> 4; (0,0)..(0,0) -> (0,4)
+
+== shift-object ==
+text: "    { one }"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:3]
+pending: ""; last-change: ">i{"; recording: -
+effects:
+  edit 0..0 -> 4; (0,0)..(0,0) -> (0,4)
+
+== shift-visual ==
+text: "    one\n    two\nthree"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:15, [:0, ]:11]
+pending: ""; last-change: "Vj>"; recording: -
+effects:
+  mode Visual(Line)
+  edit 4..4 -> 8; (1,0)..(1,0) -> (1,4)
+  edit 0..0 -> 4; (0,0)..(0,0) -> (0,4)
+  mode Normal
+
+== shift-repeat ==
+text: "        one\n        two\nthree"
+cursor: 8 @ 0:8
+mode: Normal; selection: -
+register: char ""
+history: undo=2 redo=0
+jumps: []
+marks: [[:0, ]:19]
+pending: ""; last-change: "2>>"; recording: -
+effects:
+  edit 4..4 -> 8; (1,0)..(1,0) -> (1,4)
+  edit 0..0 -> 4; (0,0)..(0,0) -> (0,4)
+  edit 8..12 -> 16; (1,0)..(1,4) -> (1,8)
+  edit 0..4 -> 8; (0,0)..(0,4) -> (0,8)
+
+== shift-indent-tabs ==
+text: "\t    word"
+cursor: 5 @ 0:5
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:4]
+pending: ""; last-change: ">>"; recording: -
+effects:
+  edit 0..1 -> 5; (0,0)..(0,1) -> (0,5)
+
+== shift-noop ==
+text: "one"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: "<lt><lt>"; recording: -
+effects:
+
+== paragraph-forward ==
+text: "one\n\ntwo"
+cursor: 4 @ 1:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== paragraph-backward ==
+text: "one\n\ntwo"
+cursor: 4 @ 1:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0, 5]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== paragraph-running-off-forward ==
+text: "one\ntwo"
+cursor: 6 @ 1:2
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== paragraph-running-off-backward ==
+text: "one\ntwo"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0, 4]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== paragraph-counted ==
+text: "one\n\ntwo\n\nthree\n\nfour"
+cursor: 9 @ 3:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== paragraph-delete-exclusive ==
+text: "\ntwo"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "one\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "d}"; recording: -
+effects:
+  edit 0..4 -> 0; (0,0)..(1,0) -> (0,0)
+
+== paragraph-consecutive-blanks ==
+text: "one\n\n\n two"
+cursor: 5 @ 2:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== paragraph-no-blanks ==
+text: "one\ntwo"
+cursor: 6 @ 1:2
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== paragraph-empty ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== paragraph-jump ==
+text: "one\n\ntwo"
+cursor: 4 @ 1:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== shift-whitespace-to-empty ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "<lt><lt>"; recording: -
+effects:
+  edit 0..4 -> 0; (0,0)..(0,4) -> (0,0)
+
+== shift-empty-noop ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ">>"; recording: -
+effects:
+
+== shift-cursor-first-nonblank ==
+text: "      one\n    two"
+cursor: 6 @ 0:6
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:13]
+pending: ""; last-change: ">j"; recording: -
+effects:
+  edit 6..6 -> 10; (1,0)..(1,0) -> (1,4)
+  edit 0..2 -> 6; (0,0)..(0,2) -> (0,6)
+
+== shift-visual-count ==
+text: "            one\n            two"
+cursor: 12 @ 0:12
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:30, [:0, ]:27]
+pending: ""; last-change: "Vj3>"; recording: -
+effects:
+  mode Visual(Line)
+  edit 4..4 -> 16; (1,0)..(1,0) -> (1,12)
+  edit 0..0 -> 12; (0,0)..(0,0) -> (0,12)
+  mode Normal
+
+== shift-final-row ==
+text: "a\nb\n    c"
+cursor: 8 @ 2:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:4, ]:7]
+pending: ""; last-change: ">>"; recording: -
+effects:
+  edit 4..4 -> 8; (2,0)..(2,0) -> (2,4)
+
+== shift-final-row-up ==
+text: "a\n    b\n    c"
+cursor: 6 @ 1:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:2, ]:11]
+pending: ""; last-change: ">k"; recording: -
+effects:
+  edit 4..4 -> 8; (2,0)..(2,0) -> (2,4)
+  edit 2..2 -> 6; (1,0)..(1,0) -> (1,4)
+
+== yank-char-put-before ==
+text: "selectselect id, name\nfrom users\nwhere id = 1"
+cursor: 5 @ 0:5
+mode: Normal; selection: -
+register: char "select"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:5]
+pending: ""; last-change: "P"; recording: -
+effects:
+  edit 0..0 -> 6; (0,0)..(0,0) -> (0,6)
+
+== yank-line-put-after ==
+text: "select id, name\nselect id, name\nfrom users\nwhere id = 1"
+cursor: 16 @ 1:0
+mode: Normal; selection: -
+register: line "select id, name\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:16, ]:31]
+pending: ""; last-change: "p"; recording: -
+effects:
+  edit 16..16 -> 32; (1,0)..(1,0) -> (2,0)
+
+== yank-line-put-before ==
+text: "select id, name\nselect id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "select id, name\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:15]
+pending: ""; last-change: "P"; recording: -
+effects:
+  edit 0..0 -> 16; (0,0)..(0,0) -> (1,0)
+
+== yank-final-row-put-after ==
+text: "aa\nbb\ncc\ncc"
+cursor: 9 @ 3:0
+mode: Normal; selection: -
+register: line "cc\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:8, ]:10]
+pending: ""; last-change: "p"; recording: -
+effects:
+  edit 8..8 -> 11; (2,2)..(2,2) -> (3,2)
+
+== yank-final-row-put-before ==
+text: "aa\nbb\ncc\ncc"
+cursor: 6 @ 2:0
+mode: Normal; selection: -
+register: line "cc\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:6, ]:8]
+pending: ""; last-change: "P"; recording: -
+effects:
+  edit 6..6 -> 9; (2,0)..(2,0) -> (3,0)
+
+== yank-first-row-put-final-after ==
+text: "aa\nbb\ncc\naa"
+cursor: 9 @ 3:0
+mode: Normal; selection: -
+register: line "aa\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:8, ]:10]
+pending: ""; last-change: "p"; recording: -
+effects:
+  edit 8..8 -> 11; (2,2)..(2,2) -> (3,2)
+
+== yank-first-row-put-final-before ==
+text: "aa\nbb\naa\ncc"
+cursor: 6 @ 2:0
+mode: Normal; selection: -
+register: line "aa\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:6, ]:8]
+pending: ""; last-change: "P"; recording: -
+effects:
+  edit 6..6 -> 9; (2,0)..(2,0) -> (3,0)
+
+== delete-then-put ==
+text: "from users\nselect id, name\nwhere id = 1"
+cursor: 11 @ 1:0
+mode: Normal; selection: -
+register: line "select id, name\n"
+history: undo=2 redo=0
+jumps: []
+marks: [[:11, ]:26]
+pending: ""; last-change: "p"; recording: -
+effects:
+  edit 0..16 -> 0; (0,0)..(1,0) -> (0,0)
+  edit 11..11 -> 27; (1,0)..(1,0) -> (2,0)
+
+== upper-word ==
+text: "ONE two"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:3]
+pending: ""; last-change: "gUw"; recording: -
+effects:
+  edit 0..4 -> 4; (0,0)..(0,4) -> (0,4)
+
+== lower-word ==
+text: "one TWO"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:3]
+pending: ""; last-change: "guw"; recording: -
+effects:
+  edit 0..4 -> 4; (0,0)..(0,4) -> (0,4)
+
+== swap-word ==
+text: "oNE Two"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:3]
+pending: ""; last-change: "g~w"; recording: -
+effects:
+  edit 0..4 -> 4; (0,0)..(0,4) -> (0,4)
+
+== upper-count-multiplied ==
+text: "ONE TWO THREE"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:12]
+pending: ""; last-change: "2gU2w"; recording: -
+effects:
+  edit 0..13 -> 13; (0,0)..(0,13) -> (0,13)
+
+== upper-inner-word ==
+text: "one TWO"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:4, ]:6]
+pending: ""; last-change: "gUiw"; recording: -
+effects:
+  edit 4..7 -> 7; (0,4)..(0,7) -> (0,7)
+
+== upper-till-space ==
+text: "ONE two"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:2]
+pending: ""; last-change: "gUt<Space>"; recording: -
+effects:
+  edit 0..3 -> 3; (0,0)..(0,3) -> (0,3)
+
+== upper-inner-paren ==
+text: "a (B C) d"
+cursor: 3 @ 0:3
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:3, ]:5]
+pending: ""; last-change: "gUi("; recording: -
+effects:
+  edit 3..6 -> 6; (0,3)..(0,6) -> (0,6)
+
+== upper-current-row-short ==
+text: "ONE TWO\nthree"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:6]
+pending: ""; last-change: "gUU"; recording: -
+effects:
+  edit 0..7 -> 7; (0,0)..(0,7) -> (0,7)
+
+== upper-current-row-long ==
+text: "ONE TWO\nthree"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:6]
+pending: ""; last-change: "gUgU"; recording: -
+effects:
+  edit 0..7 -> 7; (0,0)..(0,7) -> (0,7)
+
+== swap-current-row ==
+text: "oNE tWO\nthree"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:6]
+pending: ""; last-change: "g~~"; recording: -
+effects:
+  edit 0..7 -> 7; (0,0)..(0,7) -> (0,7)
+
+== lower-current-rows ==
+text: "one\ntwo\nthree"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:6]
+pending: ""; last-change: "2guu"; recording: -
+effects:
+  edit 0..7 -> 7; (0,0)..(1,3) -> (1,3)
+
+== upper-bad-double ==
+text: "one two"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  bell
+
+== upper-keeps-register ==
+text: "one one TWO"
+cursor: 7 @ 0:7
+mode: Normal; selection: -
+register: char "one "
+history: undo=2 redo=0
+jumps: []
+marks: [[:4, ]:7]
+pending: ""; last-change: "P"; recording: -
+effects:
+  edit 4..7 -> 7; (0,4)..(0,7) -> (0,7)
+  edit 4..4 -> 8; (0,4)..(0,4) -> (0,8)
+
+== visual-upper-word ==
+text: "ONE Two three"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:0, [:0, ]:4]
+pending: ""; last-change: "vwU"; recording: -
+effects:
+  mode Visual(Char)
+  edit 0..5 -> 5; (0,0)..(0,5) -> (0,5)
+  mode Normal
+
+== visual-lower-word ==
+text: "one tWO three"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:0, [:0, ]:4]
+pending: ""; last-change: "vwu"; recording: -
+effects:
+  mode Visual(Char)
+  edit 0..5 -> 5; (0,0)..(0,5) -> (0,5)
+  mode Normal
+
+== visual-swap-dollar ==
+text: "oNE tWO"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:0, [:0, ]:6]
+pending: ""; last-change: "v$~"; recording: -
+effects:
+  mode Visual(Char)
+  edit 0..7 -> 7; (0,0)..(0,7) -> (0,7)
+  mode Normal
+
+== visual-upper-lines ==
+text: "ONE\nTWO\nthree"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:7, [:0, ]:6]
+pending: ""; last-change: "VjU"; recording: -
+effects:
+  mode Visual(Line)
+  edit 0..7 -> 7; (0,0)..(1,3) -> (1,3)
+  mode Normal
+
+== visual-upper-counted-motion ==
+text: "ONE TWO Three"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:0, [:0, ]:8]
+pending: ""; last-change: "v2wgU"; recording: -
+effects:
+  mode Visual(Char)
+  edit 0..9 -> 9; (0,0)..(0,9) -> (0,9)
+  mode Normal
+
+== upper-undo-and-repeat ==
+text: "one two THREE"
+cursor: 12 @ 0:12
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:12, ]:12]
+pending: ""; last-change: "gUw"; recording: -
+effects:
+  edit 0..4 -> 4; (0,0)..(0,4) -> (0,4)
+  edit 0..4 -> 4; (0,0)..(0,4) -> (0,4)
+  edit 8..13 -> 13; (0,8)..(0,13) -> (0,13)
+  edit 12..13 -> 13; (0,12)..(0,13) -> (0,13)
+
+== upper-sharp-s ==
+text: "STRASSE"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:6]
+pending: ""; last-change: "gUiw"; recording: -
+effects:
+  edit 0..7 -> 7; (0,0)..(0,7) -> (0,7)
+
+== lower-multibyte ==
+text: "café NIÑO"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:3]
+pending: ""; last-change: "guiw"; recording: -
+effects:
+  edit 0..5 -> 5; (0,0)..(0,5) -> (0,5)
+
+== delete-char ==
+text: "elect id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "s"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "x"; recording: -
+effects:
+  edit 0..1 -> 0; (0,0)..(0,1) -> (0,0)
+
+== delete-char-count ==
+text: "ect id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "sel"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "3x"; recording: -
+effects:
+  edit 0..3 -> 0; (0,0)..(0,3) -> (0,0)
+
+== delete-before-char ==
+text: "elect id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "s"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "X"; recording: -
+effects:
+  edit 0..1 -> 0; (0,0)..(0,1) -> (0,0)
+
+== replace-char ==
+text: "Select id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "rS"; recording: -
+effects:
+  edit 0..1 -> 1; (0,0)..(0,1) -> (0,1)
+
+== replace-char-count ==
+text: "xxxect id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:2]
+pending: ""; last-change: "3rx"; recording: -
+effects:
+  edit 0..3 -> 3; (0,0)..(0,3) -> (0,3)
+
+== swap-char ==
+text: "Select id, name\nfrom users\nwhere id = 1"
+cursor: 1 @ 0:1
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "~"; recording: -
+effects:
+  edit 0..1 -> 1; (0,0)..(0,1) -> (0,1)
+
+== swap-char-count ==
+text: "SELECT id, name\nfrom users\nwhere id = 1"
+cursor: 6 @ 0:6
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:5]
+pending: ""; last-change: "6~"; recording: -
+effects:
+  edit 0..6 -> 6; (0,0)..(0,6) -> (0,6)
+
+== join-rows ==
+text: "select id, name from users\nwhere id = 1"
+cursor: 15 @ 0:15
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:15, ]:15]
+pending: ""; last-change: "J"; recording: -
+effects:
+  edit 15..16 -> 16; (0,15)..(1,0) -> (0,16)
+
+== join-trims-indent ==
+text: "a b"
+cursor: 1 @ 0:1
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:1, ]:1]
+pending: ""; last-change: "J"; recording: -
+effects:
+  edit 1..6 -> 2; (0,1)..(1,4) -> (0,2)
+
+== join-count ==
+text: "select id, name from users where id = 1"
+cursor: 26 @ 0:26
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:15, ]:26]
+pending: ""; last-change: "3J"; recording: -
+effects:
+  edit 15..16 -> 16; (0,15)..(1,0) -> (0,16)
+  edit 26..27 -> 27; (0,26)..(1,0) -> (0,27)
+
+== insert-before ==
+text: "Xselect id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0, ^:0]
+pending: ""; last-change: "iX<Esc>"; recording: -
+effects:
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  mode Normal
+
+== insert-after ==
+text: "sXelect id, name\nfrom users\nwhere id = 1"
+cursor: 1 @ 0:1
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:1, ]:1, ^:1]
+pending: ""; last-change: "aX<Esc>"; recording: -
+effects:
+  mode Insert
+  edit 1..1 -> 2; (0,1)..(0,1) -> (0,2)
+  mode Normal
+
+== insert-row-end ==
+text: "select id, nameX\nfrom users\nwhere id = 1"
+cursor: 15 @ 0:15
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:15, ]:15, ^:15]
+pending: ""; last-change: "AX<Esc>"; recording: -
+effects:
+  mode Insert
+  edit 15..15 -> 16; (0,15)..(0,15) -> (0,16)
+  mode Normal
+
+== insert-first-nonblank ==
+text: "  Yx"
+cursor: 2 @ 0:2
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:2, ]:2, ^:2]
+pending: ""; last-change: "IY<Esc>"; recording: -
+effects:
+  mode Insert
+  edit 2..2 -> 3; (0,2)..(0,2) -> (0,3)
+  mode Normal
+
+== insert-open-below ==
+text: "select id, name\nX\nfrom users\nwhere id = 1"
+cursor: 16 @ 1:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:16, ]:16, ^:16]
+pending: ""; last-change: "oX<Esc>"; recording: -
+effects:
+  edit 15..15 -> 16; (0,15)..(0,15) -> (1,0)
+  mode Insert
+  edit 16..16 -> 17; (1,0)..(1,0) -> (1,1)
+  mode Normal
+
+== insert-open-above ==
+text: "X\nselect id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0, ^:0]
+pending: ""; last-change: "OX<Esc>"; recording: -
+effects:
+  edit 0..0 -> 1; (0,0)..(0,0) -> (1,0)
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  mode Normal
+
+== insert-backspace ==
+text: "ac"
+cursor: 1 @ 0:1
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:1, ]:1, ^:1]
+pending: ""; last-change: "iab<BS>c<Esc>"; recording: -
+effects:
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  edit 1..1 -> 2; (0,1)..(0,1) -> (0,2)
+  edit 1..2 -> 1; (0,1)..(0,2) -> (0,1)
+  edit 1..1 -> 2; (0,1)..(0,1) -> (0,2)
+  mode Normal
+
+== insert-control-word ==
+text: "one three"
+cursor: 8 @ 0:8
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:8, ]:8, ^:8]
+pending: ""; last-change: "ione<Space>two<C-w>three<Esc>"; recording: -
+effects:
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  edit 1..1 -> 2; (0,1)..(0,1) -> (0,2)
+  edit 2..2 -> 3; (0,2)..(0,2) -> (0,3)
+  edit 3..3 -> 4; (0,3)..(0,3) -> (0,4)
+  edit 4..4 -> 5; (0,4)..(0,4) -> (0,5)
+  edit 5..5 -> 6; (0,5)..(0,5) -> (0,6)
+  edit 6..6 -> 7; (0,6)..(0,6) -> (0,7)
+  edit 4..7 -> 4; (0,4)..(0,7) -> (0,4)
+  edit 4..4 -> 5; (0,4)..(0,4) -> (0,5)
+  edit 5..5 -> 6; (0,5)..(0,5) -> (0,6)
+  edit 6..6 -> 7; (0,6)..(0,6) -> (0,7)
+  edit 7..7 -> 8; (0,7)..(0,7) -> (0,8)
+  edit 8..8 -> 9; (0,8)..(0,8) -> (0,9)
+  mode Normal
+
+== insert-enter ==
+text: "a\nb"
+cursor: 2 @ 1:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:2, ]:2, ^:2]
+pending: ""; last-change: "ia<CR>b<Esc>"; recording: -
+effects:
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  edit 1..1 -> 2; (0,1)..(0,1) -> (1,0)
+  edit 2..2 -> 3; (1,0)..(1,0) -> (1,1)
+  mode Normal
+
+== insert-backspace-row-boundary ==
+text: "abcd"
+cursor: 1 @ 0:1
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:2, ]:1, ^:1]
+pending: ""; last-change: "i<BS><Esc>"; recording: -
+effects:
+  mode Insert
+  edit 2..3 -> 2; (0,2)..(1,0) -> (0,2)
+  mode Normal
+
+== replace-mode ==
+text: "XYcdef"
+cursor: 1 @ 0:1
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:1, ]:1, ^:1]
+pending: ""; last-change: "RXY<Esc>"; recording: -
+effects:
+  mode Replace
+  edit 0..1 -> 1; (0,0)..(0,1) -> (0,1)
+  edit 1..2 -> 2; (0,1)..(0,2) -> (0,2)
+  mode Normal
+
+== replace-mode-row-end ==
+text: "aXYZ\ncd"
+cursor: 3 @ 0:3
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:3, ]:3, ^:3]
+pending: ""; last-change: "RXYZ<Esc>"; recording: -
+effects:
+  mode Replace
+  edit 1..2 -> 2; (0,1)..(0,2) -> (0,2)
+  edit 2..2 -> 3; (0,2)..(0,2) -> (0,3)
+  edit 3..3 -> 4; (0,3)..(0,3) -> (0,4)
+  mode Normal
+
+== visual-char-selection ==
+text: "select id, name\nfrom users\nwhere id = 1"
+cursor: 2 @ 0:2
+mode: Visual(Char); selection: 0..3
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  mode Visual(Char)
+
+== visual-char-delete ==
+text: "ect id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "sel"
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:0, [:0, ]:0]
+pending: ""; last-change: "vlld"; recording: -
+effects:
+  mode Visual(Char)
+  edit 0..3 -> 0; (0,0)..(0,3) -> (0,0)
+  mode Normal
+
+== visual-line-delete ==
+text: "from users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "select id, name\n"
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:0, [:0, ]:0]
+pending: ""; last-change: "Vd"; recording: -
+effects:
+  mode Visual(Line)
+  edit 0..16 -> 0; (0,0)..(1,0) -> (0,0)
+  mode Normal
+
+== visual-two-line-delete ==
+text: "where id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "select id, name\nfrom users\n"
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:0, [:0, ]:0]
+pending: ""; last-change: "Vjd"; recording: -
+effects:
+  mode Visual(Line)
+  edit 0..27 -> 0; (0,0)..(2,0) -> (0,0)
+  mode Normal
+
+== visual-line-selection ==
+text: "select id, name\nfrom users\nwhere id = 1"
+cursor: 16 @ 1:0
+mode: Visual(Line); selection: 0..27
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  mode Visual(Line)
+
+== visual-toggle ==
+text: "select id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: [<:0, >:0]
+pending: ""; last-change: ""; recording: -
+effects:
+  mode Visual(Char)
+  mode Normal
+
+== visual-escape ==
+text: "select id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: [<:0, >:0]
+pending: ""; last-change: ""; recording: -
+effects:
+  mode Visual(Char)
+  mode Normal
+
+== visual-object-selection ==
+text: "select id, name\nfrom users\nwhere id = 1"
+cursor: 5 @ 0:5
+mode: Visual(Char); selection: 0..6
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  mode Visual(Char)
+
+== visual-object-change ==
+text: "SELECT id, name\nfrom users\nwhere id = 1"
+cursor: 5 @ 0:5
+mode: Normal; selection: -
+register: char "select"
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:0, [:5, ]:5, ^:5]
+pending: ""; last-change: "viwcSELECT<Esc>"; recording: -
+effects:
+  mode Visual(Char)
+  edit 0..6 -> 0; (0,0)..(0,6) -> (0,0)
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  edit 1..1 -> 2; (0,1)..(0,1) -> (0,2)
+  edit 2..2 -> 3; (0,2)..(0,2) -> (0,3)
+  edit 3..3 -> 4; (0,3)..(0,3) -> (0,4)
+  edit 4..4 -> 5; (0,4)..(0,4) -> (0,5)
+  edit 5..5 -> 6; (0,5)..(0,5) -> (0,6)
+  mode Normal
+
+== undo-delete ==
+text: "select id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "select id, name\n"
+history: undo=0 redo=1
+jumps: []
+marks: [[:0, ]:15]
+pending: ""; last-change: "dd"; recording: -
+effects:
+  edit 0..16 -> 0; (0,0)..(1,0) -> (0,0)
+  edit 0..0 -> 16; (0,0)..(0,0) -> (1,0)
+
+== redo-delete ==
+text: "from users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "select id, name\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "dd"; recording: -
+effects:
+  edit 0..16 -> 0; (0,0)..(1,0) -> (0,0)
+  edit 0..0 -> 16; (0,0)..(0,0) -> (1,0)
+  edit 0..16 -> 0; (0,0)..(1,0) -> (0,0)
+
+== delete-end-command ==
+text: "select \nfrom users\nwhere id = 1"
+cursor: 6 @ 0:6
+mode: Normal; selection: -
+register: char "id, name"
+history: undo=1 redo=0
+jumps: []
+marks: [[:7, ]:6]
+pending: ""; last-change: "D"; recording: -
+effects:
+  edit 7..15 -> 7; (0,7)..(0,15) -> (0,7)
+
+== change-end-command ==
+text: "select name\nfrom users\nwhere id = 1"
+cursor: 10 @ 0:10
+mode: Normal; selection: -
+register: char "id, name"
+history: undo=1 redo=0
+jumps: []
+marks: [[:10, ]:10, ^:10]
+pending: ""; last-change: "Cname<Esc>"; recording: -
+effects:
+  edit 7..15 -> 7; (0,7)..(0,15) -> (0,7)
+  mode Insert
+  edit 7..7 -> 8; (0,7)..(0,7) -> (0,8)
+  edit 8..8 -> 9; (0,8)..(0,8) -> (0,9)
+  edit 9..9 -> 10; (0,9)..(0,9) -> (0,10)
+  edit 10..10 -> 11; (0,10)..(0,10) -> (0,11)
+  mode Normal
+
+== delete-end-count ==
+text: "\ncc"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "aa\nbb"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "2D"; recording: -
+effects:
+  edit 0..5 -> 0; (0,0)..(1,2) -> (0,0)
+
+== delete-end-repeat ==
+text: "aa \ncc "
+cursor: 6 @ 1:2
+mode: Normal; selection: -
+register: char "dd"
+history: undo=2 redo=0
+jumps: []
+marks: [[:7, ]:6]
+pending: ""; last-change: "D"; recording: -
+effects:
+  edit 3..5 -> 3; (0,3)..(0,5) -> (0,3)
+  edit 7..9 -> 7; (1,3)..(1,5) -> (1,3)
+
+== find-till-repeat ==
+text: "a.b.c.d"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== find-till-reverse ==
+text: "a.b.c.d"
+cursor: 2 @ 0:2
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== find-backward-till-repeat ==
+text: "a.b.c.d"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== find-repeat-count ==
+text: "a.b.c.d.e"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== undo-caret-open ==
+text: "select id\nfrom users"
+cursor: 3 @ 0:3
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=1
+jumps: []
+marks: [[:9, ]:8, ^:9]
+pending: ""; last-change: "o--<Space>note<Esc>"; recording: -
+effects:
+  edit 9..9 -> 10; (0,9)..(0,9) -> (1,0)
+  mode Insert
+  edit 10..10 -> 11; (1,0)..(1,0) -> (1,1)
+  edit 11..11 -> 12; (1,1)..(1,1) -> (1,2)
+  edit 12..12 -> 13; (1,2)..(1,2) -> (1,3)
+  edit 13..13 -> 14; (1,3)..(1,3) -> (1,4)
+  edit 14..14 -> 15; (1,4)..(1,4) -> (1,5)
+  edit 15..15 -> 16; (1,5)..(1,5) -> (1,6)
+  edit 16..16 -> 17; (1,6)..(1,6) -> (1,7)
+  mode Normal
+  edit 16..17 -> 16; (1,6)..(1,7) -> (1,6)
+  edit 15..16 -> 15; (1,5)..(1,6) -> (1,5)
+  edit 14..15 -> 14; (1,4)..(1,5) -> (1,4)
+  edit 13..14 -> 13; (1,3)..(1,4) -> (1,3)
+  edit 12..13 -> 12; (1,2)..(1,3) -> (1,2)
+  edit 11..12 -> 11; (1,1)..(1,2) -> (1,1)
+  edit 10..11 -> 10; (1,0)..(1,1) -> (1,0)
+  edit 9..10 -> 9; (0,9)..(1,0) -> (0,9)
+
+== redo-caret-open ==
+text: "select id\n-- note\nfrom users"
+cursor: 16 @ 1:6
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:9, ]:16, ^:9]
+pending: ""; last-change: "o--<Space>note<Esc>"; recording: -
+effects:
+  edit 9..9 -> 10; (0,9)..(0,9) -> (1,0)
+  mode Insert
+  edit 10..10 -> 11; (1,0)..(1,0) -> (1,1)
+  edit 11..11 -> 12; (1,1)..(1,1) -> (1,2)
+  edit 12..12 -> 13; (1,2)..(1,2) -> (1,3)
+  edit 13..13 -> 14; (1,3)..(1,3) -> (1,4)
+  edit 14..14 -> 15; (1,4)..(1,4) -> (1,5)
+  edit 15..15 -> 16; (1,5)..(1,5) -> (1,6)
+  edit 16..16 -> 17; (1,6)..(1,6) -> (1,7)
+  mode Normal
+  edit 16..17 -> 16; (1,6)..(1,7) -> (1,6)
+  edit 15..16 -> 15; (1,5)..(1,6) -> (1,5)
+  edit 14..15 -> 14; (1,4)..(1,5) -> (1,4)
+  edit 13..14 -> 13; (1,3)..(1,4) -> (1,3)
+  edit 12..13 -> 12; (1,2)..(1,3) -> (1,2)
+  edit 11..12 -> 11; (1,1)..(1,2) -> (1,1)
+  edit 10..11 -> 10; (1,0)..(1,1) -> (1,0)
+  edit 9..10 -> 9; (0,9)..(1,0) -> (0,9)
+  edit 9..9 -> 10; (0,9)..(0,9) -> (1,0)
+  edit 10..10 -> 11; (1,0)..(1,0) -> (1,1)
+  edit 11..11 -> 12; (1,1)..(1,1) -> (1,2)
+  edit 12..12 -> 13; (1,2)..(1,2) -> (1,3)
+  edit 13..13 -> 14; (1,3)..(1,3) -> (1,4)
+  edit 14..14 -> 15; (1,4)..(1,4) -> (1,5)
+  edit 15..15 -> 16; (1,5)..(1,5) -> (1,6)
+  edit 16..16 -> 17; (1,6)..(1,6) -> (1,7)
+
+== insert-session-undo ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=1
+jumps: []
+marks: [[:0, ]:0, ^:0]
+pending: ""; last-change: "ihello<Space>world<Esc>"; recording: -
+effects:
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  edit 1..1 -> 2; (0,1)..(0,1) -> (0,2)
+  edit 2..2 -> 3; (0,2)..(0,2) -> (0,3)
+  edit 3..3 -> 4; (0,3)..(0,3) -> (0,4)
+  edit 4..4 -> 5; (0,4)..(0,4) -> (0,5)
+  edit 5..5 -> 6; (0,5)..(0,5) -> (0,6)
+  edit 6..6 -> 7; (0,6)..(0,6) -> (0,7)
+  edit 7..7 -> 8; (0,7)..(0,7) -> (0,8)
+  edit 8..8 -> 9; (0,8)..(0,8) -> (0,9)
+  edit 9..9 -> 10; (0,9)..(0,9) -> (0,10)
+  edit 10..10 -> 11; (0,10)..(0,10) -> (0,11)
+  mode Normal
+  edit 10..11 -> 10; (0,10)..(0,11) -> (0,10)
+  edit 9..10 -> 9; (0,9)..(0,10) -> (0,9)
+  edit 8..9 -> 8; (0,8)..(0,9) -> (0,8)
+  edit 7..8 -> 7; (0,7)..(0,8) -> (0,7)
+  edit 6..7 -> 6; (0,6)..(0,7) -> (0,6)
+  edit 5..6 -> 5; (0,5)..(0,6) -> (0,5)
+  edit 4..5 -> 4; (0,4)..(0,5) -> (0,4)
+  edit 3..4 -> 3; (0,3)..(0,4) -> (0,3)
+  edit 2..3 -> 2; (0,2)..(0,3) -> (0,2)
+  edit 1..2 -> 1; (0,1)..(0,2) -> (0,1)
+  edit 0..1 -> 0; (0,0)..(0,1) -> (0,0)
+
+== change-session-undo ==
+text: "select id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "select"
+history: undo=0 redo=1
+jumps: []
+marks: [[:0, ]:5, ^:0]
+pending: ""; last-change: "cwSELECT<Esc>"; recording: -
+effects:
+  edit 0..6 -> 0; (0,0)..(0,6) -> (0,0)
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  edit 1..1 -> 2; (0,1)..(0,1) -> (0,2)
+  edit 2..2 -> 3; (0,2)..(0,2) -> (0,3)
+  edit 3..3 -> 4; (0,3)..(0,3) -> (0,4)
+  edit 4..4 -> 5; (0,4)..(0,4) -> (0,5)
+  edit 5..5 -> 6; (0,5)..(0,5) -> (0,6)
+  mode Normal
+  edit 5..6 -> 5; (0,5)..(0,6) -> (0,5)
+  edit 4..5 -> 4; (0,4)..(0,5) -> (0,4)
+  edit 3..4 -> 3; (0,3)..(0,4) -> (0,3)
+  edit 2..3 -> 2; (0,2)..(0,3) -> (0,2)
+  edit 1..2 -> 1; (0,1)..(0,2) -> (0,1)
+  edit 0..1 -> 0; (0,0)..(0,1) -> (0,0)
+  edit 0..0 -> 6; (0,0)..(0,0) -> (0,6)
+
+== dot-delete-word ==
+text: ", name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "id"
+history: undo=2 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "dw"; recording: -
+effects:
+  edit 0..7 -> 0; (0,0)..(0,7) -> (0,0)
+  edit 0..2 -> 0; (0,0)..(0,2) -> (0,0)
+
+== dot-delete-row ==
+text: "where id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "from users\n"
+history: undo=2 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "dd"; recording: -
+effects:
+  edit 0..16 -> 0; (0,0)..(1,0) -> (0,0)
+  edit 0..11 -> 0; (0,0)..(1,0) -> (0,0)
+
+== dot-change ==
+text: "X X"
+cursor: 2 @ 0:2
+mode: Normal; selection: -
+register: char "two"
+history: undo=2 redo=0
+jumps: []
+marks: [[:2, ]:2, ^:2]
+pending: ""; last-change: "ciwX<Esc>"; recording: -
+effects:
+  edit 0..3 -> 0; (0,0)..(0,3) -> (0,0)
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  mode Normal
+  edit 2..5 -> 2; (0,2)..(0,5) -> (0,2)
+  mode Insert
+  edit 2..2 -> 3; (0,2)..(0,2) -> (0,3)
+  mode Normal
+
+== dot-insert-session ==
+text: "aabb"
+cursor: 2 @ 0:2
+mode: Normal; selection: -
+register: char ""
+history: undo=2 redo=0
+jumps: []
+marks: [[:1, ]:2, ^:2]
+pending: ""; last-change: "iab<Esc>"; recording: -
+effects:
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  edit 1..1 -> 2; (0,1)..(0,1) -> (0,2)
+  mode Normal
+  mode Insert
+  edit 1..1 -> 2; (0,1)..(0,1) -> (0,2)
+  edit 2..2 -> 3; (0,2)..(0,2) -> (0,3)
+  mode Normal
+
+== dot-count ==
+text: "e"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "d "
+history: undo=2 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "dw"; recording: -
+effects:
+  edit 0..2 -> 0; (0,0)..(0,2) -> (0,0)
+  edit 0..2 -> 0; (0,0)..(0,2) -> (0,0)
+  edit 0..2 -> 0; (0,0)..(0,2) -> (0,0)
+  edit 0..2 -> 0; (0,0)..(0,2) -> (0,0)
+
+== dot-empty ==
+text: "select id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  bell
+
+== dot-visual-shift ==
+text: "    a\n    b\n    c\n    d"
+cursor: 16 @ 2:4
+mode: Normal; selection: -
+register: char ""
+history: undo=2 redo=0
+jumps: []
+marks: [<:11, >:18, [:12, ]:21]
+pending: ""; last-change: "Vj>"; recording: -
+effects:
+  mode Visual(Line)
+  edit 2..2 -> 6; (1,0)..(1,0) -> (1,4)
+  edit 0..0 -> 4; (0,0)..(0,0) -> (0,4)
+  mode Normal
+  mode Visual(Line)
+  edit 14..14 -> 18; (3,0)..(3,0) -> (3,4)
+  edit 12..12 -> 16; (2,0)..(2,0) -> (2,4)
+  mode Normal
+
+== dot-visual-delete ==
+text: "e"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "c\nd\n"
+history: undo=2 redo=0
+jumps: []
+marks: [<:0, >:0, [:0, ]:0]
+pending: ""; last-change: "Vjd"; recording: -
+effects:
+  mode Visual(Line)
+  edit 0..4 -> 0; (0,0)..(2,0) -> (0,0)
+  mode Normal
+  mode Visual(Line)
+  edit 0..4 -> 0; (0,0)..(2,0) -> (0,0)
+  mode Normal
+
+== dot-visual-change ==
+text: "Xwo X"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char "three"
+history: undo=2 redo=0
+jumps: []
+marks: [<:4, >:4, [:4, ]:4, ^:4]
+pending: ""; last-change: "vwcX<Esc>"; recording: -
+effects:
+  mode Visual(Char)
+  edit 0..5 -> 0; (0,0)..(0,5) -> (0,0)
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  mode Normal
+  mode Visual(Char)
+  edit 4..9 -> 4; (0,4)..(0,9) -> (0,4)
+  mode Insert
+  edit 4..4 -> 5; (0,4)..(0,4) -> (0,5)
+  mode Normal
+
+== macro-record-play ==
+text: "Aa\nBb\nCc"
+cursor: 6 @ 2:0
+mode: Normal; selection: -
+register: char ""
+history: undo=3 redo=0
+jumps: []
+marks: [[:6, ]:6]
+pending: ""; last-change: "~"; recording: -
+effects:
+  recording @a
+  edit 0..1 -> 1; (0,0)..(0,1) -> (0,1)
+  recorded @a
+  edit 3..4 -> 4; (1,0)..(1,1) -> (1,1)
+  edit 6..7 -> 7; (2,0)..(2,1) -> (2,1)
+
+== macro-count ==
+text: "Aa\nBb\nCc"
+cursor: 6 @ 2:0
+mode: Normal; selection: -
+register: char ""
+history: undo=2 redo=0
+jumps: []
+marks: [[:3, ]:6]
+pending: ""; last-change: "~"; recording: -
+effects:
+  recording @a
+  edit 0..1 -> 1; (0,0)..(0,1) -> (0,1)
+  recorded @a
+  edit 3..4 -> 4; (1,0)..(1,1) -> (1,1)
+  edit 6..7 -> 7; (2,0)..(2,1) -> (2,1)
+
+== macro-diagonal ==
+text: "Aa\nbB\ncC"
+cursor: 7 @ 2:1
+mode: Normal; selection: -
+register: char ""
+history: undo=3 redo=0
+jumps: []
+marks: [[:7, ]:7]
+pending: ""; last-change: "~"; recording: -
+effects:
+  recording @a
+  edit 0..1 -> 1; (0,0)..(0,1) -> (0,1)
+  recorded @a
+  edit 4..5 -> 5; (1,1)..(1,2) -> (1,2)
+  edit 7..8 -> 8; (2,1)..(2,2) -> (2,2)
+
+== macro-recording-events ==
+text: "bc"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "a"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "x"; recording: -
+effects:
+  recording @a
+  edit 0..1 -> 0; (0,0)..(0,1) -> (0,0)
+  recorded @a
+
+== macro-unrecorded ==
+text: "select id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  bell
+
+== macro-self-referential ==
+text: "abc"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  recording @a
+  bell
+  recorded @a
+  bell
+
+== typing-effects ==
+text: "abc"
+cursor: 2 @ 0:2
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:2, ]:2, ^:2]
+pending: ""; last-change: "iabc<Esc>"; recording: -
+effects:
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  edit 1..1 -> 2; (0,1)..(0,1) -> (0,2)
+  edit 2..2 -> 3; (0,2)..(0,2) -> (0,3)
+  mode Normal
+
+== edit-geometry ==
+text: "select id, name\nwhere id = 1"
+cursor: 16 @ 1:0
+mode: Normal; selection: -
+register: line "from users\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:16, ]:15]
+pending: ""; last-change: "dd"; recording: -
+effects:
+  edit 16..27 -> 16; (1,0)..(2,0) -> (1,0)
+
+== mode-effects ==
+text: "select id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: [^:0]
+pending: ""; last-change: "i<Esc>"; recording: -
+effects:
+  mode Insert
+  mode Normal
+
+== scroll-effects ==
+text: "select id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  scroll Center
+  scroll HalfPageDown
+
+== command-prompt-effect ==
+text: "select id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  command prompt :
+
+== invalid-sequence ==
+text: "select id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  bell
+
+== pending-command ==
+text: "select id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: "2d"; last-change: ""; recording: -
+effects:
+
+== empty-delete-char ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: "x"; recording: -
+effects:
+  bell
+
+== empty-delete-row ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: "dd"; recording: -
+effects:
+  bell
+
+== empty-change-word ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: "ciw<Esc>"; recording: -
+effects:
+  bell
+
+== empty-put-join-swap ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: "~"; recording: -
+effects:
+  bell
+  bell
+  bell
+  bell
+
+== empty-macro ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  bell
+
+== combining-grapheme-delete ==
+text: "caf au lait"
+cursor: 3 @ 0:3
+mode: Normal; selection: -
+register: char "e\u{301}"
+history: undo=1 redo=0
+jumps: []
+marks: [[:3, ]:2]
+pending: ""; last-change: "x"; recording: -
+effects:
+  edit 3..6 -> 3; (0,3)..(0,6) -> (0,3)
+
+== multibyte-motion-and-edit ==
+text: "aé\u{301}b\ncaf\nx"
+cursor: 9 @ 1:2
+mode: Normal; selection: -
+register: char "f\n"
+history: undo=1 redo=1
+jumps: []
+marks: [[:9, ]:10]
+pending: ""; last-change: "dw"; recording: -
+effects:
+  edit 10..12 -> 10; (1,3)..(1,5) -> (1,3)
+  edit 9..11 -> 9; (1,2)..(2,0) -> (1,2)
+  edit 9..9 -> 11; (1,2)..(1,2) -> (2,0)
+
+== put-after-multibyte-yank ==
+text: "本日語"
+cursor: 3 @ 0:3
+mode: Normal; selection: -
+register: char "日"
+history: undo=2 redo=0
+jumps: []
+marks: [[:3, ]:3]
+pending: ""; last-change: "p"; recording: -
+effects:
+  edit 0..3 -> 0; (0,0)..(0,3) -> (0,0)
+  edit 3..3 -> 6; (0,3)..(0,3) -> (0,6)
+
+== put-before-multibyte-yank ==
+text: "日本語"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "日"
+history: undo=2 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "P"; recording: -
+effects:
+  edit 0..3 -> 0; (0,0)..(0,3) -> (0,0)
+  edit 0..0 -> 3; (0,0)..(0,0) -> (0,3)
+
+== word-end-over-flag ==
+text: "🇦🇺café"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== move-left-edge ==
+text: "abc"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== move-first-nonblank ==
+text: "  abc"
+cursor: 2 @ 0:2
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== move-word-forward ==
+text: "one two three"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== move-big-word-forward ==
+text: "one, two"
+cursor: 5 @ 0:5
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== move-word-backward ==
+text: "one two three"
+cursor: 8 @ 0:8
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== move-big-word-backward ==
+text: "one, two"
+cursor: 5 @ 0:5
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== move-word-end ==
+text: "one two three"
+cursor: 2 @ 0:2
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== move-big-word-end-count ==
+text: "one, two three"
+cursor: 7 @ 0:7
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== move-find-forward-count ==
+text: "a.b.c.d"
+cursor: 3 @ 0:3
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== move-find-backward ==
+text: "a.b.c.d"
+cursor: 5 @ 0:5
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== move-till-forward ==
+text: "a.b.c.d"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== move-till-backward ==
+text: "a.b.c.d"
+cursor: 6 @ 0:6
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== move-find-reverse-repeat ==
+text: "a.b.c.d"
+cursor: 1 @ 0:1
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== visual-inner-brace-seeks ==
+text: "outer { mid { deep } here } end"
+cursor: 25 @ 0:25
+mode: Visual(Char); selection: 7..26
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  mode Visual(Char)
+
+== visual-inner-brace-count-seeks ==
+text: "outer { mid { deep } here } end"
+cursor: 18 @ 0:18
+mode: Visual(Char); selection: 13..19
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  mode Visual(Char)
+
+== change-first-row-no-newline ==
+text: "X\nbb\ncc"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "aa\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0, ^:0]
+pending: ""; last-change: "ccX<Esc>"; recording: -
+effects:
+  edit 0..2 -> 0; (0,0)..(0,2) -> (0,0)
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  mode Normal
+
+== visual-change-final-row-no-newline ==
+text: "aa\nbb\nX"
+cursor: 6 @ 2:0
+mode: Normal; selection: -
+register: line "cc\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [<:5, >:6, [:6, ]:6, ^:6]
+pending: ""; last-change: "VcX<Esc>"; recording: -
+effects:
+  mode Visual(Line)
+  edit 6..8 -> 6; (2,0)..(2,2) -> (2,0)
+  mode Insert
+  edit 6..6 -> 7; (2,0)..(2,0) -> (2,1)
+  mode Normal
+
+== change-two-rows-no-newline ==
+text: "aa\nX"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: line "bb\ncc\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:3, ]:3, ^:3]
+pending: ""; last-change: "2ccX<Esc>"; recording: -
+effects:
+  edit 3..8 -> 3; (1,0)..(2,2) -> (1,0)
+  mode Insert
+  edit 3..3 -> 4; (1,0)..(1,0) -> (1,1)
+  mode Normal
+
+== change-first-row-trailing-newline ==
+text: "X\nbb\ncc\n"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "aa\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0, ^:0]
+pending: ""; last-change: "ccX<Esc>"; recording: -
+effects:
+  edit 0..2 -> 0; (0,0)..(0,2) -> (0,0)
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  mode Normal
+
+== change-middle-row-trailing-newline ==
+text: "aa\nX\ncc\n"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: line "bb\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:3, ]:3, ^:3]
+pending: ""; last-change: "ccX<Esc>"; recording: -
+effects:
+  edit 3..5 -> 3; (1,0)..(1,2) -> (1,0)
+  mode Insert
+  edit 3..3 -> 4; (1,0)..(1,0) -> (1,1)
+  mode Normal
+
+== visual-change-final-row-trailing-newline ==
+text: "aa\nbb\nX\n"
+cursor: 6 @ 2:0
+mode: Normal; selection: -
+register: line "cc\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [<:5, >:6, [:6, ]:6, ^:6]
+pending: ""; last-change: "VcX<Esc>"; recording: -
+effects:
+  mode Visual(Line)
+  edit 6..8 -> 6; (2,0)..(2,2) -> (2,0)
+  mode Insert
+  edit 6..6 -> 7; (2,0)..(2,0) -> (2,1)
+  mode Normal
+
+== change-final-only-trailing-newline ==
+text: "X\n"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "aa\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:0, ]:0, ^:0]
+pending: ""; last-change: "ccX<Esc>"; recording: -
+effects:
+  edit 0..2 -> 0; (0,0)..(0,2) -> (0,0)
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  mode Normal
+
+== change-two-rows-trailing-newline ==
+text: "aa\nX\n"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: line "bb\ncc\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:3, ]:3, ^:3]
+pending: ""; last-change: "2ccX<Esc>"; recording: -
+effects:
+  edit 3..8 -> 3; (1,0)..(2,2) -> (1,0)
+  mode Insert
+  edit 3..3 -> 4; (1,0)..(1,0) -> (1,1)
+  mode Normal
+
+== macro-closing-q-excluded ==
+text: "b"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "c"
+history: undo=2 redo=0
+jumps: []
+marks: [[:1, ]:0]
+pending: ""; last-change: "x"; recording: -
+effects:
+  recording @a
+  edit 0..1 -> 0; (0,0)..(0,1) -> (0,0)
+  recorded @a
+  edit 1..2 -> 1; (0,1)..(0,2) -> (0,1)
+
+== dot-keeps-last-change-after-motion-undo ==
+text: "select id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "s"
+history: undo=0 redo=1
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "x"; recording: -
+effects:
+  edit 0..1 -> 0; (0,0)..(0,1) -> (0,0)
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+
+== invalid-cancelled-sequence ==
+text: "select id, name\nfrom users\nwhere id = 1"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== empty-delete-before ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: "X"; recording: -
+effects:
+  bell
+
+== empty-delete-word ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: "dw"; recording: -
+effects:
+  bell
+
+== empty-delete-inner-word ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: "diw"; recording: -
+effects:
+  bell
+
+== empty-delete-end ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: "D"; recording: -
+effects:
+  bell
+
+== empty-undo-redo ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  bell
+  bell
+
+== empty-motions ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== empty-visual-operators ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: [<:0, >:0]
+pending: ""; last-change: "Vd"; recording: -
+effects:
+  mode Visual(Char)
+  bell
+  mode Normal
+  mode Visual(Line)
+  bell
+  mode Normal
+
+== empty-replace ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: "rx"; recording: -
+effects:
+  bell
+
+== lines-dd-first-no-newline ==
+text: "bb\ncc"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "aa\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "dd"; recording: -
+effects:
+  edit 0..3 -> 0; (0,0)..(1,0) -> (0,0)
+
+== lines-dd-middle-no-newline ==
+text: "aa\ncc"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: line "bb\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:3, ]:2]
+pending: ""; last-change: "dd"; recording: -
+effects:
+  edit 3..6 -> 3; (1,0)..(2,0) -> (1,0)
+
+== lines-dd-final-no-newline ==
+text: "aa\nbb"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: line "cc\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:5, ]:4]
+pending: ""; last-change: "dd"; recording: -
+effects:
+  edit 5..8 -> 5; (1,2)..(2,2) -> (1,2)
+
+== lines-dd-first-trailing-newline ==
+text: "bb\ncc\n"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "aa\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "dd"; recording: -
+effects:
+  edit 0..3 -> 0; (0,0)..(1,0) -> (0,0)
+
+== lines-dd-middle-trailing-newline ==
+text: "aa\ncc\n"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: line "bb\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:3, ]:2]
+pending: ""; last-change: "dd"; recording: -
+effects:
+  edit 3..6 -> 3; (1,0)..(2,0) -> (1,0)
+
+== lines-dd-final-trailing-newline ==
+text: "aa\nbb"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: line "cc\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:5, ]:4]
+pending: ""; last-change: "dd"; recording: -
+effects:
+  edit 5..9 -> 5; (1,2)..(3,0) -> (1,2)
+
+== lines-dd-single-row ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "aa\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "dd"; recording: -
+effects:
+  edit 0..2 -> 0; (0,0)..(0,2) -> (0,0)
+
+== lines-cc-first-no-newline ==
+text: "X\nbb\ncc"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "aa\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0, ^:0]
+pending: ""; last-change: "ccX<Esc>"; recording: -
+effects:
+  edit 0..2 -> 0; (0,0)..(0,2) -> (0,0)
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  mode Normal
+
+== lines-cc-middle-no-newline ==
+text: "aa\nX\ncc"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: line "bb\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:3, ]:3, ^:3]
+pending: ""; last-change: "ccX<Esc>"; recording: -
+effects:
+  edit 3..5 -> 3; (1,0)..(1,2) -> (1,0)
+  mode Insert
+  edit 3..3 -> 4; (1,0)..(1,0) -> (1,1)
+  mode Normal
+
+== lines-cc-final-no-newline ==
+text: "aa\nbb\nX"
+cursor: 6 @ 2:0
+mode: Normal; selection: -
+register: line "cc\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:6, ]:6, ^:6]
+pending: ""; last-change: "ccX<Esc>"; recording: -
+effects:
+  edit 6..8 -> 6; (2,0)..(2,2) -> (2,0)
+  mode Insert
+  edit 6..6 -> 7; (2,0)..(2,0) -> (2,1)
+  mode Normal
+
+== lines-cc-first-trailing-newline ==
+text: "X\nbb\ncc\n"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "aa\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0, ^:0]
+pending: ""; last-change: "ccX<Esc>"; recording: -
+effects:
+  edit 0..2 -> 0; (0,0)..(0,2) -> (0,0)
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  mode Normal
+
+== lines-cc-middle-trailing-newline ==
+text: "aa\nX\ncc\n"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: line "bb\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:3, ]:3, ^:3]
+pending: ""; last-change: "ccX<Esc>"; recording: -
+effects:
+  edit 3..5 -> 3; (1,0)..(1,2) -> (1,0)
+  mode Insert
+  edit 3..3 -> 4; (1,0)..(1,0) -> (1,1)
+  mode Normal
+
+== lines-cc-final-trailing-newline ==
+text: "aa\nbb\nX\n"
+cursor: 6 @ 2:0
+mode: Normal; selection: -
+register: line "cc\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:6, ]:6, ^:6]
+pending: ""; last-change: "ccX<Esc>"; recording: -
+effects:
+  edit 6..8 -> 6; (2,0)..(2,2) -> (2,0)
+  mode Insert
+  edit 6..6 -> 7; (2,0)..(2,0) -> (2,1)
+  mode Normal
+
+== lines-cc-single-row ==
+text: "X"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "aa\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0, ^:0]
+pending: ""; last-change: "ccX<Esc>"; recording: -
+effects:
+  edit 0..2 -> 0; (0,0)..(0,2) -> (0,0)
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  mode Normal
+
+== lines-yank-put-first-no-newline ==
+text: "aa\naa\nbb\ncc"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: line "aa\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:3, ]:5]
+pending: ""; last-change: "p"; recording: -
+effects:
+  edit 3..3 -> 6; (1,0)..(1,0) -> (2,0)
+
+== lines-yank-put-middle-no-newline ==
+text: "aa\nbb\nbb\ncc"
+cursor: 6 @ 2:0
+mode: Normal; selection: -
+register: line "bb\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:6, ]:8]
+pending: ""; last-change: "p"; recording: -
+effects:
+  edit 6..6 -> 9; (2,0)..(2,0) -> (3,0)
+
+== lines-yank-put-final-no-newline ==
+text: "aa\nbb\ncc\ncc"
+cursor: 9 @ 3:0
+mode: Normal; selection: -
+register: line "cc\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:8, ]:10]
+pending: ""; last-change: "p"; recording: -
+effects:
+  edit 8..8 -> 11; (2,2)..(2,2) -> (3,2)
+
+== lines-yank-put-first-trailing-newline ==
+text: "aa\naa\nbb\ncc\n"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: line "aa\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:3, ]:5]
+pending: ""; last-change: "p"; recording: -
+effects:
+  edit 3..3 -> 6; (1,0)..(1,0) -> (2,0)
+
+== lines-yank-put-middle-trailing-newline ==
+text: "aa\nbb\nbb\ncc\n"
+cursor: 6 @ 2:0
+mode: Normal; selection: -
+register: line "bb\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:6, ]:8]
+pending: ""; last-change: "p"; recording: -
+effects:
+  edit 6..6 -> 9; (2,0)..(2,0) -> (3,0)
+
+== lines-yank-put-final-trailing-newline ==
+text: "aa\nbb\ncc\ncc\n"
+cursor: 9 @ 3:0
+mode: Normal; selection: -
+register: line "cc\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:9, ]:11]
+pending: ""; last-change: "p"; recording: -
+effects:
+  edit 9..9 -> 12; (3,0)..(3,0) -> (4,0)
+
+== lines-yank-put-single-row ==
+text: "aa\naa"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: line "aa\n"
+history: undo=1 redo=0
+jumps: []
+marks: [[:2, ]:4]
+pending: ""; last-change: "p"; recording: -
+effects:
+  edit 2..2 -> 5; (0,2)..(0,2) -> (1,2)
+
+== lines-shift-right-first-no-newline ==
+text: "    aa\nbb\ncc"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:3]
+pending: ""; last-change: ">>"; recording: -
+effects:
+  edit 0..0 -> 4; (0,0)..(0,0) -> (0,4)
+
+== lines-shift-right-middle-no-newline ==
+text: "aa\n    bb\ncc"
+cursor: 7 @ 1:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:3, ]:6]
+pending: ""; last-change: ">>"; recording: -
+effects:
+  edit 3..3 -> 7; (1,0)..(1,0) -> (1,4)
+
+== lines-shift-right-final-no-newline ==
+text: "aa\nbb\n    cc"
+cursor: 10 @ 2:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:6, ]:9]
+pending: ""; last-change: ">>"; recording: -
+effects:
+  edit 6..6 -> 10; (2,0)..(2,0) -> (2,4)
+
+== lines-shift-right-first-trailing-newline ==
+text: "    aa\nbb\ncc\n"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:3]
+pending: ""; last-change: ">>"; recording: -
+effects:
+  edit 0..0 -> 4; (0,0)..(0,0) -> (0,4)
+
+== lines-shift-right-middle-trailing-newline ==
+text: "aa\n    bb\ncc\n"
+cursor: 7 @ 1:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:3, ]:6]
+pending: ""; last-change: ">>"; recording: -
+effects:
+  edit 3..3 -> 7; (1,0)..(1,0) -> (1,4)
+
+== lines-shift-right-final-trailing-newline ==
+text: "aa\nbb\n    cc\n"
+cursor: 10 @ 2:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:6, ]:9]
+pending: ""; last-change: ">>"; recording: -
+effects:
+  edit 6..6 -> 10; (2,0)..(2,0) -> (2,4)
+
+== lines-shift-right-single-row ==
+text: "    aa"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:3]
+pending: ""; last-change: ">>"; recording: -
+effects:
+  edit 0..0 -> 4; (0,0)..(0,0) -> (0,4)
+
+== lines-shift-left-first-no-newline ==
+text: "aa\n    bb\n    cc"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "<lt><lt>"; recording: -
+effects:
+  edit 0..4 -> 0; (0,0)..(0,4) -> (0,0)
+
+== lines-shift-left-middle-no-newline ==
+text: "    aa\nbb\n    cc"
+cursor: 7 @ 1:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:7, ]:6]
+pending: ""; last-change: "<lt><lt>"; recording: -
+effects:
+  edit 7..11 -> 7; (1,0)..(1,4) -> (1,0)
+
+== lines-shift-left-final-no-newline ==
+text: "    aa\n    bb\ncc"
+cursor: 14 @ 2:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:14, ]:13]
+pending: ""; last-change: "<lt><lt>"; recording: -
+effects:
+  edit 14..18 -> 14; (2,0)..(2,4) -> (2,0)
+
+== lines-shift-left-first-trailing-newline ==
+text: "aa\n    bb\n    cc\n"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "<lt><lt>"; recording: -
+effects:
+  edit 0..4 -> 0; (0,0)..(0,4) -> (0,0)
+
+== lines-shift-left-middle-trailing-newline ==
+text: "    aa\nbb\n    cc\n"
+cursor: 7 @ 1:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:7, ]:6]
+pending: ""; last-change: "<lt><lt>"; recording: -
+effects:
+  edit 7..11 -> 7; (1,0)..(1,4) -> (1,0)
+
+== lines-shift-left-final-trailing-newline ==
+text: "    aa\n    bb\ncc\n"
+cursor: 14 @ 2:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:14, ]:13]
+pending: ""; last-change: "<lt><lt>"; recording: -
+effects:
+  edit 14..18 -> 14; (2,0)..(2,4) -> (2,0)
+
+== lines-shift-left-single-row ==
+text: "aa"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "<lt><lt>"; recording: -
+effects:
+  edit 0..4 -> 0; (0,0)..(0,4) -> (0,0)
+
+== lines-upper-first-no-newline ==
+text: "AA\nbb\ncc"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:1]
+pending: ""; last-change: "gUU"; recording: -
+effects:
+  edit 0..2 -> 2; (0,0)..(0,2) -> (0,2)
+
+== lines-upper-middle-no-newline ==
+text: "aa\nBB\ncc"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:3, ]:4]
+pending: ""; last-change: "gUU"; recording: -
+effects:
+  edit 3..5 -> 5; (1,0)..(1,2) -> (1,2)
+
+== lines-upper-final-no-newline ==
+text: "aa\nbb\nCC"
+cursor: 6 @ 2:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:6, ]:7]
+pending: ""; last-change: "gUU"; recording: -
+effects:
+  edit 6..8 -> 8; (2,0)..(2,2) -> (2,2)
+
+== lines-upper-first-trailing-newline ==
+text: "AA\nbb\ncc\n"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:1]
+pending: ""; last-change: "gUU"; recording: -
+effects:
+  edit 0..2 -> 2; (0,0)..(0,2) -> (0,2)
+
+== lines-upper-middle-trailing-newline ==
+text: "aa\nBB\ncc\n"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:3, ]:4]
+pending: ""; last-change: "gUU"; recording: -
+effects:
+  edit 3..5 -> 5; (1,0)..(1,2) -> (1,2)
+
+== lines-upper-final-trailing-newline ==
+text: "aa\nbb\nCC\n"
+cursor: 6 @ 2:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:6, ]:7]
+pending: ""; last-change: "gUU"; recording: -
+effects:
+  edit 6..8 -> 8; (2,0)..(2,2) -> (2,2)
+
+== lines-upper-single-row ==
+text: "AA"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:1]
+pending: ""; last-change: "gUU"; recording: -
+effects:
+  edit 0..2 -> 2; (0,0)..(0,2) -> (0,2)
+
+== lines-lower-first-no-newline ==
+text: "aa\nBB\nCC"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:1]
+pending: ""; last-change: "guu"; recording: -
+effects:
+  edit 0..2 -> 2; (0,0)..(0,2) -> (0,2)
+
+== lines-lower-middle-no-newline ==
+text: "AA\nbb\nCC"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:3, ]:4]
+pending: ""; last-change: "guu"; recording: -
+effects:
+  edit 3..5 -> 5; (1,0)..(1,2) -> (1,2)
+
+== lines-lower-final-no-newline ==
+text: "AA\nBB\ncc"
+cursor: 6 @ 2:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:6, ]:7]
+pending: ""; last-change: "guu"; recording: -
+effects:
+  edit 6..8 -> 8; (2,0)..(2,2) -> (2,2)
+
+== lines-lower-first-trailing-newline ==
+text: "aa\nBB\nCC\n"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:1]
+pending: ""; last-change: "guu"; recording: -
+effects:
+  edit 0..2 -> 2; (0,0)..(0,2) -> (0,2)
+
+== lines-lower-middle-trailing-newline ==
+text: "AA\nbb\nCC\n"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:3, ]:4]
+pending: ""; last-change: "guu"; recording: -
+effects:
+  edit 3..5 -> 5; (1,0)..(1,2) -> (1,2)
+
+== lines-lower-final-trailing-newline ==
+text: "AA\nBB\ncc\n"
+cursor: 6 @ 2:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:6, ]:7]
+pending: ""; last-change: "guu"; recording: -
+effects:
+  edit 6..8 -> 8; (2,0)..(2,2) -> (2,2)
+
+== lines-lower-single-row ==
+text: "aa"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:1]
+pending: ""; last-change: "guu"; recording: -
+effects:
+  edit 0..2 -> 2; (0,0)..(0,2) -> (0,2)
+
+== lines-swap-first-no-newline ==
+text: "aA\nBb\nCc"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:1]
+pending: ""; last-change: "g~~"; recording: -
+effects:
+  edit 0..2 -> 2; (0,0)..(0,2) -> (0,2)
+
+== lines-swap-middle-no-newline ==
+text: "Aa\nbB\nCc"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:3, ]:4]
+pending: ""; last-change: "g~~"; recording: -
+effects:
+  edit 3..5 -> 5; (1,0)..(1,2) -> (1,2)
+
+== lines-swap-final-no-newline ==
+text: "Aa\nBb\ncC"
+cursor: 6 @ 2:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:6, ]:7]
+pending: ""; last-change: "g~~"; recording: -
+effects:
+  edit 6..8 -> 8; (2,0)..(2,2) -> (2,2)
+
+== lines-swap-first-trailing-newline ==
+text: "aA\nBb\nCc\n"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:1]
+pending: ""; last-change: "g~~"; recording: -
+effects:
+  edit 0..2 -> 2; (0,0)..(0,2) -> (0,2)
+
+== lines-swap-middle-trailing-newline ==
+text: "Aa\nbB\nCc\n"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:3, ]:4]
+pending: ""; last-change: "g~~"; recording: -
+effects:
+  edit 3..5 -> 5; (1,0)..(1,2) -> (1,2)
+
+== lines-swap-final-trailing-newline ==
+text: "Aa\nBb\ncC\n"
+cursor: 6 @ 2:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:6, ]:7]
+pending: ""; last-change: "g~~"; recording: -
+effects:
+  edit 6..8 -> 8; (2,0)..(2,2) -> (2,2)
+
+== lines-swap-single-row ==
+text: "aA"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:1]
+pending: ""; last-change: "g~~"; recording: -
+effects:
+  edit 0..2 -> 2; (0,0)..(0,2) -> (0,2)
+
+== lines-visual-delete-first-no-newline ==
+text: "bb\ncc"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "aa\n"
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:0, [:0, ]:0]
+pending: ""; last-change: "Vd"; recording: -
+effects:
+  mode Visual(Line)
+  edit 0..3 -> 0; (0,0)..(1,0) -> (0,0)
+  mode Normal
+
+== lines-visual-delete-middle-no-newline ==
+text: "aa\ncc"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: line "bb\n"
+history: undo=1 redo=0
+jumps: []
+marks: [<:3, >:3, [:3, ]:2]
+pending: ""; last-change: "Vd"; recording: -
+effects:
+  mode Visual(Line)
+  edit 3..6 -> 3; (1,0)..(2,0) -> (1,0)
+  mode Normal
+
+== lines-visual-delete-final-no-newline ==
+text: "aa\nbb"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: line "cc\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [<:5, >:5, [:5, ]:4]
+pending: ""; last-change: "Vd"; recording: -
+effects:
+  mode Visual(Line)
+  edit 5..8 -> 5; (1,2)..(2,2) -> (1,2)
+  mode Normal
+
+== lines-visual-delete-first-trailing-newline ==
+text: "bb\ncc\n"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "aa\n"
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:0, [:0, ]:0]
+pending: ""; last-change: "Vd"; recording: -
+effects:
+  mode Visual(Line)
+  edit 0..3 -> 0; (0,0)..(1,0) -> (0,0)
+  mode Normal
+
+== lines-visual-delete-middle-trailing-newline ==
+text: "aa\ncc\n"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: line "bb\n"
+history: undo=1 redo=0
+jumps: []
+marks: [<:3, >:3, [:3, ]:2]
+pending: ""; last-change: "Vd"; recording: -
+effects:
+  mode Visual(Line)
+  edit 3..6 -> 3; (1,0)..(2,0) -> (1,0)
+  mode Normal
+
+== lines-visual-delete-final-trailing-newline ==
+text: "aa\nbb"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: line "cc\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [<:5, >:5, [:5, ]:4]
+pending: ""; last-change: "Vd"; recording: -
+effects:
+  mode Visual(Line)
+  edit 5..9 -> 5; (1,2)..(3,0) -> (1,2)
+  mode Normal
+
+== lines-visual-delete-single-row ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "aa\n"
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:0, [:0, ]:0]
+pending: ""; last-change: "Vd"; recording: -
+effects:
+  mode Visual(Line)
+  edit 0..2 -> 0; (0,0)..(0,2) -> (0,0)
+  mode Normal
+
+== lines-visual-change-first-no-newline ==
+text: "X\nbb\ncc"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "aa\n"
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:0, [:0, ]:0, ^:0]
+pending: ""; last-change: "VcX<Esc>"; recording: -
+effects:
+  mode Visual(Line)
+  edit 0..2 -> 0; (0,0)..(0,2) -> (0,0)
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  mode Normal
+
+== lines-visual-change-middle-no-newline ==
+text: "aa\nX\ncc"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: line "bb\n"
+history: undo=1 redo=0
+jumps: []
+marks: [<:3, >:3, [:3, ]:3, ^:3]
+pending: ""; last-change: "VcX<Esc>"; recording: -
+effects:
+  mode Visual(Line)
+  edit 3..5 -> 3; (1,0)..(1,2) -> (1,0)
+  mode Insert
+  edit 3..3 -> 4; (1,0)..(1,0) -> (1,1)
+  mode Normal
+
+== lines-visual-change-final-no-newline ==
+text: "aa\nbb\nX"
+cursor: 6 @ 2:0
+mode: Normal; selection: -
+register: line "cc\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [<:5, >:6, [:6, ]:6, ^:6]
+pending: ""; last-change: "VcX<Esc>"; recording: -
+effects:
+  mode Visual(Line)
+  edit 6..8 -> 6; (2,0)..(2,2) -> (2,0)
+  mode Insert
+  edit 6..6 -> 7; (2,0)..(2,0) -> (2,1)
+  mode Normal
+
+== lines-visual-change-first-trailing-newline ==
+text: "X\nbb\ncc\n"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "aa\n"
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:0, [:0, ]:0, ^:0]
+pending: ""; last-change: "VcX<Esc>"; recording: -
+effects:
+  mode Visual(Line)
+  edit 0..2 -> 0; (0,0)..(0,2) -> (0,0)
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  mode Normal
+
+== lines-visual-change-middle-trailing-newline ==
+text: "aa\nX\ncc\n"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: line "bb\n"
+history: undo=1 redo=0
+jumps: []
+marks: [<:3, >:3, [:3, ]:3, ^:3]
+pending: ""; last-change: "VcX<Esc>"; recording: -
+effects:
+  mode Visual(Line)
+  edit 3..5 -> 3; (1,0)..(1,2) -> (1,0)
+  mode Insert
+  edit 3..3 -> 4; (1,0)..(1,0) -> (1,1)
+  mode Normal
+
+== lines-visual-change-final-trailing-newline ==
+text: "aa\nbb\nX\n"
+cursor: 6 @ 2:0
+mode: Normal; selection: -
+register: line "cc\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [<:5, >:6, [:6, ]:6, ^:6]
+pending: ""; last-change: "VcX<Esc>"; recording: -
+effects:
+  mode Visual(Line)
+  edit 6..8 -> 6; (2,0)..(2,2) -> (2,0)
+  mode Insert
+  edit 6..6 -> 7; (2,0)..(2,0) -> (2,1)
+  mode Normal
+
+== lines-visual-change-single-row ==
+text: "X"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "aa\n"
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:0, [:0, ]:0, ^:0]
+pending: ""; last-change: "VcX<Esc>"; recording: -
+effects:
+  mode Visual(Line)
+  edit 0..2 -> 0; (0,0)..(0,2) -> (0,0)
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  mode Normal
+
+== lines-visual-yank-first-no-newline ==
+text: "aa\nbb\ncc"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "aa\n"
+history: undo=0 redo=0
+jumps: []
+marks: [<:0, >:2, [:0, ]:2]
+pending: ""; last-change: ""; recording: -
+effects:
+  mode Visual(Line)
+  mode Normal
+
+== lines-visual-yank-middle-no-newline ==
+text: "aa\nbb\ncc"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: line "bb\n"
+history: undo=0 redo=0
+jumps: []
+marks: [<:3, >:5, [:3, ]:5]
+pending: ""; last-change: ""; recording: -
+effects:
+  mode Visual(Line)
+  mode Normal
+
+== lines-visual-yank-final-no-newline ==
+text: "aa\nbb\ncc"
+cursor: 6 @ 2:0
+mode: Normal; selection: -
+register: line "cc\n"
+history: undo=0 redo=0
+jumps: [0]
+marks: [<:5, >:7, [:6, ]:7]
+pending: ""; last-change: ""; recording: -
+effects:
+  mode Visual(Line)
+  mode Normal
+
+== lines-visual-yank-first-trailing-newline ==
+text: "aa\nbb\ncc\n"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "aa\n"
+history: undo=0 redo=0
+jumps: []
+marks: [<:0, >:2, [:0, ]:2]
+pending: ""; last-change: ""; recording: -
+effects:
+  mode Visual(Line)
+  mode Normal
+
+== lines-visual-yank-middle-trailing-newline ==
+text: "aa\nbb\ncc\n"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: line "bb\n"
+history: undo=0 redo=0
+jumps: []
+marks: [<:3, >:5, [:3, ]:5]
+pending: ""; last-change: ""; recording: -
+effects:
+  mode Visual(Line)
+  mode Normal
+
+== lines-visual-yank-final-trailing-newline ==
+text: "aa\nbb\ncc\n"
+cursor: 6 @ 2:0
+mode: Normal; selection: -
+register: line "cc\n"
+history: undo=0 redo=0
+jumps: [0]
+marks: [<:5, >:8, [:6, ]:8]
+pending: ""; last-change: ""; recording: -
+effects:
+  mode Visual(Line)
+  mode Normal
+
+== lines-visual-yank-single-row ==
+text: "aa"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "aa\n"
+history: undo=0 redo=0
+jumps: []
+marks: [<:0, >:1, [:0, ]:1]
+pending: ""; last-change: ""; recording: -
+effects:
+  mode Visual(Line)
+  mode Normal
+
+== lines-visual-shift-right-first-no-newline ==
+text: "    aa\nbb\ncc"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:6, [:0, ]:3]
+pending: ""; last-change: "V>"; recording: -
+effects:
+  mode Visual(Line)
+  edit 0..0 -> 4; (0,0)..(0,0) -> (0,4)
+  mode Normal
+
+== lines-visual-shift-right-middle-no-newline ==
+text: "aa\n    bb\ncc"
+cursor: 7 @ 1:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [<:3, >:9, [:3, ]:6]
+pending: ""; last-change: "V>"; recording: -
+effects:
+  mode Visual(Line)
+  edit 3..3 -> 7; (1,0)..(1,0) -> (1,4)
+  mode Normal
+
+== lines-visual-shift-right-final-no-newline ==
+text: "aa\nbb\n    cc"
+cursor: 10 @ 2:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: [0]
+marks: [<:5, >:11, [:6, ]:9]
+pending: ""; last-change: "V>"; recording: -
+effects:
+  mode Visual(Line)
+  edit 6..6 -> 10; (2,0)..(2,0) -> (2,4)
+  mode Normal
+
+== lines-visual-shift-right-first-trailing-newline ==
+text: "    aa\nbb\ncc\n"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:6, [:0, ]:3]
+pending: ""; last-change: "V>"; recording: -
+effects:
+  mode Visual(Line)
+  edit 0..0 -> 4; (0,0)..(0,0) -> (0,4)
+  mode Normal
+
+== lines-visual-shift-right-middle-trailing-newline ==
+text: "aa\n    bb\ncc\n"
+cursor: 7 @ 1:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [<:3, >:9, [:3, ]:6]
+pending: ""; last-change: "V>"; recording: -
+effects:
+  mode Visual(Line)
+  edit 3..3 -> 7; (1,0)..(1,0) -> (1,4)
+  mode Normal
+
+== lines-visual-shift-right-final-trailing-newline ==
+text: "aa\nbb\n    cc\n"
+cursor: 10 @ 2:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: [0]
+marks: [<:5, >:12, [:6, ]:9]
+pending: ""; last-change: "V>"; recording: -
+effects:
+  mode Visual(Line)
+  edit 6..6 -> 10; (2,0)..(2,0) -> (2,4)
+  mode Normal
+
+== lines-visual-shift-right-single-row ==
+text: "    aa"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:5, [:0, ]:3]
+pending: ""; last-change: "V>"; recording: -
+effects:
+  mode Visual(Line)
+  edit 0..0 -> 4; (0,0)..(0,0) -> (0,4)
+  mode Normal
+
+== lines-dd-counted-off-end ==
+text: "aa\nbb"
+cursor: 3 @ 1:0
+mode: Normal; selection: -
+register: line "cc\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:5, ]:4]
+pending: ""; last-change: "2dd"; recording: -
+effects:
+  edit 5..8 -> 5; (1,2)..(2,2) -> (1,2)
+
+== lines-cc-counted-off-end ==
+text: "aa\nbb\nX"
+cursor: 6 @ 2:0
+mode: Normal; selection: -
+register: line "cc\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:6, ]:6, ^:6]
+pending: ""; last-change: "2ccX<Esc>"; recording: -
+effects:
+  edit 6..8 -> 6; (2,0)..(2,2) -> (2,0)
+  mode Insert
+  edit 6..6 -> 7; (2,0)..(2,0) -> (2,1)
+  mode Normal
+
+== jumps-back-after-goto-last ==
+text: "one\ntwo\nthree"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0, 8]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== jumps-forward-after-going-back ==
+text: "one\ntwo\nthree"
+cursor: 8 @ 2:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0, 8]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== jumps-back-empty-rings ==
+text: "one"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  bell
+
+== jumps-forward-at-present-rings ==
+text: "one\ntwo\nthree"
+cursor: 8 @ 2:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  bell
+
+== jumps-forward-past-newest-rings ==
+text: "one\ntwo\nthree"
+cursor: 8 @ 2:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0, 8]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  bell
+
+== jumps-gg-pushes ==
+text: "one\ntwo"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0, 4]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== jumps-g-pushes ==
+text: "one\ntwo"
+cursor: 4 @ 1:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== jumps-percent-pushes ==
+text: "(one)"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== jumps-screen-top-pushes ==
+text: "zero\n one\n two\n three"
+cursor: 6 @ 1:1
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== jumps-screen-middle-pushes ==
+text: "zero\n one\n two\n three"
+cursor: 11 @ 2:1
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== jumps-screen-bottom-pushes ==
+text: "zero\n one\n two\n three"
+cursor: 16 @ 3:1
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== jumps-word-motion-does-not-push ==
+text: "one two"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== jumps-shift-after-insert-before ==
+text: "Xone\ntwo"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: [0, 5]
+marks: [[:0, ]:0, ^:0]
+pending: ""; last-change: "iX<Esc>"; recording: -
+effects:
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  mode Normal
+
+== jumps-shift-after-delete-before ==
+text: "ne\ntwo"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "o"
+history: undo=1 redo=0
+jumps: [0, 3]
+marks: [[:0, ]:0]
+pending: ""; last-change: "x"; recording: -
+effects:
+  edit 0..1 -> 0; (0,0)..(0,1) -> (0,0)
+
+== jumps-collapse-when-deleted ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "one\ntwo\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:0, ]:0]
+pending: ""; last-change: "dG"; recording: -
+effects:
+  edit 0..7 -> 0; (0,0)..(1,3) -> (0,0)
+
+== marks-set-and-return ==
+text: "one two"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0]
+marks: [a:4]
+pending: ""; last-change: ""; recording: -
+effects:
+
+== marks-exact-offset ==
+text: "zero\n  two words"
+cursor: 9 @ 1:4
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [5]
+marks: [a:9]
+pending: ""; last-change: ""; recording: -
+effects:
+
+== marks-linewise-first-non-blank ==
+text: "zero\n  two words"
+cursor: 7 @ 1:2
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [5]
+marks: [a:9]
+pending: ""; last-change: ""; recording: -
+effects:
+
+== marks-delete-characterwise-to-mark ==
+text: "two\nthree"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "one\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [a:0, [:0, ]:0]
+pending: ""; last-change: "d`a"; recording: -
+effects:
+  edit 0..4 -> 0; (0,0)..(1,0) -> (0,0)
+
+== marks-delete-linewise-to-mark ==
+text: "three"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "one\ntwo\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [a:0, [:0, ]:0]
+pending: ""; last-change: "d'a"; recording: -
+effects:
+  edit 0..8 -> 0; (0,0)..(2,0) -> (0,0)
+
+== marks-unset-rings ==
+text: "one"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  bell
+
+== marks-shift-after-insert-before ==
+text: "Xone\ntwo"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: [5]
+marks: [a:5, [:0, ]:0, ^:0]
+pending: ""; last-change: "iX<Esc>"; recording: -
+effects:
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  mode Normal
+
+== marks-shift-after-delete-before ==
+text: "ne\ntwo"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "o"
+history: undo=1 redo=0
+jumps: [3]
+marks: [a:3, [:0, ]:0]
+pending: ""; last-change: "x"; recording: -
+effects:
+  edit 0..1 -> 0; (0,0)..(0,1) -> (0,0)
+
+== marks-collapse-when-deleted ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "one\ntwo\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [a:0, [:0, ]:0]
+pending: ""; last-change: "dG"; recording: -
+effects:
+  edit 0..7 -> 0; (0,0)..(1,3) -> (0,0)
+
+== marks-double-quote-returns-after-goto ==
+text: "one\ntwo\nthree"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0, 8]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== marks-double-quote-toggles ==
+text: "one\ntwo\nthree"
+cursor: 8 @ 2:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0, 8, 0]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== marks-backtick-backtick-exact ==
+text: "one\ntwo\nthree"
+cursor: 6 @ 1:2
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [6, 8]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== marks-delete-linewise-to-previous ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "one\ntwo\nthree\n"
+history: undo=1 redo=0
+jumps: [0]
+marks: [[:0, ]:0]
+pending: ""; last-change: "d''"; recording: -
+effects:
+  edit 0..13 -> 0; (0,0)..(2,5) -> (0,0)
+
+== marks-delete-characterwise-to-previous ==
+text: "one two three"
+cursor: 8 @ 0:8
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: "d``"; recording: -
+effects:
+  bell
+
+== marks-double-quote-unset-rings ==
+text: "one\ntwo"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  bell
+
+== marks-invalid-name-rings ==
+text: "one"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  bell
+
+== automatic-visual-start-return ==
+text: "abcde"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [4]
+marks: [<:0, >:2]
+pending: ""; last-change: ""; recording: -
+effects:
+  mode Visual(Char)
+  mode Normal
+
+== automatic-visual-end-is-last-character ==
+text: "abcde"
+cursor: 2 @ 0:2
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [4]
+marks: [<:0, >:2]
+pending: ""; last-change: ""; recording: -
+effects:
+  mode Visual(Char)
+  mode Normal
+
+== automatic-visual-toggle-return ==
+text: "abcde"
+cursor: 2 @ 0:2
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [4]
+marks: [<:0, >:2]
+pending: ""; last-change: ""; recording: -
+effects:
+  mode Visual(Char)
+  mode Normal
+
+== automatic-visual-operator-captures-before-edit ==
+text: "three\nfour"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "one\ntwo\n"
+history: undo=1 redo=0
+jumps: [0, 6]
+marks: [<:0, >:0, [:0, ]:0]
+pending: ""; last-change: "Vjd"; recording: -
+effects:
+  mode Visual(Line)
+  edit 0..8 -> 0; (0,0)..(2,0) -> (0,0)
+  mode Normal
+
+== automatic-change-brackets-multi-row-shift ==
+text: "    one\n    two\n    three"
+cursor: 19 @ 2:3
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: [4, 20, 0]
+marks: [[:0, ]:19]
+pending: ""; last-change: "3>>"; recording: -
+effects:
+  edit 8..8 -> 12; (2,0)..(2,0) -> (2,4)
+  edit 4..4 -> 8; (1,0)..(1,0) -> (1,4)
+  edit 0..0 -> 4; (0,0)..(0,0) -> (0,4)
+
+== automatic-yank-brackets-return ==
+text: "one two"
+cursor: 6 @ 0:6
+mode: Normal; selection: -
+register: char "two"
+history: undo=0 redo=0
+jumps: [0, 4]
+marks: [[:4, ]:6]
+pending: ""; last-change: ""; recording: -
+effects:
+
+== automatic-insert-end-return ==
+text: "Xone"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: [3]
+marks: [[:0, ]:0, ^:0]
+pending: ""; last-change: "iX<Esc>"; recording: -
+effects:
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  mode Normal
+
+== automatic-visual-mark-shifts-through-later-edit ==
+text: "Xone\ntwo"
+cursor: 7 @ 1:2
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: [7, 0, 5]
+marks: [<:5, >:7, [:0, ]:0, ^:0]
+pending: ""; last-change: "iX<Esc>"; recording: -
+effects:
+  mode Visual(Char)
+  mode Normal
+  mode Insert
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  mode Normal
+
+== automatic-visual-mark-characterwise-operator ==
+text: "two"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "one "
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:2, [:0, ]:0]
+pending: ""; last-change: "d`<lt>"; recording: -
+effects:
+  mode Visual(Char)
+  mode Normal
+  edit 0..4 -> 0; (0,0)..(0,4) -> (0,0)
+
+== automatic-visual-mark-linewise-operator ==
+text: ""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "one two\n"
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:0, [:0, ]:0]
+pending: ""; last-change: "d'<lt>"; recording: -
+effects:
+  mode Visual(Char)
+  mode Normal
+  edit 0..7 -> 0; (0,0)..(0,7) -> (0,0)
+
+== automatic-marks-crlf-recase-end ==
+text: "\r\n"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "gUiw"; recording: -
+effects:
+  edit 0..2 -> 2; (0,0)..(1,0) -> (1,0)
+
+== automatic-marks-crlf-yank-end ==
+text: "a\r\nb"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: line "a\r\n"
+history: undo=0 redo=0
+jumps: []
+marks: [<:0, >:1, [:0, ]:1]
+pending: ""; last-change: ""; recording: -
+effects:
+  mode Visual(Line)
+  mode Normal
+
+== automatic-marks-unset-ring ==
+text: "one"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  bell
+  bell
+  bell
+  bell
+  bell
+
+== search-forward ==
+text: "x foo y foo"
+cursor: 2 @ 0:2
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== search-backward ==
+text: "foo x foo y"
+cursor: 6 @ 0:6
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [10]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== search-smartcase-lowercase ==
+text: "x FOO y"
+cursor: 2 @ 0:2
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== search-smartcase-uppercase ==
+text: "x foo y"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  bell
+
+== search-wrap-forward ==
+text: "foo\nbar"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0, 6]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== search-wrap-backward ==
+text: "bar\nfoo"
+cursor: 4 @ 1:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== search-missing ==
+text: "one two"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  bell
+
+== search-delete-exclusive ==
+text: "foo xyz"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char "abc "
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:0]
+pending: ""; last-change: "d/foo<CR>"; recording: -
+effects:
+  edit 0..4 -> 0; (0,0)..(0,4) -> (0,0)
+
+== search-counted ==
+text: "x foo foo foo"
+cursor: 10 @ 0:10
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== search-repeat-forward-after-forward ==
+text: "x foo y foo z foo"
+cursor: 8 @ 0:8
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0, 2]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== search-repeat-reverse-after-forward ==
+text: "x foo y foo z foo"
+cursor: 14 @ 0:14
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0, 2]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== search-repeat-forward-after-backward ==
+text: "x foo y foo z foo"
+cursor: 8 @ 0:8
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0, 14]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== search-repeat-reverse-after-backward ==
+text: "x foo y foo z foo"
+cursor: 2 @ 0:2
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0, 14]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== search-reverse-keeps-forward-direction ==
+text: "x foo y foo z foo"
+cursor: 2 @ 0:2
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0, 2, 14]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== search-reverse-keeps-backward-direction ==
+text: "x foo y foo z foo"
+cursor: 14 @ 0:14
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0, 14, 2]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== search-repeat-counted ==
+text: "x foo foo foo foo"
+cursor: 14 @ 0:14
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0, 2]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== search-repeat-without-pattern ==
+text: "one two"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  bell
+
+== search-cancel ==
+text: "one two"
+cursor: 1 @ 0:1
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== search-backspace ==
+text: "x foo y"
+cursor: 2 @ 0:2
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== search-dot-operator ==
+text: "foo foo"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char "x "
+history: undo=2 redo=0
+jumps: []
+marks: [[:4, ]:3]
+pending: ""; last-change: "d/foo<CR>"; recording: -
+effects:
+  edit 0..2 -> 0; (0,0)..(0,2) -> (0,0)
+  edit 4..6 -> 4; (0,4)..(0,6) -> (0,4)
+
+== search-in-macro ==
+text: "x foo y foo"
+cursor: 2 @ 0:2
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0, 0]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  recording @a
+  recorded @a
+
+== search-multibyte ==
+text: "x 日本 y 日本"
+cursor: 2 @ 0:2
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== search-pushes-jump ==
+text: "x foo"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: [0, 2]
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+
+== surround-change-opening-adds-padding ==
+text: "{ foo }"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:6]
+pending: ""; last-change: "cs({"; recording: -
+effects:
+  edit 4..5 -> 6; (0,4)..(0,5) -> (0,6)
+  edit 0..1 -> 2; (0,0)..(0,1) -> (0,2)
+
+== surround-change-closing-removes-padding ==
+text: "(foo)"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:4]
+pending: ""; last-change: "cs()"; recording: -
+effects:
+  edit 5..7 -> 6; (0,5)..(0,7) -> (0,6)
+  edit 0..2 -> 1; (0,0)..(0,2) -> (0,1)
+
+== surround-change-closing-target ==
+text: "{ foo }"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:6]
+pending: ""; last-change: "cs){"; recording: -
+effects:
+  edit 4..5 -> 6; (0,4)..(0,5) -> (0,6)
+  edit 0..1 -> 2; (0,0)..(0,1) -> (0,2)
+
+== surround-change-alias-target ==
+text: "[foo]"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:4]
+pending: ""; last-change: "csb]"; recording: -
+effects:
+  edit 4..5 -> 5; (0,4)..(0,5) -> (0,5)
+  edit 0..1 -> 1; (0,0)..(0,1) -> (0,1)
+
+== surround-change-quotes ==
+text: "\"foo\""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:4]
+pending: ""; last-change: "cs'\""; recording: -
+effects:
+  edit 4..5 -> 5; (0,4)..(0,5) -> (0,5)
+  edit 0..1 -> 1; (0,0)..(0,1) -> (0,1)
+
+== surround-change-quotes-to-brackets-and-back ==
+text: "\"foo\""
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=2 redo=0
+jumps: []
+marks: [[:0, ]:4]
+pending: ""; last-change: "cs]\""; recording: -
+effects:
+  edit 4..5 -> 5; (0,4)..(0,5) -> (0,5)
+  edit 0..1 -> 1; (0,0)..(0,1) -> (0,1)
+  edit 4..5 -> 5; (0,4)..(0,5) -> (0,5)
+  edit 0..1 -> 1; (0,0)..(0,1) -> (0,1)
+
+== surround-change-multi-row ==
+text: "[\n  foo\n]"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:8]
+pending: ""; last-change: "cs{]"; recording: -
+effects:
+  edit 8..9 -> 9; (2,0)..(2,1) -> (2,1)
+  edit 0..1 -> 1; (0,0)..(0,1) -> (0,1)
+
+== surround-change-no-pair ==
+text: "foo"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: "cs({"; recording: -
+effects:
+  bell
+
+== surround-change-unknown-target ==
+text: "(foo)"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: "csx]"; recording: -
+effects:
+  bell
+
+== surround-change-unknown-replacement ==
+text: "(foo)"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: "cs(x"; recording: -
+effects:
+  bell
+
+== surround-delete-opening-target ==
+text: "foo"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:2]
+pending: ""; last-change: "ds("; recording: -
+effects:
+  edit 5..7 -> 5; (0,5)..(0,7) -> (0,5)
+  edit 0..2 -> 0; (0,0)..(0,2) -> (0,0)
+
+== surround-delete-closing-target ==
+text: "foo"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:2]
+pending: ""; last-change: "ds)"; recording: -
+effects:
+  edit 5..7 -> 5; (0,5)..(0,7) -> (0,5)
+  edit 0..2 -> 0; (0,0)..(0,2) -> (0,0)
+
+== surround-delete-unpadded ==
+text: "foo"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:2]
+pending: ""; last-change: "ds("; recording: -
+effects:
+  edit 4..5 -> 4; (0,4)..(0,5) -> (0,4)
+  edit 0..1 -> 0; (0,0)..(0,1) -> (0,0)
+
+== surround-delete-no-pair ==
+text: "foo"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: "ds("; recording: -
+effects:
+  bell
+
+== surround-selection-delete-round-trip ==
+text: "foo"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=2 redo=0
+jumps: []
+marks: [<:0, >:2, [:0, ]:2]
+pending: ""; last-change: "ds("; recording: -
+effects:
+  mode Visual(Char)
+  edit 3..3 -> 5; (0,3)..(0,3) -> (0,5)
+  edit 0..0 -> 2; (0,0)..(0,0) -> (0,2)
+  mode Normal
+  edit 5..7 -> 5; (0,5)..(0,7) -> (0,5)
+  edit 0..2 -> 0; (0,0)..(0,2) -> (0,0)
+
+== surround-change-does-not-double-padding ==
+text: "{ foo }"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:6]
+pending: ""; last-change: "cs({"; recording: -
+effects:
+  edit 5..7 -> 7; (0,5)..(0,7) -> (0,7)
+  edit 0..2 -> 2; (0,0)..(0,2) -> (0,2)
+
+== surround-selection-opening-adds-padding ==
+text: "( foo )"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:4, [:0, ]:6]
+pending: ""; last-change: "veS("; recording: -
+effects:
+  mode Visual(Char)
+  edit 3..3 -> 5; (0,3)..(0,3) -> (0,5)
+  edit 0..0 -> 2; (0,0)..(0,0) -> (0,2)
+  mode Normal
+
+== surround-selection-closing-has-no-padding ==
+text: "(foo)"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:3, [:0, ]:4]
+pending: ""; last-change: "veS)"; recording: -
+effects:
+  mode Visual(Char)
+  edit 3..3 -> 4; (0,3)..(0,3) -> (0,4)
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  mode Normal
+
+== surround-selection-linewise-multi-row ==
+text: "(\none\ntwo\n)\nthree"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:9, [:0, ]:10]
+pending: ""; last-change: "VjS)"; recording: -
+effects:
+  mode Visual(Line)
+  edit 7..7 -> 9; (1,3)..(1,3) -> (2,1)
+  edit 0..0 -> 2; (0,0)..(0,0) -> (1,0)
+  mode Normal
+
+== surround-selection-linewise-padding-is-moot ==
+text: "(\none\ntwo\n)\nthree"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:9, [:0, ]:10]
+pending: ""; last-change: "VjS("; recording: -
+effects:
+  mode Visual(Line)
+  edit 7..7 -> 9; (1,3)..(1,3) -> (2,1)
+  edit 0..0 -> 2; (0,0)..(0,0) -> (1,0)
+  mode Normal
+
+== surround-selection-linewise-single-row ==
+text: "(\none\n)\ntwo"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [<:0, >:5, [:0, ]:6]
+pending: ""; last-change: "VS)"; recording: -
+effects:
+  mode Visual(Line)
+  edit 3..3 -> 5; (0,3)..(0,3) -> (1,1)
+  edit 0..0 -> 2; (0,0)..(0,0) -> (1,0)
+  mode Normal
+
+== surround-selection-linewise-final-row ==
+text: "one\n(\ntwo\n)"
+cursor: 4 @ 1:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: [0]
+marks: [<:3, >:8, [:4, ]:10]
+pending: ""; last-change: "VS)"; recording: -
+effects:
+  mode Visual(Line)
+  edit 7..7 -> 9; (1,3)..(1,3) -> (2,1)
+  edit 4..4 -> 6; (1,0)..(1,0) -> (2,0)
+  mode Normal
+
+== surround-yank-is-out-of-scope ==
+text: "foo"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  bell
+
+== surround-yank-shaped-input-resets ==
+text: "foo"
+cursor: 1 @ 0:1
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=0
+jumps: []
+marks: []
+pending: ""; last-change: ""; recording: -
+effects:
+  bell
+
+== surround-dot-change ==
+text: "{ one } { two }"
+cursor: 8 @ 0:8
+mode: Normal; selection: -
+register: char ""
+history: undo=2 redo=0
+jumps: []
+marks: [[:8, ]:14]
+pending: ""; last-change: "cs({"; recording: -
+effects:
+  edit 4..5 -> 6; (0,4)..(0,5) -> (0,6)
+  edit 0..1 -> 2; (0,0)..(0,1) -> (0,2)
+  edit 12..13 -> 14; (0,12)..(0,13) -> (0,14)
+  edit 8..9 -> 10; (0,8)..(0,9) -> (0,10)
+
+== surround-dot-delete ==
+text: "one two"
+cursor: 4 @ 0:4
+mode: Normal; selection: -
+register: char ""
+history: undo=2 redo=0
+jumps: []
+marks: [[:4, ]:6]
+pending: ""; last-change: "ds("; recording: -
+effects:
+  edit 4..5 -> 4; (0,4)..(0,5) -> (0,4)
+  edit 0..1 -> 0; (0,0)..(0,1) -> (0,0)
+  edit 8..9 -> 8; (0,8)..(0,9) -> (0,8)
+  edit 4..5 -> 4; (0,4)..(0,5) -> (0,4)
+
+== surround-dot-visual-selection ==
+text: "(one) (two)"
+cursor: 6 @ 0:6
+mode: Normal; selection: -
+register: char ""
+history: undo=2 redo=0
+jumps: []
+marks: [<:6, >:9, [:6, ]:10]
+pending: ""; last-change: "veS)"; recording: -
+effects:
+  mode Visual(Char)
+  edit 3..3 -> 4; (0,3)..(0,3) -> (0,4)
+  edit 0..0 -> 1; (0,0)..(0,0) -> (0,1)
+  mode Normal
+  mode Visual(Char)
+  edit 9..9 -> 10; (0,9)..(0,9) -> (0,10)
+  edit 6..6 -> 7; (0,6)..(0,6) -> (0,7)
+  mode Normal
+
+== surround-change-undo-one-step ==
+text: "( foo )"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=0 redo=1
+jumps: []
+marks: [[:0, ]:6]
+pending: ""; last-change: "cs({"; recording: -
+effects:
+  edit 5..7 -> 7; (0,5)..(0,7) -> (0,7)
+  edit 0..2 -> 2; (0,0)..(0,2) -> (0,2)
+  edit 0..2 -> 2; (0,0)..(0,2) -> (0,2)
+  edit 5..7 -> 7; (0,5)..(0,7) -> (0,7)
+
+== surround-multibyte-payload ==
+text: "{ 日本語 }"
+cursor: 0 @ 0:0
+mode: Normal; selection: -
+register: char ""
+history: undo=1 redo=0
+jumps: []
+marks: [[:0, ]:12]
+pending: ""; last-change: "cs({"; recording: -
+effects:
+  edit 10..11 -> 12; (0,10)..(0,11) -> (0,12)
+  edit 0..1 -> 2; (0,0)..(0,1) -> (0,2)
+
+== surround-leaves-register-untouched ==
+text: "seed { foo }"
+cursor: 5 @ 0:5
+mode: Normal; selection: -
+register: char "seed"
+history: undo=1 redo=0
+jumps: []
+marks: [[:5, ]:11]
+pending: ""; last-change: "cs({"; recording: -
+effects:
+  edit 9..10 -> 11; (0,9)..(0,10) -> (0,11)
+  edit 5..6 -> 7; (0,5)..(0,6) -> (0,7)

@@ -1,0 +1,10 @@
+[package]
+name = "vici-wasm"
+version = "0.1.0"
+description = "WASM façade for the vici editor (phase 2)"
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[lib]
+crate-type = ["cdylib"]

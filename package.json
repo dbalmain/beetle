@@ -1,0 +1,15 @@
+{
+  "name": "beetle",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Beetle — Vim Web. WASM vs TypeScript vici.",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "echo 'not yet: tests land in phase 1 (contract) and later' >&2 && exit 1",
+    "bench": "echo 'not yet: benches land in phase 6' >&2 && exit 1",
+    "build:wasm": "echo 'not yet: wasm-pack wrapper lands in phase 2' >&2 && exit 1"
+  }
+}
