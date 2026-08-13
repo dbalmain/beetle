@@ -12,7 +12,7 @@ Do not push. Do not tick `/home/dave/w/vici/FEATURES.txt`.
 - [x] Phase 3 — WASM is the oracle
 - [ ] Phase 4 — Idiomatic TypeScript engine
   - [x] 4a — Key notation + UTF-8 piece table + Edit/Point + undo
-  - [ ] 4b — Engine skeleton: typeKeys/handleKey, Normal/Insert/Replace, hjkl0^$, insert entries, x, undo/redo
+  - [x] 4b — Engine skeleton: typeKeys/handleKey, Normal/Insert/Replace, hjkl0^$, insert entries, x, undo/redo
   - [ ] 4c — Counts, operators d c y > <, doubles, visual, p P J r ~
   - [ ] 4d — Word/find/object/search/pair/paragraph/screen motions
   - [ ] 4e — Surround, marks, jumps, macros, ., gu gU g~, remaining edges
@@ -172,3 +172,30 @@ not parse (vici Display quirk; write `<C-gt>` in scripts). No
 Engine / modes / operators yet (4b). Unicode case mapping (`ß` →
 `SS`) is 4e; graphemes are 4d. Flatten threshold is unmeasured
 against the 1 MiB benches.
+
+## Phase 4b done-note
+
+**What landed.** `@beetle/vici-js` implements `Engine` (`JsEngine` /
+`createEngine`) as a single `handleKey` dispatcher — Normal vs
+Insert/Replace — not a Pending/Keymap/Editor::run port. Reuses 4a's
+Buffer / Document / keys / `renderCase`.
+
+- Modes: Normal, Insert, Replace. Operator-pending is not a mode.
+- Motions: `h j k l 0 ^ $` with counts; `$` is sticky.
+- Six insert entries, insert typing (`<CR>` `<BS>` `<C-w>` `<Esc>`),
+  Replace `R`, `x`/`<Del>`/`X`, `u`/`<C-r>`.
+- Graphemes via `Intl.Segmenter`. Insert session is one undo group.
+- `dd` only (so `undo-delete` / `redo-delete` restore text + caret).
+  No `d`/`c`/`y`/`>`/`<` motions, no visual, no `.`.
+
+**Fixtures.** All 32 allowlist cases match `editor_cases.snap` via
+`renderCase`. README smoke is `iSELECT <Esc>` (no `cw`). None skipped.
+
+**Gates.** `npm test` green: `tsc --noEmit` on contract + vici-js;
+97 vitest tests (17 contract + 47 4a + 33 4b). No wasm rebuild.
+
+**Leftover risk.** `dd` is a special-case double, not a general
+operator grammar — 4c must replace it. `2d` stays pending and is
+not in the allowlist. `Intl.Segmenter` vs `unicode-segmentation`
+is untested on combining-mark fixtures (none in 4b). Indent /
+viewport are stored but unused until 4c.

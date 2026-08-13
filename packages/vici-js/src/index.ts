@@ -31,3 +31,5 @@ export { History } from "./history.js";
 export type { Step } from "./history.js";
 
 export { Document } from "./document.js";
+
+export { JsEngine, createEngine } from "./engine.js";

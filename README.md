@@ -43,7 +43,7 @@ From the repo root (POSIX `sh`):
 
 ```sh
 npm install
-npm test              # typecheck contract + vici-js, vitest (contract + 4a)
+npm test              # typecheck contract + vici-js, vitest (contract + 4a/4b)
 npm run build:wasm    # cargo + wasm-bindgen → packages/vici-wasm/pkg
 npm run test:wasm     # wasm smoke + 411-case snap (needs build:wasm first)
 npm run bench         # not yet — benches land in phase 6
