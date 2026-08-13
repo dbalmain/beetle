@@ -7,6 +7,7 @@ import type { Case } from "@beetle/contract";
 import { describe, expect, it } from "vitest";
 
 import { createEngine } from "../src/index.js";
+import { createUtf8Engine } from "../src/utf8-engine.js";
 
 const fixturesDir = join(
   dirname(fileURLToPath(import.meta.url)),
@@ -17,8 +18,11 @@ const fixture = readFileSync(join(fixturesDir, "editor.vici"), "utf8");
 const snap = readFileSync(join(fixturesDir, "editor_cases.snap"), "utf8");
 const cases = parseCases(fixture);
 
-function runCase(c: Case): string {
-  const engine = createEngine(c.text);
+function runCase(
+  c: Case,
+  make = createEngine,
+): string {
+  const engine = make(c.text);
   if (c.settings.viewport !== undefined) {
     engine.setViewport(c.settings.viewport);
   }
@@ -52,6 +56,16 @@ describe("vici-js editor.vici", () => {
   it("concatenated blocks match the snap", () => {
     const got = cases
       .map((c) => runCase(c))
+      .join("")
+      .replace(/\n+$/, "\n");
+    expect(got).toBe(snap);
+  });
+});
+
+describe("vici-js utf8 piece table editor.vici", () => {
+  it("concatenated blocks match the snap", () => {
+    const got = cases
+      .map((c) => runCase(c, createUtf8Engine))
       .join("")
       .replace(/\n+$/, "\n");
     expect(got).toBe(snap);

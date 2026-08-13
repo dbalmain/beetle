@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-08-13T12:41:43.673Z",
+    "generatedAt": "2026-08-13T20:41:06.480Z",
     "node": "v24.18.1",
     "cpu": "AMD Ryzen 9 9955HX 16-Core Processor",
     "platform": "linux",
@@ -12,22 +12,31 @@
       "text() is never called in the hot loop (wasm-bindgen copies UTF-8↔UTF-16 on text()/typeKeys).",
       "Bulk is typeKeys(script) inside the engine. Per-key is handleKey for each keys(script) token.",
       "Cold start is a fresh Node process: await import() + first constructor. Not mixed into hot benches.",
-      "Speed wasm is the opt-level=3 / wasm-opt -O3 artefact in packages/vici-wasm/pkg. simd is on."
+      "Speed wasm is the opt-level=3 / wasm-opt -O3 artefact in packages/vici-wasm/pkg. simd is on.",
+      "js is the shippable JS-string buffer (UTF-8 public offsets, ASCII is identity).",
+      "js-utf8 is the same engine on the UTF-8 piece table — the UTF-8 tax column."
     ]
   },
   "coldStart": [
     {
       "engine": "wasm",
-      "p50_ns": 47004178.99999999,
-      "p95_ns": 48240994.00000001,
-      "mean_ns": 46860188.916666664,
+      "p50_ns": 45627469.99999999,
+      "p95_ns": 49370791,
+      "mean_ns": 46428249.833333336,
       "iters": 12
     },
     {
       "engine": "js",
-      "p50_ns": 88694145.99999999,
-      "p95_ns": 91938249.00000001,
-      "mean_ns": 89161672.66666667,
+      "p50_ns": 92228844.00000001,
+      "p95_ns": 94760923,
+      "mean_ns": 92214571.16666667,
+      "iters": 12
+    },
+    {
+      "engine": "js-utf8",
+      "p50_ns": 91378942.99999999,
+      "p95_ns": 98898647.99999999,
+      "mean_ns": 92947083.33333333,
       "iters": 12
     }
   ],
@@ -38,9 +47,9 @@
       "mode": "bulk",
       "bufferBytes": 0,
       "scriptKeys": 1002,
-      "p50_ns": 83834190,
-      "p95_ns": 85848023,
-      "mean_ns": 84246704.75,
+      "p50_ns": 83412236,
+      "p95_ns": 84160015,
+      "mean_ns": 83440727.05,
       "iters": 20
     },
     {
@@ -49,9 +58,9 @@
       "mode": "per-key",
       "bufferBytes": 0,
       "scriptKeys": 1002,
-      "p50_ns": 86644546.0000019,
-      "p95_ns": 87044651,
-      "mean_ns": 86658369.90000014,
+      "p50_ns": 83997909,
+      "p95_ns": 85027509,
+      "mean_ns": 84198674.7,
       "iters": 20
     },
     {
@@ -60,10 +69,10 @@
       "mode": "bulk",
       "bufferBytes": 0,
       "scriptKeys": 1002,
-      "p50_ns": 1465618131,
-      "p95_ns": 1551852435,
-      "mean_ns": 1479807593.6499999,
-      "iters": 20
+      "p50_ns": 8741487,
+      "p95_ns": 9594673,
+      "mean_ns": 8817840.755813954,
+      "iters": 86
     },
     {
       "name": "insert-1k",
@@ -71,10 +80,32 @@
       "mode": "per-key",
       "bufferBytes": 0,
       "scriptKeys": 1002,
-      "p50_ns": 1678390855,
-      "p95_ns": 1704827973,
-      "mean_ns": 1683406379.6000004,
-      "iters": 20
+      "p50_ns": 7900712,
+      "p95_ns": 8811598,
+      "mean_ns": 8034055.536842105,
+      "iters": 95
+    },
+    {
+      "name": "insert-1k",
+      "engine": "js-utf8",
+      "mode": "bulk",
+      "bufferBytes": 0,
+      "scriptKeys": 1002,
+      "p50_ns": 10638560,
+      "p95_ns": 12218557,
+      "mean_ns": 10675548.985915305,
+      "iters": 71
+    },
+    {
+      "name": "insert-1k",
+      "engine": "js-utf8",
+      "mode": "per-key",
+      "bufferBytes": 0,
+      "scriptKeys": 1002,
+      "p50_ns": 10553199,
+      "p95_ns": 11507116,
+      "mean_ns": 10476770.87671233,
+      "iters": 73
     },
     {
       "name": "words-small",
@@ -82,9 +113,9 @@
       "mode": "bulk",
       "bufferBytes": 1024,
       "scriptKeys": 9,
-      "p50_ns": 113755,
-      "p95_ns": 121760,
-      "mean_ns": 116113.9030612245,
+      "p50_ns": 112422,
+      "p95_ns": 122761,
+      "mean_ns": 114754.53571428571,
       "iters": 196
     },
     {
@@ -93,9 +124,9 @@
       "mode": "per-key",
       "bufferBytes": 1024,
       "scriptKeys": 9,
-      "p50_ns": 120007,
-      "p95_ns": 142258,
-      "mean_ns": 123587.6836734694,
+      "p50_ns": 119175,
+      "p95_ns": 135125,
+      "mean_ns": 122197.74489795919,
       "iters": 196
     },
     {
@@ -104,9 +135,9 @@
       "mode": "bulk",
       "bufferBytes": 1024,
       "scriptKeys": 9,
-      "p50_ns": 1120916,
-      "p95_ns": 2011968,
-      "mean_ns": 1303893.8469387756,
+      "p50_ns": 40627,
+      "p95_ns": 105199,
+      "mean_ns": 52546.57653061225,
       "iters": 196
     },
     {
@@ -115,9 +146,31 @@
       "mode": "per-key",
       "bufferBytes": 1024,
       "scriptKeys": 9,
-      "p50_ns": 1127308,
-      "p95_ns": 2212577,
-      "mean_ns": 1406067.0102040817,
+      "p50_ns": 29395,
+      "p95_ns": 43101,
+      "mean_ns": 31453.219387755104,
+      "iters": 196
+    },
+    {
+      "name": "words-small",
+      "engine": "js-utf8",
+      "mode": "bulk",
+      "bufferBytes": 1024,
+      "scriptKeys": 9,
+      "p50_ns": 49884,
+      "p95_ns": 145985,
+      "mean_ns": 68235.97448979592,
+      "iters": 196
+    },
+    {
+      "name": "words-small",
+      "engine": "js-utf8",
+      "mode": "per-key",
+      "bufferBytes": 1024,
+      "scriptKeys": 9,
+      "p50_ns": 37230,
+      "p95_ns": 47790,
+      "mean_ns": 38469.77040816326,
       "iters": 196
     },
     {
@@ -126,9 +179,9 @@
       "mode": "bulk",
       "bufferBytes": 102400,
       "scriptKeys": 6,
-      "p50_ns": 131318,
-      "p95_ns": 153640,
-      "mean_ns": 134665.75,
+      "p50_ns": 128342,
+      "p95_ns": 134824,
+      "mean_ns": 129146.44897959183,
       "iters": 196
     },
     {
@@ -137,9 +190,9 @@
       "mode": "per-key",
       "bufferBytes": 102400,
       "scriptKeys": 6,
-      "p50_ns": 129865,
-      "p95_ns": 135356,
-      "mean_ns": 130885.67346938775,
+      "p50_ns": 128863,
+      "p95_ns": 142148,
+      "mean_ns": 130693.86224489796,
       "iters": 196
     },
     {
@@ -148,9 +201,9 @@
       "mode": "bulk",
       "bufferBytes": 102400,
       "scriptKeys": 6,
-      "p50_ns": 863881,
-      "p95_ns": 1853630,
-      "mean_ns": 984492.5459183673,
+      "p50_ns": 48842,
+      "p95_ns": 70172,
+      "mean_ns": 49507.739795918365,
       "iters": 196
     },
     {
@@ -159,9 +212,31 @@
       "mode": "per-key",
       "bufferBytes": 102400,
       "scriptKeys": 6,
-      "p50_ns": 932010,
-      "p95_ns": 1968977,
-      "mean_ns": 1104178.224489796,
+      "p50_ns": 36429,
+      "p95_ns": 51177,
+      "mean_ns": 38698.913265306124,
+      "iters": 196
+    },
+    {
+      "name": "words-100k",
+      "engine": "js-utf8",
+      "mode": "bulk",
+      "bufferBytes": 102400,
+      "scriptKeys": 6,
+      "p50_ns": 64251,
+      "p95_ns": 93856,
+      "mean_ns": 71602.22448979592,
+      "iters": 196
+    },
+    {
+      "name": "words-100k",
+      "engine": "js-utf8",
+      "mode": "per-key",
+      "bufferBytes": 102400,
+      "scriptKeys": 6,
+      "p50_ns": 59292,
+      "p95_ns": 97534,
+      "mean_ns": 65397.19387755102,
       "iters": 196
     },
     {
@@ -170,9 +245,9 @@
       "mode": "bulk",
       "bufferBytes": 1048576,
       "scriptKeys": 6,
-      "p50_ns": 137018,
-      "p95_ns": 143090,
-      "mean_ns": 138068.41836734695,
+      "p50_ns": 132941,
+      "p95_ns": 142649,
+      "mean_ns": 134565.49489795917,
       "iters": 196
     },
     {
@@ -181,9 +256,9 @@
       "mode": "per-key",
       "bufferBytes": 1048576,
       "scriptKeys": 6,
-      "p50_ns": 135787,
-      "p95_ns": 142318,
-      "mean_ns": 136977.48469387754,
+      "p50_ns": 135035,
+      "p95_ns": 156805,
+      "mean_ns": 138926.86224489796,
       "iters": 196
     },
     {
@@ -192,9 +267,9 @@
       "mode": "bulk",
       "bufferBytes": 1048576,
       "scriptKeys": 6,
-      "p50_ns": 880683,
-      "p95_ns": 1560065,
-      "mean_ns": 965252.862244898,
+      "p50_ns": 54122,
+      "p95_ns": 99738,
+      "mean_ns": 60400.22448979592,
       "iters": 196
     },
     {
@@ -203,9 +278,31 @@
       "mode": "per-key",
       "bufferBytes": 1048576,
       "scriptKeys": 6,
-      "p50_ns": 810049,
-      "p95_ns": 1194876,
-      "mean_ns": 925429.5408163265,
+      "p50_ns": 38844,
+      "p95_ns": 48782,
+      "mean_ns": 41034.5306122449,
+      "iters": 196
+    },
+    {
+      "name": "words-1m",
+      "engine": "js-utf8",
+      "mode": "bulk",
+      "bufferBytes": 1048576,
+      "scriptKeys": 6,
+      "p50_ns": 65493,
+      "p95_ns": 178175,
+      "mean_ns": 79037.14285714286,
+      "iters": 196
+    },
+    {
+      "name": "words-1m",
+      "engine": "js-utf8",
+      "mode": "per-key",
+      "bufferBytes": 1048576,
+      "scriptKeys": 6,
+      "p50_ns": 60434,
+      "p95_ns": 117872,
+      "mean_ns": 71604.9387755102,
       "iters": 196
     },
     {
@@ -214,10 +311,10 @@
       "mode": "bulk",
       "bufferBytes": 102400,
       "scriptKeys": 402,
-      "p50_ns": 7858545,
-      "p95_ns": 8396972,
-      "mean_ns": 7910114.731958763,
-      "iters": 97
+      "p50_ns": 7814740.000001907,
+      "p95_ns": 8351771.999998093,
+      "mean_ns": 7902076.663265325,
+      "iters": 98
     },
     {
       "name": "delete-word",
@@ -225,10 +322,10 @@
       "mode": "per-key",
       "bufferBytes": 102400,
       "scriptKeys": 402,
-      "p50_ns": 8318303,
-      "p95_ns": 9314293,
-      "mean_ns": 8449423.879120879,
-      "iters": 91
+      "p50_ns": 8131768,
+      "p95_ns": 9138885,
+      "mean_ns": 8253387.720430087,
+      "iters": 93
     },
     {
       "name": "delete-word",
@@ -236,10 +333,10 @@
       "mode": "bulk",
       "bufferBytes": 102400,
       "scriptKeys": 402,
-      "p50_ns": 155778674,
-      "p95_ns": 189025406,
-      "mean_ns": 160413199.7,
-      "iters": 20
+      "p50_ns": 2957280,
+      "p95_ns": 3770202,
+      "mean_ns": 3051529.2653061226,
+      "iters": 196
     },
     {
       "name": "delete-word",
@@ -247,10 +344,32 @@
       "mode": "per-key",
       "bufferBytes": 102400,
       "scriptKeys": 402,
-      "p50_ns": 157673238,
-      "p95_ns": 178923734,
-      "mean_ns": 159560872.15,
-      "iters": 20
+      "p50_ns": 2788222,
+      "p95_ns": 3386599,
+      "mean_ns": 2875894.3724489794,
+      "iters": 196
+    },
+    {
+      "name": "delete-word",
+      "engine": "js-utf8",
+      "mode": "bulk",
+      "bufferBytes": 102400,
+      "scriptKeys": 402,
+      "p50_ns": 3538385,
+      "p95_ns": 5293972,
+      "mean_ns": 3815567.5408163266,
+      "iters": 196
+    },
+    {
+      "name": "delete-word",
+      "engine": "js-utf8",
+      "mode": "per-key",
+      "bufferBytes": 102400,
+      "scriptKeys": 402,
+      "p50_ns": 3500494,
+      "p95_ns": 5331513,
+      "mean_ns": 3778795.7806122447,
+      "iters": 196
     },
     {
       "name": "undo-storm",
@@ -258,32 +377,32 @@
       "mode": "bulk",
       "bufferBytes": 10240,
       "scriptKeys": 608,
-      "p50_ns": 25182117,
-      "p95_ns": 26733236,
-      "mean_ns": 25399016.222222224,
+      "p50_ns": 24473962,
+      "p95_ns": 24715687,
+      "mean_ns": 24533402.413793102,
+      "iters": 29
+    },
+    {
+      "name": "undo-storm",
+      "engine": "wasm",
+      "mode": "per-key",
+      "bufferBytes": 10240,
+      "scriptKeys": 608,
+      "p50_ns": 26413887,
+      "p95_ns": 27204907,
+      "mean_ns": 26372306.074074075,
       "iters": 27
     },
     {
       "name": "undo-storm",
-      "engine": "wasm",
-      "mode": "per-key",
-      "bufferBytes": 10240,
-      "scriptKeys": 608,
-      "p50_ns": 27550569,
-      "p95_ns": 28750393,
-      "mean_ns": 27306767.846153848,
-      "iters": 26
-    },
-    {
-      "name": "undo-storm",
       "engine": "js",
       "mode": "bulk",
       "bufferBytes": 10240,
       "scriptKeys": 608,
-      "p50_ns": 531042469,
-      "p95_ns": 560754463,
-      "mean_ns": 530127569.8,
-      "iters": 20
+      "p50_ns": 3140847,
+      "p95_ns": 4259554,
+      "mean_ns": 3352367.474489796,
+      "iters": 196
     },
     {
       "name": "undo-storm",
@@ -291,10 +410,32 @@
       "mode": "per-key",
       "bufferBytes": 10240,
       "scriptKeys": 608,
-      "p50_ns": 528680820,
-      "p95_ns": 546243757,
-      "mean_ns": 530590399.6000023,
-      "iters": 20
+      "p50_ns": 3049074,
+      "p95_ns": 3384165,
+      "mean_ns": 3085385.93877551,
+      "iters": 196
+    },
+    {
+      "name": "undo-storm",
+      "engine": "js-utf8",
+      "mode": "bulk",
+      "bufferBytes": 10240,
+      "scriptKeys": 608,
+      "p50_ns": 13684598,
+      "p95_ns": 14410786,
+      "mean_ns": 13746382.888888888,
+      "iters": 54
+    },
+    {
+      "name": "undo-storm",
+      "engine": "js-utf8",
+      "mode": "per-key",
+      "bufferBytes": 10240,
+      "scriptKeys": 608,
+      "p50_ns": 13328668,
+      "p95_ns": 13647758,
+      "mean_ns": 13349114.482142856,
+      "iters": 56
     },
     {
       "name": "macro",
@@ -302,9 +443,9 @@
       "mode": "bulk",
       "bufferBytes": 44,
       "scriptKeys": 10,
-      "p50_ns": 371802.0000152588,
-      "p95_ns": 444218.0000305176,
-      "mean_ns": 424839.2959194573,
+      "p50_ns": 371479,
+      "p95_ns": 392199,
+      "mean_ns": 377419.4132653061,
       "iters": 196
     },
     {
@@ -313,9 +454,9 @@
       "mode": "per-key",
       "bufferBytes": 44,
       "scriptKeys": 10,
-      "p50_ns": 375088,
-      "p95_ns": 415203.9999847412,
-      "mean_ns": 390350.94387871877,
+      "p50_ns": 378423,
+      "p95_ns": 395025,
+      "mean_ns": 388557.0612244898,
       "iters": 196
     },
     {
@@ -324,10 +465,10 @@
       "mode": "bulk",
       "bufferBytes": 44,
       "scriptKeys": 10,
-      "p50_ns": 2990584.999984741,
-      "p95_ns": 3715434.000015259,
-      "mean_ns": 2947391.530386909,
-      "iters": 181
+      "p50_ns": 261243,
+      "p95_ns": 1008620,
+      "mean_ns": 370729.1632653061,
+      "iters": 196
     },
     {
       "name": "macro",
@@ -335,9 +476,31 @@
       "mode": "per-key",
       "bufferBytes": 44,
       "scriptKeys": 10,
-      "p50_ns": 2212546.0000305176,
-      "p95_ns": 2543632.000015259,
-      "mean_ns": 2272048.7499998445,
+      "p50_ns": 213011,
+      "p95_ns": 229132,
+      "mean_ns": 215443.27040816325,
+      "iters": 196
+    },
+    {
+      "name": "macro",
+      "engine": "js-utf8",
+      "mode": "bulk",
+      "bufferBytes": 44,
+      "scriptKeys": 10,
+      "p50_ns": 272443,
+      "p95_ns": 387991,
+      "mean_ns": 292318.94897959183,
+      "iters": 196
+    },
+    {
+      "name": "macro",
+      "engine": "js-utf8",
+      "mode": "per-key",
+      "bufferBytes": 44,
+      "scriptKeys": 10,
+      "p50_ns": 256073,
+      "p95_ns": 625939,
+      "mean_ns": 324065.73979591834,
       "iters": 196
     },
     {
@@ -346,9 +509,9 @@
       "mode": "bulk",
       "bufferBytes": 102424,
       "scriptKeys": 11,
-      "p50_ns": 27079238,
-      "p95_ns": 27256541.99998474,
-      "mean_ns": 27118156.49999589,
+      "p50_ns": 27424761,
+      "p95_ns": 27636119,
+      "mean_ns": 27423275.269230768,
       "iters": 26
     },
     {
@@ -357,10 +520,10 @@
       "mode": "per-key",
       "bufferBytes": 102424,
       "scriptKeys": 11,
-      "p50_ns": 27242165,
-      "p95_ns": 27372701,
-      "mean_ns": 27271593.115384616,
-      "iters": 26
+      "p50_ns": 27681765,
+      "p95_ns": 27729555,
+      "mean_ns": 27673290.36,
+      "iters": 25
     },
     {
       "name": "search",
@@ -368,10 +531,10 @@
       "mode": "bulk",
       "bufferBytes": 102424,
       "scriptKeys": 11,
-      "p50_ns": 367269224,
-      "p95_ns": 409424821,
-      "mean_ns": 367029560.9,
-      "iters": 20
+      "p50_ns": 795268,
+      "p95_ns": 893403,
+      "mean_ns": 823551.6428571428,
+      "iters": 196
     },
     {
       "name": "search",
@@ -379,10 +542,32 @@
       "mode": "per-key",
       "bufferBytes": 102424,
       "scriptKeys": 11,
-      "p50_ns": 350942451,
-      "p95_ns": 405234715,
-      "mean_ns": 363718706.55,
-      "iters": 20
+      "p50_ns": 778567,
+      "p95_ns": 794286,
+      "mean_ns": 779823.693877551,
+      "iters": 196
+    },
+    {
+      "name": "search",
+      "engine": "js-utf8",
+      "mode": "bulk",
+      "bufferBytes": 102424,
+      "scriptKeys": 11,
+      "p50_ns": 754121,
+      "p95_ns": 1019380,
+      "mean_ns": 838061.556122449,
+      "iters": 196
+    },
+    {
+      "name": "search",
+      "engine": "js-utf8",
+      "mode": "per-key",
+      "bufferBytes": 102424,
+      "scriptKeys": 11,
+      "p50_ns": 735375,
+      "p95_ns": 860140,
+      "mean_ns": 768329.8571428572,
+      "iters": 196
     },
     {
       "name": "operator-all",
@@ -390,9 +575,9 @@
       "mode": "bulk",
       "bufferBytes": 102400,
       "scriptKeys": 4,
-      "p50_ns": 75984,
-      "p95_ns": 418680,
-      "mean_ns": 103088.0612244898,
+      "p50_ns": 78468,
+      "p95_ns": 486035,
+      "mean_ns": 140142.99489795917,
       "iters": 196
     },
     {
@@ -401,9 +586,9 @@
       "mode": "per-key",
       "bufferBytes": 102400,
       "scriptKeys": 4,
-      "p50_ns": 75162,
-      "p95_ns": 445962,
-      "mean_ns": 120028.69897959183,
+      "p50_ns": 77796,
+      "p95_ns": 398891,
+      "mean_ns": 102689.20918367348,
       "iters": 196
     },
     {
@@ -412,9 +597,9 @@
       "mode": "bulk",
       "bufferBytes": 102400,
       "scriptKeys": 4,
-      "p50_ns": 249801,
-      "p95_ns": 476840,
-      "mean_ns": 267663.80102040817,
+      "p50_ns": 31049,
+      "p95_ns": 49684,
+      "mean_ns": 28802.627551020407,
       "iters": 196
     },
     {
@@ -423,9 +608,31 @@
       "mode": "per-key",
       "bufferBytes": 102400,
       "scriptKeys": 4,
-      "p50_ns": 227330,
-      "p95_ns": 426175,
-      "mean_ns": 254004.47959183675,
+      "p50_ns": 13195,
+      "p95_ns": 20709,
+      "mean_ns": 14611.709183673469,
+      "iters": 196
+    },
+    {
+      "name": "operator-all",
+      "engine": "js-utf8",
+      "mode": "bulk",
+      "bufferBytes": 102400,
+      "scriptKeys": 4,
+      "p50_ns": 138500,
+      "p95_ns": 267575,
+      "mean_ns": 153345.3418367347,
+      "iters": 196
+    },
+    {
+      "name": "operator-all",
+      "engine": "js-utf8",
+      "mode": "per-key",
+      "bufferBytes": 102400,
+      "scriptKeys": 4,
+      "p50_ns": 123042,
+      "p95_ns": 180991,
+      "mean_ns": 127143.09183673469,
       "iters": 196
     },
     {
@@ -434,9 +641,9 @@
       "mode": "bulk",
       "bufferBytes": 19471,
       "scriptKeys": 20,
-      "p50_ns": 243750,
-      "p95_ns": 251134,
-      "mean_ns": 244452.83673469388,
+      "p50_ns": 244060,
+      "p95_ns": 251694,
+      "mean_ns": 245317.8826530612,
       "iters": 196
     },
     {
@@ -445,9 +652,9 @@
       "mode": "per-key",
       "bufferBytes": 19471,
       "scriptKeys": 20,
-      "p50_ns": 265541,
-      "p95_ns": 272745,
-      "mean_ns": 266760.0816326531,
+      "p50_ns": 265170,
+      "p95_ns": 275709,
+      "mean_ns": 266399.2806122449,
       "iters": 196
     },
     {
@@ -456,9 +663,9 @@
       "mode": "bulk",
       "bufferBytes": 19471,
       "scriptKeys": 20,
-      "p50_ns": 2309520,
-      "p95_ns": 4302262,
-      "mean_ns": 2699181.8418367347,
+      "p50_ns": 2105716,
+      "p95_ns": 4028088,
+      "mean_ns": 2487363.7704081633,
       "iters": 196
     },
     {
@@ -467,9 +674,31 @@
       "mode": "per-key",
       "bufferBytes": 19471,
       "scriptKeys": 20,
-      "p50_ns": 2462368,
-      "p95_ns": 4642333,
-      "mean_ns": 2822217.852040816,
+      "p50_ns": 2087322,
+      "p95_ns": 3922819,
+      "mean_ns": 2422144.8928571427,
+      "iters": 196
+    },
+    {
+      "name": "edit-session",
+      "engine": "js-utf8",
+      "mode": "bulk",
+      "bufferBytes": 19471,
+      "scriptKeys": 20,
+      "p50_ns": 2076732,
+      "p95_ns": 4448390,
+      "mean_ns": 2525980.0102040814,
+      "iters": 196
+    },
+    {
+      "name": "edit-session",
+      "engine": "js-utf8",
+      "mode": "per-key",
+      "bufferBytes": 19471,
+      "scriptKeys": 20,
+      "p50_ns": 1965433,
+      "p95_ns": 4302084,
+      "mean_ns": 2601224.7653060835,
       "iters": 196
     }
   ]

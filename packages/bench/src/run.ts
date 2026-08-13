@@ -10,6 +10,7 @@ import { fileURLToPath } from "node:url";
 import { brotliCompressSync, constants as zlibConstants, gzipSync } from "node:zlib";
 
 import { createEngine, keys } from "@beetle/vici-js";
+import { createUtf8Engine } from "@beetle/vici-js/utf8";
 import { createWasmEngine } from "@beetle/vici-wasm";
 import type { Engine, Key } from "@beetle/contract";
 import { do_not_optimize, measure } from "mitata";
@@ -21,7 +22,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(here, "../../..");
 const reportsDir = join(repoRoot, "reports");
 
-type EngineName = "js" | "wasm";
+type EngineName = "js" | "js-utf8" | "wasm";
 type Mode = "bulk" | "per-key";
 
 type Timing = {
@@ -130,7 +131,14 @@ function fmtBytes(n: number): string {
 }
 
 function factory(engine: EngineName): (text: string) => Engine {
-  return engine === "js" ? createEngine : createWasmEngine;
+  switch (engine) {
+    case "js":
+      return createEngine;
+    case "js-utf8":
+      return createUtf8Engine;
+    case "wasm":
+      return createWasmEngine;
+  }
 }
 
 function ensureWasm(kind: "speed" | "size"): void {
@@ -187,7 +195,7 @@ function smoke(engine: EngineName, workload: Workload, parsed: Key[]): void {
 
 async function runSpeed(workloads: Workload[]): Promise<BenchReport> {
   const benches: BenchRow[] = [];
-  const engines: EngineName[] = ["wasm", "js"];
+  const engines: EngineName[] = ["wasm", "js", "js-utf8"];
   const modes: Mode[] = ["bulk", "per-key"];
 
   for (const workload of workloads) {
@@ -250,6 +258,8 @@ async function runSpeed(workloads: Workload[]): Promise<BenchReport> {
         "Bulk is typeKeys(script) inside the engine. Per-key is handleKey for each keys(script) token.",
         "Cold start is a fresh Node process: await import() + first constructor. Not mixed into hot benches.",
         "Speed wasm is the opt-level=3 / wasm-opt -O3 artefact in packages/vici-wasm/pkg. simd is on.",
+        "js is the shippable JS-string buffer (UTF-8 public offsets, ASCII is identity).",
+        "js-utf8 is the same engine on the UTF-8 piece table — the UTF-8 tax column.",
       ],
     },
     coldStart,
@@ -262,6 +272,11 @@ function runColdStarts(): ColdRow[] {
     [
       { engine: "wasm", specifier: "@beetle/vici-wasm", exportName: "createWasmEngine" },
       { engine: "js", specifier: "@beetle/vici-js", exportName: "createEngine" },
+      {
+        engine: "js-utf8",
+        specifier: "@beetle/vici-js/utf8",
+        exportName: "createUtf8Engine",
+      },
     ];
   const discarded = 2;
   const kept = 12;

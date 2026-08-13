@@ -3,6 +3,8 @@
 
 import type { Edit, Point } from "@beetle/contract";
 
+import { utf8Len } from "./utf8.js";
+
 export type { Edit, Point } from "@beetle/contract";
 
 const utf8 = new TextEncoder();
@@ -61,6 +63,9 @@ export function isNoopChange(change: Change): boolean {
  * not `start.col + len`. Lengths are UTF-8 bytes.
  */
 export function advance(start: Point, text: string): Point {
+  if (!text.includes("\n")) {
+    return { row: start.row, col: start.col + utf8Len(text) };
+  }
   return advanceBytes(start, utf8.encode(text));
 }
 

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "generatedAt": "2026-08-13T12:39:01.461Z",
+    "generatedAt": "2026-08-13T20:40:28.678Z",
     "node": "v24.18.1",
     "cpu": "AMD Ryzen 9 9955HX 16-Core Processor",
     "platform": "linux",
@@ -39,9 +39,9 @@
     {
       "artifact": "vici-js esbuild minify ESM",
       "path": "packages/vici-js/src/index.ts (esbuild --bundle --minify --format=esm)",
-      "raw": 48467,
-      "gzip": 14399,
-      "brotli": 12920
+      "raw": 49038,
+      "gzip": 14666,
+      "brotli": 13168
     }
   ]
 }

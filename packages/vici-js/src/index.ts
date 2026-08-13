@@ -24,8 +24,8 @@ export {
 } from "./edit.js";
 export type { Change } from "./edit.js";
 
-export { Buffer } from "./buffer.js";
-export type { ByteRange } from "./buffer.js";
+export { JsBuffer as Buffer, JsBuffer } from "./buffer-js.js";
+export type { ByteRange, TextBuffer, BufferFactory } from "./text-buffer.js";
 
 export { History } from "./history.js";
 export type { Step } from "./history.js";

@@ -4,7 +4,8 @@
 
 import type { Viewport } from "@beetle/contract";
 
-import type { Buffer } from "./buffer.js";
+import type { TextBuffer as Buffer } from "./text-buffer.js";
+import { isAscii } from "./utf8.js";
 
 export type Bound = "OnChar" | "PastEnd";
 
@@ -167,6 +168,13 @@ export function spanHome(buffer: Buffer, span: Span): number {
 export function graphemeBoundaries(buffer: Buffer, row: number): number[] {
   const range = buffer.rowContentRange(row);
   const text = buffer.textIn(range.start, range.end);
+  if (isAscii(text)) {
+    const out = new Array<number>(text.length + 1);
+    for (let i = 0; i <= text.length; i++) {
+      out[i] = range.start + i;
+    }
+    return out;
+  }
   const out: number[] = [];
   let byte = range.start;
   for (const { segment } of segmenter.segment(text)) {
@@ -265,13 +273,23 @@ function charAt(buffer: Buffer, byte: number): string | undefined {
   if (byte < 0 || byte >= buffer.lenBytes()) {
     return undefined;
   }
-  const len = utf8CharLen(buffer.byte(byte));
+  const first = buffer.byte(byte);
+  if (first < 0x80) {
+    return String.fromCharCode(first);
+  }
+  const len = utf8CharLen(first);
   return buffer.textIn(byte, byte + len);
 }
 
 function advanceChar(buffer: Buffer, byte: number): number {
-  const ch = charAt(buffer, byte);
-  return ch === undefined ? byte : byte + utf8.encode(ch).length;
+  if (byte < 0 || byte >= buffer.lenBytes()) {
+    return byte;
+  }
+  const first = buffer.byte(byte);
+  if (first < 0x80) {
+    return byte + 1;
+  }
+  return byte + utf8CharLen(first);
 }
 
 function retreatChar(buffer: Buffer, byte: number): number {
@@ -647,17 +665,32 @@ function search(
   const text = buffer.toString();
   const sensitive = [...pattern].some(isUppercase);
   const folded = sensitive ? undefined : foldLower(pattern);
-  // One pass over grapheme starts. Per-offset `byteToJs` + `slice(tail)`
-  // was O(n²) and made the 100 KiB search bench unusable.
   const matches: number[] = [];
-  let byte = 0;
-  let js = 0;
-  for (const { segment } of segmenter.segment(text)) {
-    if (literalPrefixAt(text, js, pattern, folded)) {
-      matches.push(byte);
+  if (isAscii(text) && isAscii(pattern)) {
+    // Native indexOf. ASCII grapheme starts are every offset.
+    const hay = folded === undefined ? text : text.toLowerCase();
+    const needle = folded ?? pattern;
+    let fromJs = 0;
+    for (;;) {
+      const at = hay.indexOf(needle, fromJs);
+      if (at < 0) {
+        break;
+      }
+      matches.push(at);
+      fromJs = at + 1;
     }
-    byte += utf8.encode(segment).length;
-    js += segment.length;
+  } else {
+    // One pass over grapheme starts. Per-offset `byteToJs` + `slice(tail)`
+    // was O(n²) and made the 100 KiB search bench unusable.
+    let byte = 0;
+    let js = 0;
+    for (const { segment } of segmenter.segment(text)) {
+      if (literalPrefixAt(text, js, pattern, folded)) {
+        matches.push(byte);
+      }
+      byte += utf8.encode(segment).length;
+      js += segment.length;
+    }
   }
   if (matches.length === 0) {
     return undefined;

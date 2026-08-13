@@ -1,6 +1,6 @@
 # Beetle status
 
-Orchestrator progress. All phases are done. Isolation none. Do not push.
+Orchestrator progress. Isolation none. Do not push.
 Do not tick `/home/dave/w/vici/FEATURES.txt`.
 
 ## Phases
@@ -18,12 +18,15 @@ Do not tick `/home/dave/w/vici/FEATURES.txt`.
 - [x] Phase 5 — Fixture parity for TS
 - [x] Phase 6 — Benchmarks and size
 - [x] Phase 7 — README results + wrap
+- [x] Phase 8 — JS speed: JS-string buffer, UTF-8 tax column, hot-path fixes
 
 ## Resume
 
-The experiment is complete. Both engines pass all 411 `editor.vici`
-snapshots. Numbers live in `reports/` and the README. Do not start new
-work. Do not push.
+Phase 8 is done. Shippable `createEngine` is a JS-string buffer (UTF-8
+public offsets). `@beetle/vici-js/utf8` is the piece table for the tax
+column. Both pass 411/411. JS is 12.9 KiB brotli and faster than WASM
+on the bulk ASCII benches; `edit-session` is still ~9× for WASM.
+Do not push.
 
 ## Phase 0 done-note
 
@@ -377,3 +380,21 @@ caveats. STATUS.md marks every phase done.
 **Leftover risk.** Same as Phase 6: piece-table flatten, wasm-bindgen
 copies, V8-only, incomplete Unicode case table, no native-Rust column.
 None of those block the write-up.
+
+## Phase 8 done-note
+
+**What landed.** Shippable `createEngine` stores a JS string (`JsBuffer`)
+with UTF-8 public offsets and an ASCII identity fast path. The UTF-8
+piece table moved to `@beetle/vici-js/utf8` (`createUtf8Engine`) so the
+minify bundle does not include both. Shared hot-path fixes: incremental
+ASCII sticky, `indexOf` search, ASCII `charAt` / grapheme boundaries,
+piece-table coalesce + finger + in-place add-buffer grow. Both storages
+are 411/411.
+
+**Headline (Node v24.18.1 / 9955HX).** insert-1k 1.47 s → 8.7 ms;
+search 367 ms → 795 µs. JS-string beats WASM on the bulk ASCII benches;
+`edit-session` is still 2.11 ms vs 244 µs. UTF-8 tax is ~20% on
+insert/words/delete, ~4× on undo-storm. Size 47.9 / 12.9 KiB brotli.
+
+**Gates.** `npm test` green (492+). `npm run bench` wrote reports.
+README updated. No vici edits. Not pushed.

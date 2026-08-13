@@ -15,10 +15,13 @@ import type {
 } from "@beetle/contract";
 import { Mods } from "@beetle/contract";
 
+import { JsBuffer } from "./buffer-js.js";
 import { recase, swapCase } from "./case.js";
 import { shift } from "./edit.js";
 import { Document } from "./document.js";
 import { asDigit, asText, keys, render } from "./key.js";
+import type { BufferFactory } from "./text-buffer.js";
+import { utf8Len } from "./utf8.js";
 import {
   STICKY_END,
   clamp,
@@ -137,9 +140,11 @@ export class JsEngine implements Engine {
   #macros = new Map<string, Key[]>();
   #replayDepth = 0;
   #insertGroup = false;
+  #makeBuffer: BufferFactory;
 
-  constructor(text = "") {
-    this.#doc = Document.fromText(text);
+  constructor(text = "", makeBuffer: BufferFactory = jsBuffer) {
+    this.#makeBuffer = makeBuffer;
+    this.#doc = new Document(text, makeBuffer);
   }
 
   static fromText(text: string): JsEngine {
@@ -182,7 +187,7 @@ export class JsEngine implements Engine {
   }
 
   setText(text: string): void {
-    this.#doc = Document.fromText(text);
+    this.#doc = new Document(text, this.#makeBuffer);
     this.#cursor = 0;
     this.#sticky = 0;
     this.#anchor = undefined;
@@ -1342,7 +1347,8 @@ export class JsEngine implements Engine {
       this.#edit(this.#cursor, this.#cursor, text, effects);
     }
     this.#cursor += utf8Len(text);
-    this.#sticky = graphemeCol(this.#buffer(), this.#cursor);
+    this.#sticky = bumpSticky(this.#sticky, text) ??
+      graphemeCol(this.#buffer(), this.#cursor);
   }
 
   #insertNewline(effects: Effect[]): void {
@@ -1942,8 +1948,10 @@ export class JsEngine implements Engine {
   }
 }
 
+const jsBuffer: BufferFactory = (text = "") => JsBuffer.fromText(text);
+
 export function createEngine(text = ""): JsEngine {
-  return new JsEngine(text);
+  return new JsEngine(text, jsBuffer);
 }
 
 type InsertAt =
@@ -2276,6 +2284,16 @@ function isCtrl(key: Key, ch: string): boolean {
   );
 }
 
-function utf8Len(text: string): number {
-  return new TextEncoder().encode(text).length;
+/** ASCII insert: sticky is the grapheme column and each code unit is one. */
+function bumpSticky(sticky: number, text: string): number | undefined {
+  if (text.length === 0 || sticky === STICKY_END) {
+    return sticky === STICKY_END ? STICKY_END : undefined;
+  }
+  for (let i = 0; i < text.length; i++) {
+    const c = text.charCodeAt(i);
+    if (c > 0x7f || c === 0x0a) {
+      return undefined;
+    }
+  }
+  return sticky + text.length;
 }

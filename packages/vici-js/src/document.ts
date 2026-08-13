@@ -2,15 +2,18 @@
 
 import type { Edit } from "@beetle/contract";
 
-import { Buffer } from "./buffer.js";
+import { JsBuffer } from "./buffer-js.js";
 import { History, type Step } from "./history.js";
+import type { BufferFactory, TextBuffer } from "./text-buffer.js";
+
+const defaultBuffer: BufferFactory = (text = "") => JsBuffer.fromText(text);
 
 export class Document {
-  readonly buffer: Buffer;
+  readonly buffer: TextBuffer;
   readonly history: History;
 
-  constructor(text = "") {
-    this.buffer = Buffer.fromText(text);
+  constructor(text = "", makeBuffer: BufferFactory = defaultBuffer) {
+    this.buffer = makeBuffer(text);
     this.history = new History();
   }
 

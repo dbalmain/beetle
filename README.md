@@ -11,35 +11,56 @@ vici tree.
 Two engines implement the same TypeScript `Engine` façade:
 
 1. **`vici-wasm`** — `vici::Editor` behind wasm-bindgen (ropey, simd on).
-2. **`vici-js`** — an idiomatic TypeScript reimplementation (UTF-8 piece
-   table, `Intl.Segmenter`).
+2. **`vici-js`** — an idiomatic TypeScript reimplementation
+   (`Intl.Segmenter`). Default storage is a JS string with UTF-8 public
+   offsets. `@beetle/vici-js/utf8` is the same engine on a UTF-8 piece
+   table, kept so we can measure the UTF-8 tax.
 
-Both pass all **411** `editor.vici` snapshot cases character-for-character.
+Both storages pass all **411** `editor.vici` snapshot cases
+character-for-character.
 
-WASM is faster on every timed workload. The minified TypeScript engine is
-about a sixth the brotli size of the speed wasm.
+The shippable TypeScript engine is **12.9 KiB brotli**. After fixing
+quadratic insert/search, it is faster than WASM on the bulk ASCII
+workloads and about 9× slower on a short mixed `edit-session`. The UTF-8
+piece table costs ~20% on most of those benches once the algorithms
+match; it is not the reason the first scoreboard looked 15–20× off.
 
 ## Speed
 
 Bulk `typeKeys` p50 on Node v24.18.1 / AMD Ryzen 9 9955HX / linux/x64 /
-simd on. Generated 2026-08-13T12:41:43.673Z. Per-key `handleKey` and p95
+simd on. Generated 2026-08-13T20:41:06.480Z. Per-key `handleKey` and p95
 live in [reports/bench.md](reports/bench.md).
 
-| Workload | wasm | js |
-| --- | ---: | ---: |
-| cold start | 47 ms | 89 ms |
-| insert-1k | 84 ms | 1.47 s |
-| words-1m | 137 µs | 881 µs |
-| delete-word | 7.9 ms | 156 ms |
-| search | 27 ms | 367 ms |
-| edit-session | 244 µs | 2.31 ms |
+| Workload | wasm | js | js-utf8 |
+| --- | ---: | ---: | ---: |
+| cold start | 46 ms | 92 ms | 91 ms |
+| insert-1k | 83 ms | 8.7 ms | 11 ms |
+| words-1m | 133 µs | 54 µs | 65 µs |
+| delete-word | 7.8 ms | 3.0 ms | 3.5 ms |
+| search | 27 ms | 795 µs | 754 µs |
+| undo-storm | 24 ms | 3.1 ms | 14 ms |
+| edit-session | 244 µs | 2.11 ms | 2.08 ms |
 
-Cold start is a fresh Node process (`await import()` + first constructor),
-not mixed into the hot benches.
+`js` is the shippable JS-string buffer. `js-utf8` is the piece table.
+Cold start is a fresh Node process (`await import()` + first
+constructor), not mixed into the hot benches.
+
+The first JS numbers (insert-1k 1.47 s, search 367 ms) were
+implementation bugs, not a language ceiling: every insert rescanned the
+line with `Intl.Segmenter`, search walked every grapheme, and the piece
+table never coalesced. Those are gone. What remains is:
+
+- **UTF-8 tax** (`js` vs `js-utf8`): ~20% on insert/words/delete; ~4× on
+  undo-storm and `ggdG`, where the piece table splits and flattens.
+- **Engine tax** (`edit-session`): both JS storages sit at ~2 ms against
+  WASM at 244 µs. That script is a handful of mixed commands, so the
+  dispatcher dominates, not the buffer.
+- **Search**: JS `indexOf` on an ASCII haystack vs vici's grapheme walk.
+  The 34× gap is real and favours JS for literal ASCII search.
 
 ## Size
 
-Generated 2026-08-13T12:39:01.461Z. Same Node / simd. Full raw / gzip /
+Generated 2026-08-13T20:40:28.678Z. Same Node / simd. Full raw / gzip /
 brotli bytes in [reports/size.md](reports/size.md).
 
 | Artifact | raw | brotli |
@@ -47,12 +68,14 @@ brotli bytes in [reports/size.md](reports/size.md).
 | speed wasm (`opt-level=3`, `wasm-opt -O3`) | 273.5 KiB | 83.0 KiB |
 | size wasm (`opt-level=z`, `wasm-opt -Oz`) | 229.4 KiB | 75.9 KiB |
 | wasm glue (`vici_wasm.cjs`) | 14.1 KiB | 2.6 KiB |
-| vici-js minify ESM | 47.3 KiB | 12.6 KiB |
+| vici-js minify ESM | 47.9 KiB | 12.9 KiB |
 
 Speed wasm is the binary the benches ran. Size wasm lives in
 `packages/vici-wasm/pkg-size/` and is not loaded by tests or benches.
 `vici-js` is `esbuild --bundle --minify --format=esm` of
-`packages/vici-js/src/index.ts` (no contract parse/render).
+`packages/vici-js/src/index.ts` (no contract parse/render, no piece
+table). Web transfer is 12.9 KiB brotli / 14.3 KiB gzip — under the
+20 KiB budget. The 47.9 KiB figure is uncompressed minify.
 
 ## How to reproduce
 
@@ -73,7 +96,7 @@ cannot swap the speed `pkg/` benches use.
 `npm test` is the contract suite plus vici-js (411-case snap and unit
 tests). `test:wasm` is separate so that run does not rebuild the artefact.
 `npm run bench` builds missing wasm artefacts, weighs them, then times
-both engines.
+wasm, the JS-string engine, and the UTF-8 piece table.
 
 `npm run build:wasm` does **not** use rustup or `wasm-pack`. This machine
 has Nix `rustc` with `wasm32-unknown-unknown` std; `wasm-pack` wants rustup
@@ -95,10 +118,10 @@ wasm` and does not ship `rust-lld`. Do not `nix profile install`. The
 feature stays on — the wasm32 build accepted it.
 
 Each speed workload is run as bulk `typeKeys(script)` and as per-key
-`handleKey` (script parsed by `@beetle/vici-js` `keys()`), on both engines.
-`setText` is untimed; `text()` is never called in the hot loop. The
-`edit-session` buffer is read from `../vici/FEATURES.txt`; that file is
-not modified.
+`handleKey` (script parsed by `@beetle/vici-js` `keys()`), on wasm, `js`,
+and `js-utf8`. `setText` is untimed; `text()` is never called in the hot
+loop. The `edit-session` buffer is read from `../vici/FEATURES.txt`;
+that file is not modified.
 
 The Cargo workspace is `crates/vici-wasm` only (vici is a path-dep):
 
@@ -110,29 +133,31 @@ cargo check -p vici-wasm --target wasm32-unknown-unknown
 
 ## Caveats
 
-These numbers compare two Node engines that match the same 411 snapshots,
+These numbers compare Node engines that match the same 411 snapshots,
 not "Rust vs JavaScript" in the abstract.
 
-- **Piece table vs ropey.** `vici-js` is a UTF-8 piece table (public
-  offsets are bytes). WASM uses vici's ropey buffer. Flatten collapses to
-  a single original piece when the piece count exceeds 512, or after a
-  whole-buffer replace. That policy shapes large-edit numbers.
+- **JS string vs piece table vs ropey.** Shippable `vici-js` stores a JS
+  string. Public offsets are still UTF-8 bytes (ASCII is identity).
+  `@beetle/vici-js/utf8` is the old piece table (flatten at 512 pieces or
+  a whole-buffer replace). WASM uses vici's ropey buffer. All three
+  report the same `Engine` offsets.
 - **Graphemes.** JS uses `Intl.Segmenter`; Rust uses
   `unicode-segmentation`. The 411 cases agree. ZWJ / flag emoji elsewhere
-  could still diverge.
+  could still diverge. ASCII insert no longer rescan the row.
 - **FFI copies.** wasm-bindgen copies UTF-8 ↔ UTF-16 on every `text()` /
   `typeKeys` / `handleKey`. Bulk `typeKeys` stays inside the engine;
   per-key pays the crossing once per token. Benches never call `text()`
-  in the hot loop.
-- **Search.** Both engines still `toString()` the buffer to scan. JS
-  search is one-pass over grapheme starts; it is not a rope walk.
+  in the hot loop. The insert-1k WASM number is therefore inside Rust.
+- **Search.** ASCII search is `String.prototype.indexOf`. Non-ASCII
+  still walks grapheme starts. WASM still runs vici's grapheme search.
 - **Case mapping.** `vici-js` uses an explicit mapper that matches Rust
   `char::to_uppercase` / `to_lowercase` / one-to-one `swap_case` on
   SpecialCasing, ASCII, Latin-1, and Latin Extended-A even/odd pairs
   (`ß` → `SS`). It is not a full Unicode Simple table; a scalar outside
   that set stays unchanged.
 - **Node / V8 only.** No browser harness. Cold start includes WASM
-  compile/instantiate vs TS module eval in this Node.
+  compile/instantiate vs TS module eval in this Node. V8 cons strings
+  shape the JS insert numbers.
 - **vici is a path-dep sibling**, not vendored. simd is on (ropey `simd`
   feature; both wasm profiles). There is no native-Rust column on the
   scoreboard — WASM includes the wasm-bindgen tax.

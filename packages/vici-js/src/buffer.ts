@@ -8,11 +8,9 @@
 import type { Edit, Point } from "@beetle/contract";
 
 import { advanceBytes, type Change } from "./edit.js";
+import type { ByteRange, TextBuffer } from "./text-buffer.js";
 
-export type ByteRange = {
-  start: number;
-  end: number;
-};
+export type { ByteRange } from "./text-buffer.js";
 
 const utf8 = new TextEncoder();
 const utf8Decode = new TextDecoder("utf-8", { fatal: true });
@@ -27,13 +25,16 @@ type Piece = {
   length: number;
 };
 
-export class Buffer {
+export class Utf8Buffer implements TextBuffer {
   #add: Uint8Array;
   #addLen: number;
   #pieces: Piece[];
   #len: number;
   /** Byte offset of each row start. Always at least `[0]`. */
   #rowStarts: number[];
+  /** Piece index whose global start is `#fingerPos`. */
+  #fingerIdx = 0;
+  #fingerPos = 0;
 
   constructor(text = "") {
     const bytes = text === "" ? EMPTY : utf8.encode(text);
@@ -45,8 +46,8 @@ export class Buffer {
     this.#rowStarts = rowStartsOf(bytes);
   }
 
-  static fromText(text: string): Buffer {
-    return new Buffer(text);
+  static fromText(text: string): Utf8Buffer {
+    return new Utf8Buffer(text);
   }
 
   toString(): string {
@@ -69,18 +70,16 @@ export class Buffer {
     if (!Number.isInteger(idx) || idx < 0 || idx >= this.#len) {
       throw new RangeError(`byte index ${idx} out of range`);
     }
-    let pos = 0;
-    for (const piece of this.#pieces) {
-      if (idx < pos + piece.length) {
-        const value = piece.bytes[piece.start + (idx - pos)];
-        if (value === undefined) {
-          throw new Error("piece table invariant broken");
-        }
-        return value;
-      }
-      pos += piece.length;
+    const { idx: pieceIdx, pos } = this.#locate(idx);
+    const piece = this.#pieces[pieceIdx];
+    if (piece === undefined) {
+      throw new RangeError(`byte index ${idx} out of range`);
     }
-    throw new RangeError(`byte index ${idx} out of range`);
+    const value = piece.bytes[piece.start + (idx - pos)];
+    if (value === undefined) {
+      throw new Error("piece table invariant broken");
+    }
+    return value;
   }
 
   byteToPoint(byte: number): Point {
@@ -167,6 +166,13 @@ export class Buffer {
     const inserted =
       change.inserted === "" ? EMPTY : utf8.encode(change.inserted);
     const whole = edit.startByte === 0 && edit.oldEndByte === this.#len;
+    if (
+      edit.startByte === edit.oldEndByte &&
+      this.#tryAppend(edit.startByte, inserted)
+    ) {
+      this.#spliceRows(edit.startByte, edit.oldEndByte, inserted);
+      return;
+    }
     this.#deleteRange(edit.startByte, edit.oldEndByte);
     this.#insertAt(edit.startByte, inserted);
     this.#spliceRows(edit.startByte, edit.oldEndByte, inserted);
@@ -222,6 +228,38 @@ export class Buffer {
     return lo;
   }
 
+  #locate(byte: number): { idx: number; pos: number } {
+    if (this.#pieces.length === 0) {
+      return { idx: 0, pos: 0 };
+    }
+    let idx = this.#fingerIdx;
+    let pos = this.#fingerPos;
+    if (idx >= this.#pieces.length) {
+      idx = 0;
+      pos = 0;
+    }
+    while (idx < this.#pieces.length) {
+      const piece = this.#pieces[idx]!;
+      if (byte < pos + piece.length) {
+        break;
+      }
+      pos += piece.length;
+      idx += 1;
+    }
+    while (idx > 0 && pos > byte) {
+      idx -= 1;
+      pos -= this.#pieces[idx]!.length;
+    }
+    this.#fingerIdx = idx;
+    this.#fingerPos = pos;
+    return { idx, pos };
+  }
+
+  #resetFinger(): void {
+    this.#fingerIdx = 0;
+    this.#fingerPos = 0;
+  }
+
   #splitAt(offset: number): number {
     if (offset === 0) {
       return 0;
@@ -229,27 +267,24 @@ export class Buffer {
     if (offset === this.#len) {
       return this.#pieces.length;
     }
-    let pos = 0;
-    for (let i = 0; i < this.#pieces.length; i++) {
-      const piece = this.#pieces[i]!;
-      const next = pos + piece.length;
-      if (offset === next) {
-        return i + 1;
-      }
-      if (offset < next) {
-        const leftLen = offset - pos;
-        const right: Piece = {
-          bytes: piece.bytes,
-          start: piece.start + leftLen,
-          length: piece.length - leftLen,
-        };
-        piece.length = leftLen;
-        this.#pieces.splice(i + 1, 0, right);
-        return i + 1;
-      }
-      pos = next;
+    const { idx, pos } = this.#locate(offset);
+    const piece = this.#pieces[idx];
+    if (piece === undefined) {
+      return this.#pieces.length;
     }
-    return this.#pieces.length;
+    const next = pos + piece.length;
+    if (offset === next) {
+      return idx + 1;
+    }
+    const leftLen = offset - pos;
+    const right: Piece = {
+      bytes: piece.bytes,
+      start: piece.start + leftLen,
+      length: piece.length - leftLen,
+    };
+    piece.length = leftLen;
+    this.#pieces.splice(idx + 1, 0, right);
+    return idx + 1;
   }
 
   #deleteRange(start: number, end: number): void {
@@ -260,6 +295,28 @@ export class Buffer {
     const right = this.#splitAt(end);
     this.#pieces.splice(left, right - left);
     this.#len -= end - start;
+    this.#resetFinger();
+  }
+
+  /** Grow the last add-piece when inserting at its end. */
+  #tryAppend(offset: number, bytes: Uint8Array): boolean {
+    if (bytes.length === 0 || this.#pieces.length === 0) {
+      return false;
+    }
+    const last = this.#pieces[this.#pieces.length - 1]!;
+    if (
+      offset !== this.#len ||
+      last.bytes !== this.#add ||
+      last.start + last.length !== this.#addLen
+    ) {
+      return false;
+    }
+    this.#ensureAdd(bytes.length);
+    this.#add.set(bytes, this.#addLen);
+    last.length += bytes.length;
+    this.#addLen += bytes.length;
+    this.#len += bytes.length;
+    return true;
   }
 
   #insertAt(offset: number, bytes: Uint8Array): void {
@@ -276,15 +333,24 @@ export class Buffer {
     });
     this.#addLen += bytes.length;
     this.#len += bytes.length;
+    this.#resetFinger();
   }
 
   #ensureAdd(more: number): void {
     if (this.#addLen + more <= this.#add.length) {
       return;
     }
-    const grown = this.#add.length === 0 ? 64 : this.#add.length * 2;
-    this.#add = new Uint8Array(Math.max(more, grown));
-    this.#addLen = 0;
+    const grown = this.#add.length === 0 ? 1024 : this.#add.length * 2;
+    const next = new Uint8Array(Math.max(this.#addLen + more, grown));
+    if (this.#addLen > 0) {
+      next.set(this.#add.subarray(0, this.#addLen));
+      for (const piece of this.#pieces) {
+        if (piece.bytes === this.#add) {
+          piece.bytes = next;
+        }
+      }
+    }
+    this.#add = next;
   }
 
   #spliceRows(start: number, oldEnd: number, inserted: Uint8Array): void {
@@ -313,6 +379,7 @@ export class Buffer {
     this.#addLen = 0;
     this.#pieces =
       bytes.length === 0 ? [] : [{ bytes, start: 0, length: bytes.length }];
+    this.#resetFinger();
   }
 
   #collect(start: number, end: number): Uint8Array {
