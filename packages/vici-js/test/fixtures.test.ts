@@ -12,7 +12,7 @@ const fixturesDir = join(
   "../../../fixtures",
 );
 
-/** 4b + 4c allowlist. Dropped: cases that need 4d motions (`w`/`iw`/`f`/`{`). */
+/** 4b + 4c + 4d allowlist. Dropped: 4e surround / marks / macros / `.` / `gU`. */
 const ALLOWLIST = [
   // 4b
   "move-right-count",
@@ -133,6 +133,114 @@ const ALLOWLIST = [
   ...linewise("visual-shift-right"),
   "lines-dd-counted-off-end",
   "lines-cc-counted-off-end",
+  // 4d — words
+  "delete-word",
+  "delete-word-motion-count",
+  "delete-word-operator-count",
+  "delete-word-end-inclusive",
+  "delete-exclusive-end",
+  "delete-exclusive-end-count",
+  "delete-big-word-end",
+  "change-word",
+  "empty-change-word",
+  "empty-delete-word",
+  "move-word-forward",
+  "move-big-word-forward",
+  "move-word-backward",
+  "move-big-word-backward",
+  "move-word-end",
+  "move-big-word-end-count",
+  "word-end-over-flag",
+  "change-session-undo",
+  "delete-end-command",
+  "change-end-command",
+  // 4d — find
+  "delete-find-inclusive",
+  "delete-till-exclusive",
+  "move-find-forward-count",
+  "move-find-backward",
+  "move-till-forward",
+  "move-till-backward",
+  "move-find-reverse-repeat",
+  "find-till-repeat",
+  "find-till-reverse",
+  "find-backward-till-repeat",
+  "find-repeat-count",
+  // 4d — objects
+  "delete-inner-word",
+  "delete-around-word",
+  "delete-inner-word-count-two",
+  "delete-inner-word-count-three",
+  "delete-around-word-count-two",
+  "empty-delete-inner-word",
+  "change-inner-quote",
+  "change-inner-paren-delimiter",
+  "change-inner-paren-seeks",
+  "delete-inner-brace-multiline",
+  "delete-around-brace-seeks",
+  "delete-inner-brace-seek-one",
+  "delete-inner-brace-seek-two",
+  "delete-inner-brace-operator-count",
+  "delete-around-brace-count",
+  "delete-inner-brace-too-deep",
+  "visual-inner-brace-count",
+  "visual-inner-brace-seeks",
+  "visual-inner-brace-count-seeks",
+  "visual-object-selection",
+  "visual-object-change",
+  "yank-char-put-before",
+  "shift-object",
+  // 4d — pairs / paragraphs / screen
+  "delete-percent-forward",
+  "delete-percent-backward",
+  "delete-percent-quote",
+  "delete-percent-no-match",
+  "paragraph-forward",
+  "paragraph-backward",
+  "paragraph-running-off-forward",
+  "paragraph-running-off-backward",
+  "paragraph-counted",
+  "paragraph-delete-exclusive",
+  "paragraph-consecutive-blanks",
+  "paragraph-no-blanks",
+  "paragraph-empty",
+  "shift-paragraph",
+  "viewport-half-page",
+  "viewport-full-page",
+  "viewport-clamps-ends",
+  "viewport-dollar-sticky",
+  "viewport-screen-motions",
+  "viewport-screen-operator-top",
+  "viewport-screen-operator-bottom",
+  "viewport-zero-height-scroll",
+  "screen-motion-without-viewport",
+  "scroll-effects",
+  // 4d — search (not search-dot-operator / search-in-macro)
+  "search-forward",
+  "search-backward",
+  "search-smartcase-lowercase",
+  "search-smartcase-uppercase",
+  "search-wrap-forward",
+  "search-wrap-backward",
+  "search-missing",
+  "search-delete-exclusive",
+  "search-counted",
+  "search-repeat-forward-after-forward",
+  "search-repeat-reverse-after-forward",
+  "search-repeat-forward-after-backward",
+  "search-repeat-reverse-after-backward",
+  "search-reverse-keeps-forward-direction",
+  "search-reverse-keeps-backward-direction",
+  "search-repeat-counted",
+  "search-repeat-without-pattern",
+  "search-cancel",
+  "search-backspace",
+  "search-multibyte",
+  "search-pushes-jump",
+  // 4d — motion-adjacent
+  "combining-grapheme-delete",
+  "multibyte-motion-and-edit",
+  "empty-motions",
 ] as const;
 
 function linewise(kind: string): string[] {
@@ -152,7 +260,7 @@ const fixture = readFileSync(join(fixturesDir, "editor.vici"), "utf8");
 const snap = readFileSync(join(fixturesDir, "editor_cases.snap"), "utf8");
 const cases = new Map(parseCases(fixture).map((c) => [c.name, c]));
 
-describe("vici-js 4c editor.vici allowlist", () => {
+describe("vici-js 4d editor.vici allowlist", () => {
   for (const name of ALLOWLIST) {
     it(name, () => {
       const c = cases.get(name);
@@ -175,10 +283,10 @@ describe("vici-js 4c editor.vici allowlist", () => {
 });
 
 describe("vici-js README smoke", () => {
-  it("inserts at the cursor without needing cw", () => {
+  it("changes the word under the cursor", () => {
     const engine = createEngine("select id, name\nfrom users");
-    const effects = engine.typeKeys("iSELECT <Esc>");
-    expect(engine.text()).toBe("SELECT select id, name\nfrom users");
+    const effects = engine.typeKeys("cwSELECT<Esc>");
+    expect(engine.text()).toBe("SELECT id, name\nfrom users");
     expect(engine.mode()).toBe("Normal");
     expect(effects.some((effect) => effect.type === "Edit")).toBe(true);
     expect(effects.some((effect) => effect.type === "ModeChanged")).toBe(true);

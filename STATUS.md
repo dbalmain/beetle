@@ -14,7 +14,7 @@ Do not push. Do not tick `/home/dave/w/vici/FEATURES.txt`.
   - [x] 4a — Key notation + UTF-8 piece table + Edit/Point + undo
   - [x] 4b — Engine skeleton: typeKeys/handleKey, Normal/Insert/Replace, hjkl0^$, insert entries, x, undo/redo
   - [x] 4c — Counts, operators d c y > <, doubles, visual, p P J r ~
-  - [ ] 4d — Word/find/object/search/pair/paragraph/screen motions
+  - [x] 4d — Word/find/object/search/pair/paragraph/screen motions
   - [ ] 4e — Surround, marks, jumps, macros, ., gu gU g~, remaining edges
 - [ ] Phase 5 — Fixture parity for TS
 - [ ] Phase 6 — Benchmarks and size
@@ -229,3 +229,50 @@ the easy places to regress (covered by the linewise matrix and
 `2dd`/`d3j`/`2D`, but `2d3j` itself is not a named case). `~`
 uses JS case mapping; `ß` → `SS` is 4e. No word/find/object
 motions, no `.` / surround / marks / macros.
+
+## Phase 4d done-note
+
+**What landed.** Word / find / object / search / pair / paragraph
+/ screen motions on the existing 4c dispatcher. Outcomes copied
+from vici `motion.rs` / `editor.rs` / `command.rs`:
+
+- `w W b B e E` — three classes (Blank / Word=alnum+`_` / Punct);
+  big WORD collapses Word+Punct. Walk Unicode scalar values, then
+  `clamp` snaps to a grapheme (`word-end-over-flag`).
+- `cw` ≡ `ce` (do not swallow the trailing space).
+- `f F t T ; ,` — row-local find; `;` repeats, `,` reverses;
+  forward f/t inclusive, backward F/T exclusive.
+- `iw aw iW aW` plus delimited / quoted objects (`i(`/`a(`/`ib`/
+  `i{`/`i"` / …). Inner-block row shrink copied. Seek + count
+  climb/descend as in `pair_at_level`.
+- `/` `?` `n` `N` — literal search, smartcase, wrap, count.
+  Missing pattern bells. `/` prompt is transient pending input
+  (backspace edits the shown keys).
+- `%` pair on the row (brackets first, else quote). Inclusive
+  both ways.
+- `{` `}` paragraph (next/previous blank row). Exclusive.
+- `H M L` from host Viewport; `<C-d>` `<C-u>` `<C-f>` `<C-b>`
+  `zz` `zt` `zb` scroll effects. Zero-height viewport bells /
+  emits scroll without moving.
+- `<C-o>` / `<C-i>` jump navigation (the list already existed)
+  so `search-pushes-jump` can return. Named marks stay 4e.
+
+**Fixtures.** 269 allowlist cases match `editor_cases.snap` via
+`renderCase` (167 from 4b/4c + 102 new). README smoke is
+`cwSELECT<Esc>`. Dropped from the search family:
+`search-dot-operator` (needs `.`) and `search-in-macro` (needs
+macros) — both 4e. No other listed case was dropped.
+
+**Gates.** `npm test` green: `tsc --noEmit` on contract +
+vici-js; 334 vitest tests (17 contract + 47 4a + 270 4b/4c/4d
+fixtures). No wasm rebuild.
+
+**Leftover risk.** `Intl.Segmenter` vs `unicode-segmentation`
+is now exercised (`combining-grapheme-delete`,
+`word-end-over-flag`, `search-multibyte`) and matches these
+snaps; ZWJ / flag-as-one-grapheme elsewhere could still
+diverge. Smartcase uses JS `toLowerCase` / "has a lowercase
+mapping" rather than Rust `is_uppercase`; ASCII + `日本` is
+what the suite hits. `cw`≡`ce` is a Change-only rewrite of
+`w`/`W`. Jump *navigation* is in; `'a` / `` `a `` / surround /
+macros / `.` / `gu` `gU` `g~` are 4e.

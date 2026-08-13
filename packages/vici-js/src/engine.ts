@@ -1,6 +1,6 @@
-// Single-dispatcher Engine. Matches vici outcomes for 4c: operators
-// `d c y > <` (and doubles), visual char/line, `p P J r ~`, `G`/`gg`,
-// `D`/`C`, and `:`. Operator-pending is parser state, not a mode.
+// Single-dispatcher Engine. Matches vici outcomes for 4d: word / find /
+// object / search / pair / paragraph / screen motions on the 4c operator
+// grammar. Operator-pending is parser state, not a mode.
 
 import type {
   Edit,
@@ -10,6 +10,7 @@ import type {
   Key,
   Mode,
   Point,
+  Scroll,
   Viewport,
 } from "@beetle/contract";
 import { Mods } from "@beetle/contract";
@@ -20,18 +21,25 @@ import { asDigit, asText, keys, render } from "./key.js";
 import {
   STICKY_END,
   clamp,
+  findOf,
   graphemeCol,
   isInclusive,
   isLinewise,
+  objectSpan,
   resolve,
   rowSpan,
+  searchOf,
   spanContentRange,
   spanDeleteRange,
   spanHome,
   spanIsLinewise,
   type Bound,
+  type Find,
+  type LastSearch,
   type Motion,
+  type ObjectScope,
   type Span,
+  type TextObject,
 } from "./motion.js";
 
 const DEFAULT_INDENT: Indent = {
@@ -46,12 +54,14 @@ type Operator = "delete" | "change" | "yank" | "shiftRight" | "shiftLeft";
 
 type Target =
   | { type: "motion"; motion: Motion }
+  | { type: "object"; scope: ObjectScope; object: TextObject }
   | { type: "currentRow" }
   | { type: "selection" };
 
 type Cmd =
   | { type: "move"; motion: Motion }
   | { type: "operate"; operator: Operator; target: Target }
+  | { type: "selectObject"; scope: ObjectScope; object: TextObject }
   | { type: "enterInsert"; at: InsertAt }
   | { type: "enterReplace" }
   | { type: "enterVisual"; kind: "Char" | "Line" }
@@ -63,9 +73,17 @@ type Cmd =
   | { type: "swapCase" }
   | { type: "undo" }
   | { type: "redo" }
+  | { type: "scroll"; scroll: Scroll }
+  | { type: "jumpBack" }
+  | { type: "jumpForward" }
   | { type: "commandPrompt" };
 
-type Awaiting = "g" | "replace";
+type Awaiting =
+  | "g"
+  | "z"
+  | "replace"
+  | { kind: "find"; backward: boolean; till: boolean }
+  | { kind: "object"; scope: ObjectScope };
 
 export class JsEngine implements Engine {
   #doc: Document;
@@ -84,6 +102,9 @@ export class JsEngine implements Engine {
   #countAfter: number | undefined;
   #operator: Operator | undefined;
   #awaiting: Awaiting | undefined;
+  #search: { backward: boolean; pattern: string } | undefined;
+  #lastFind: Find | undefined;
+  #lastSearch: LastSearch | undefined;
   #lastChange: Key[] = [];
   #changeKeys: Key[] | null = null;
   #visualKeys: Key[] = [];
@@ -126,6 +147,8 @@ export class JsEngine implements Engine {
     this.#jumps = [];
     this.#jumpAt = 0;
     this.#resetPending();
+    this.#lastFind = undefined;
+    this.#lastSearch = undefined;
     this.#lastChange = [];
     this.#changeKeys = null;
     this.#visualKeys = [];
@@ -166,7 +189,7 @@ export class JsEngine implements Engine {
       const end = Math.max(this.#anchor, this.#cursor);
       return {
         start,
-        end: resolve(buffer, end, "Right", undefined, 0, "PastEnd"),
+        end: resolve(buffer, end, "Right", undefined, 0, "PastEnd") ?? end,
       };
     }
     if (this.#mode === "Visual(Line)") {
@@ -259,6 +282,11 @@ export class JsEngine implements Engine {
       return [];
     }
 
+    if (this.#search !== undefined) {
+      this.#pending.push(key);
+      return this.#feedSearch(key);
+    }
+
     if (this.#awaiting === "replace") {
       this.#pending.push(key);
       const ch = asText(key);
@@ -274,6 +302,53 @@ export class JsEngine implements Engine {
         return this.#finishMotion("GotoFirstRow");
       }
       return this.#reject();
+    }
+
+    if (this.#awaiting === "z") {
+      this.#pending.push(key);
+      const ch = asText(key);
+      if (ch === "z") {
+        return this.#finish({ type: "scroll", scroll: "Center" });
+      }
+      if (ch === "t") {
+        return this.#finish({ type: "scroll", scroll: "Top" });
+      }
+      if (ch === "b") {
+        return this.#finish({ type: "scroll", scroll: "Bottom" });
+      }
+      return this.#reject();
+    }
+
+    if (typeof this.#awaiting === "object" && this.#awaiting.kind === "find") {
+      this.#pending.push(key);
+      const ch = asText(key);
+      if (ch === undefined) {
+        return this.#reject();
+      }
+      const find = this.#awaiting;
+      return this.#finishMotion({
+        type: "Find",
+        target: ch,
+        backward: find.backward,
+        till: find.till,
+      });
+    }
+
+    if (typeof this.#awaiting === "object" && this.#awaiting.kind === "object") {
+      this.#pending.push(key);
+      const object = textObjectOf(key);
+      if (object === undefined) {
+        return this.#reject();
+      }
+      const scope = this.#awaiting.scope;
+      if (this.#operator !== undefined) {
+        return this.#finish({
+          type: "operate",
+          operator: this.#operator,
+          target: { type: "object", scope, object },
+        });
+      }
+      return this.#finish({ type: "selectObject", scope, object });
     }
 
     const digit = asDigit(key);
@@ -322,9 +397,47 @@ export class JsEngine implements Engine {
       return [];
     }
 
+    if (
+      (this.#operator !== undefined || this.#isVisual()) &&
+      (ch === "i" || ch === "a")
+    ) {
+      this.#awaiting = {
+        kind: "object",
+        scope: ch === "i" ? "Inner" : "Around",
+      };
+      return [];
+    }
+
+    const find = findOfKey(ch);
+    if (find !== undefined) {
+      this.#awaiting = find;
+      return [];
+    }
+
+    if (ch === "/" || ch === "?") {
+      this.#search = { backward: ch === "?", pattern: "" };
+      return [];
+    }
+
     const motion = commandMotion(key);
     if (motion !== undefined) {
       return this.#finishMotion(motion);
+    }
+
+    const scroll = scrollOf(key);
+    if (scroll !== undefined) {
+      if (this.#operator !== undefined) {
+        return this.#reject();
+      }
+      return this.#finish({ type: "scroll", scroll });
+    }
+
+    if (ch === "z") {
+      if (this.#operator !== undefined) {
+        return this.#reject();
+      }
+      this.#awaiting = "z";
+      return [];
     }
 
     if (this.#operator !== undefined) {
@@ -365,6 +478,12 @@ export class JsEngine implements Engine {
     if (isCtrl(key, "r")) {
       return this.#finish({ type: "redo" });
     }
+    if (isCtrl(key, "o")) {
+      return this.#finish({ type: "jumpBack" });
+    }
+    if (isCtrl(key, "i")) {
+      return this.#finish({ type: "jumpForward" });
+    }
     if (isCode(key, "Esc")) {
       return this.#finish({ type: "enterNormal" });
     }
@@ -403,6 +522,39 @@ export class JsEngine implements Engine {
     }
 
     return this.#reject();
+  }
+
+  #feedSearch(key: Key): Effect[] {
+    const search = this.#search;
+    if (search === undefined) {
+      return this.#reject();
+    }
+    if (isCode(key, "Enter")) {
+      if (search.pattern === "") {
+        return this.#reject();
+      }
+      return this.#finishMotion({
+        type: "Search",
+        pattern: search.pattern,
+        backward: search.backward,
+      });
+    }
+    if (isCode(key, "Backspace")) {
+      if (search.pattern.length === 0) {
+        this.#resetPending();
+        return [];
+      }
+      search.pattern = search.pattern.slice(0, -1);
+      this.#pending.pop();
+      this.#pending.pop();
+      return [];
+    }
+    const ch = asText(key);
+    if (ch === undefined) {
+      return this.#reject();
+    }
+    search.pattern += ch;
+    return [];
   }
 
   #finishMotion(motion: Motion): Effect[] {
@@ -478,15 +630,23 @@ export class JsEngine implements Engine {
     const repeat = count ?? 1;
     switch (cmd.type) {
       case "move": {
+        this.#rememberSearch(cmd.motion);
         const landed = this.#resolveMotion(cmd.motion, count, this.#bound());
+        if (landed === undefined) {
+          effects.push({ type: "Bell" });
+          break;
+        }
         if (landed !== this.#cursor && pushesJump(cmd.motion)) {
           this.#pushJump();
         }
         this.#cursor = landed;
+        this.#rememberFind(cmd.motion);
         this.#updateSticky(cmd.motion);
         break;
       }
       case "operate": {
+        this.#rememberTargetFind(cmd.target);
+        this.#rememberTargetSearch(cmd.target);
         const span = this.#spanOf(cmd.operator, cmd.target, count);
         if (span === undefined) {
           effects.push({ type: "Bell" });
@@ -494,6 +654,29 @@ export class JsEngine implements Engine {
         }
         const amount = this.#isVisual() ? repeat : 1;
         this.#operate(cmd.operator, span, amount, effects);
+        break;
+      }
+      case "selectObject": {
+        const span = objectSpan(
+          this.#buffer(),
+          this.#cursor,
+          cmd.scope,
+          cmd.object,
+          repeat,
+        );
+        if (span === undefined) {
+          effects.push({ type: "Bell" });
+          break;
+        }
+        const range =
+          span.kind === "chars"
+            ? { start: span.start, end: span.end }
+            : {
+                start: this.#buffer().rowRange(span.first).start,
+                end: this.#buffer().rowRange(span.last).end,
+              };
+        this.#anchor = range.start;
+        this.#placeCursor(Math.max(0, range.end - 1));
         break;
       }
       case "enterInsert":
@@ -532,6 +715,15 @@ export class JsEngine implements Engine {
         break;
       case "commandPrompt":
         effects.push({ type: "CommandPrompt" });
+        break;
+      case "scroll":
+        this.#scroll(cmd.scroll, effects);
+        break;
+      case "jumpBack":
+        this.#jumpBack(effects);
+        break;
+      case "jumpForward":
+        this.#jumpForward(effects);
         break;
     }
   }
@@ -589,22 +781,46 @@ export class JsEngine implements Engine {
     let span: Span;
     switch (target.type) {
       case "motion": {
-        const motion = target.motion;
-        const inclusive = isInclusive(motion);
+        let motion = target.motion;
+        if (
+          operator === "change" &&
+          (motion === "WordForward" || motion === "BigWordForward")
+        ) {
+          motion = motion === "BigWordForward" ? "BigWordEnd" : "WordEnd";
+        }
+        const { linewise, inclusive } = this.#motionSemantics(motion);
         const bound: Bound = inclusive ? "OnChar" : "PastEnd";
         const landed = this.#resolveMotion(motion, count, bound);
-        if (isLinewise(motion)) {
+        if (landed === undefined) {
+          return undefined;
+        }
+        if (linewise) {
           const first = buffer.byteToPoint(Math.min(this.#cursor, landed)).row;
           const last = buffer.byteToPoint(Math.max(this.#cursor, landed)).row;
           span = { kind: "lines", first, last };
         } else {
-          let start = Math.min(this.#cursor, landed);
+          const start = Math.min(this.#cursor, landed);
           let end = Math.max(this.#cursor, landed);
           if (inclusive) {
-            end = resolve(buffer, end, "Right", undefined, 0, "PastEnd");
+            end =
+              resolve(buffer, end, "Right", undefined, 0, "PastEnd") ?? end;
           }
           span = { kind: "chars", start, end };
         }
+        break;
+      }
+      case "object": {
+        const found = objectSpan(
+          buffer,
+          this.#cursor,
+          target.scope,
+          target.object,
+          count ?? 1,
+        );
+        if (found === undefined) {
+          return undefined;
+        }
+        span = found;
         break;
       }
       case "currentRow": {
@@ -813,6 +1029,9 @@ export class JsEngine implements Engine {
 
   #move(motion: Motion, count: number | undefined, _effects: Effect[]): void {
     const landed = this.#resolveMotion(motion, count, this.#bound());
+    if (landed === undefined) {
+      return;
+    }
     if (landed !== this.#cursor && pushesJump(motion)) {
       this.#pushJump();
     }
@@ -906,7 +1125,7 @@ export class JsEngine implements Engine {
       this.#sticky,
       "PastEnd",
     );
-    if (start >= this.#cursor) {
+    if (start === undefined || start >= this.#cursor) {
       effects.push({ type: "Bell" });
       return;
     }
@@ -1057,7 +1276,7 @@ export class JsEngine implements Engine {
     motion: Motion,
     count: number | undefined,
     bound: Bound,
-  ): number {
+  ): number | undefined {
     return resolve(
       this.#buffer(),
       this.#cursor,
@@ -1065,6 +1284,9 @@ export class JsEngine implements Engine {
       count,
       this.#sticky,
       bound,
+      this.#lastFind,
+      this.#lastSearch,
+      this.#viewport,
     );
   }
 
@@ -1073,7 +1295,108 @@ export class JsEngine implements Engine {
   }
 
   #stepFrom(at: number, motion: Motion, times: number, bound: Bound): number {
-    return resolve(this.#buffer(), at, motion, times, this.#sticky, bound);
+    return (
+      resolve(
+        this.#buffer(),
+        at,
+        motion,
+        times,
+        this.#sticky,
+        bound,
+        this.#lastFind,
+        this.#lastSearch,
+        this.#viewport,
+      ) ?? at
+    );
+  }
+
+  #motionSemantics(motion: Motion): { linewise: boolean; inclusive: boolean } {
+    if (
+      (motion === "RepeatFind" || motion === "RepeatFindReverse") &&
+      this.#lastFind !== undefined
+    ) {
+      const backward =
+        motion === "RepeatFindReverse"
+          ? !this.#lastFind.backward
+          : this.#lastFind.backward;
+      return { linewise: false, inclusive: !backward };
+    }
+    return { linewise: isLinewise(motion), inclusive: isInclusive(motion) };
+  }
+
+  #rememberFind(motion: Motion): void {
+    const find = findOf(motion);
+    if (find !== undefined) {
+      this.#lastFind = find;
+    }
+  }
+
+  #rememberTargetFind(target: Target): void {
+    if (target.type === "motion") {
+      this.#rememberFind(target.motion);
+    }
+  }
+
+  #rememberSearch(motion: Motion): void {
+    const search = searchOf(motion);
+    if (search !== undefined) {
+      this.#lastSearch = search;
+    }
+  }
+
+  #rememberTargetSearch(target: Target): void {
+    if (target.type === "motion") {
+      this.#rememberSearch(target.motion);
+    }
+  }
+
+  #scroll(scroll: Scroll, effects: Effect[]): void {
+    if (this.#viewport.height !== 0) {
+      if (scroll === "Center" || scroll === "Top" || scroll === "Bottom") {
+        effects.push({ type: "Scroll", scroll });
+        return;
+      }
+      const motion: Motion =
+        scroll === "HalfPageDown" || scroll === "PageDown" ? "Down" : "Up";
+      const rows =
+        scroll === "HalfPageDown" || scroll === "HalfPageUp"
+          ? Math.max(1, Math.floor(this.#viewport.height / 2))
+          : Math.max(1, this.#viewport.height - 2);
+      const landed = this.#step(motion, rows, this.#bound());
+      if (landed !== this.#cursor) {
+        this.#pushJump();
+        this.#cursor = landed;
+      }
+    }
+    effects.push({ type: "Scroll", scroll });
+  }
+
+  #jumpBack(effects: Effect[]): void {
+    if (this.#jumps.length === 0) {
+      effects.push({ type: "Bell" });
+      return;
+    }
+    if (this.#jumpAt === this.#jumps.length) {
+      this.#pushJump();
+      this.#jumpAt = this.#jumps.length - 2;
+    } else if (this.#jumpAt === 0) {
+      effects.push({ type: "Bell" });
+      return;
+    } else {
+      this.#jumpAt -= 1;
+    }
+    this.#placeCursor(this.#jumps[this.#jumpAt] ?? 0);
+  }
+
+  #jumpForward(effects: Effect[]): void {
+    const next = this.#jumpAt + 1;
+    const offset = this.#jumps[next];
+    if (offset === undefined) {
+      effects.push({ type: "Bell" });
+      return;
+    }
+    this.#placeCursor(offset);
+    this.#jumpAt = next + 1 === this.#jumps.length ? this.#jumps.length : next;
   }
 
   #prevPosition(): number {
@@ -1093,13 +1416,15 @@ export class JsEngine implements Engine {
     if (limited > 0 && point.col === 0) {
       return this.#buffer().rowContentRange(point.row - 1).end;
     }
-    return resolve(
-      this.#buffer(),
-      limited,
-      "Left",
-      1,
-      this.#sticky,
-      "PastEnd",
+    return (
+      resolve(
+        this.#buffer(),
+        limited,
+        "Left",
+        1,
+        this.#sticky,
+        "PastEnd",
+      ) ?? limited
     );
   }
 
@@ -1204,7 +1529,8 @@ export class JsEngine implements Engine {
       this.#countBefore === undefined &&
       this.#countAfter === undefined &&
       this.#operator === undefined &&
-      this.#awaiting === undefined
+      this.#awaiting === undefined &&
+      this.#search === undefined
     );
   }
 
@@ -1220,6 +1546,7 @@ export class JsEngine implements Engine {
     this.#countAfter = undefined;
     this.#operator = undefined;
     this.#awaiting = undefined;
+    this.#search = undefined;
   }
 
   #reject(): Effect[] {
@@ -1292,6 +1619,57 @@ function commandMotion(key: Key): Motion | undefined {
   if (ch === "G") {
     return "GotoRow";
   }
+  if (ch === "w") {
+    return "WordForward";
+  }
+  if (ch === "W") {
+    return "BigWordForward";
+  }
+  if (ch === "b") {
+    return "WordBackward";
+  }
+  if (ch === "B") {
+    return "BigWordBackward";
+  }
+  if (ch === "e") {
+    return "WordEnd";
+  }
+  if (ch === "E") {
+    return "BigWordEnd";
+  }
+  if (ch === "{") {
+    return "ParagraphBackward";
+  }
+  if (ch === "}") {
+    return "ParagraphForward";
+  }
+  if (ch === "%") {
+    return "MatchPair";
+  }
+  if (ch === "H") {
+    return "ScreenTop";
+  }
+  if (ch === "M") {
+    return "ScreenMiddle";
+  }
+  if (ch === "L") {
+    return "ScreenBottom";
+  }
+  if (ch === ";") {
+    return "RepeatFind";
+  }
+  if (ch === ",") {
+    return "RepeatFindReverse";
+  }
+  if (ch === "n") {
+    return "RepeatSearch";
+  }
+  if (ch === "N") {
+    return "RepeatSearchReverse";
+  }
+  if (ch === " ") {
+    return "Right";
+  }
   if (isCode(key, "Left")) {
     return "Left";
   }
@@ -1355,7 +1733,90 @@ function forcesLinewise(operator: Operator): boolean {
 }
 
 function pushesJump(motion: Motion): boolean {
-  return motion === "GotoRow" || motion === "GotoFirstRow";
+  if (typeof motion === "object") {
+    return motion.type === "Search";
+  }
+  return (
+    motion === "GotoRow" ||
+    motion === "GotoFirstRow" ||
+    motion === "ParagraphForward" ||
+    motion === "ParagraphBackward" ||
+    motion === "MatchPair" ||
+    motion === "ScreenTop" ||
+    motion === "ScreenMiddle" ||
+    motion === "ScreenBottom" ||
+    motion === "RepeatSearch" ||
+    motion === "RepeatSearchReverse"
+  );
+}
+
+function findOfKey(
+  ch: string | undefined,
+): { kind: "find"; backward: boolean; till: boolean } | undefined {
+  if (ch === "f") {
+    return { kind: "find", backward: false, till: false };
+  }
+  if (ch === "F") {
+    return { kind: "find", backward: true, till: false };
+  }
+  if (ch === "t") {
+    return { kind: "find", backward: false, till: true };
+  }
+  if (ch === "T") {
+    return { kind: "find", backward: true, till: true };
+  }
+  return undefined;
+}
+
+function textObjectOf(key: Key): TextObject | undefined {
+  const ch = asText(key);
+  if (ch === undefined) {
+    return undefined;
+  }
+  switch (ch) {
+    case "w":
+      return { type: "Word", big: false };
+    case "W":
+      return { type: "Word", big: true };
+    case "p":
+      return { type: "Paragraph" };
+    case "(":
+    case ")":
+    case "b":
+      return { type: "Delimited", open: "(", close: ")" };
+    case "{":
+    case "}":
+    case "B":
+      return { type: "Delimited", open: "{", close: "}" };
+    case "[":
+    case "]":
+      return { type: "Delimited", open: "[", close: "]" };
+    case "<":
+    case ">":
+      return { type: "Delimited", open: "<", close: ">" };
+    case '"':
+    case "'":
+    case "`":
+      return { type: "Quoted", quote: ch };
+    default:
+      return undefined;
+  }
+}
+
+function scrollOf(key: Key): Scroll | undefined {
+  if (isCtrl(key, "d")) {
+    return "HalfPageDown";
+  }
+  if (isCtrl(key, "u")) {
+    return "HalfPageUp";
+  }
+  if (isCtrl(key, "f")) {
+    return "PageDown";
+  }
+  if (isCtrl(key, "b")) {
+    return "PageUp";
+  }
+  return undefined;
 }
 
 function swapCase(ch: string): string {
