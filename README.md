@@ -45,12 +45,12 @@ From the repo root (POSIX `sh`):
 npm install
 npm test              # typecheck @beetle/contract + vitest (parser, 411 cases)
 npm run build:wasm    # cargo + wasm-bindgen → packages/vici-wasm/pkg
-npm run test:wasm     # one-case smoke (needs build:wasm first)
+npm run test:wasm     # wasm smoke + 411-case snap (needs build:wasm first)
 npm run bench         # not yet — benches land in phase 6
 ```
 
-`npm test` stays the contract suite. The wasm smoke is separate so a
-contract run does not rebuild the artefact.
+`npm test` stays the contract suite. The wasm oracle (`test:wasm`) is
+separate so a contract run does not rebuild the artefact.
 
 `npm run build:wasm` does **not** use rustup or `wasm-pack`. This machine
 has Nix `rustc` with `wasm32-unknown-unknown` std; `wasm-pack` wants rustup

@@ -9,7 +9,7 @@ Do not push. Do not tick `/home/dave/w/vici/FEATURES.txt`.
 - [x] Phase 0 — Scaffold
 - [x] Phase 1 — Contract package
 - [x] Phase 2 — WASM wrapper
-- [ ] Phase 3 — WASM is the oracle
+- [x] Phase 3 — WASM is the oracle
 - [ ] Phase 4 — Idiomatic TypeScript engine
   - [ ] 4a — Key notation + UTF-8 piece table + Edit/Point + undo
   - [ ] 4b — Engine skeleton: typeKeys/handleKey, Normal/Insert/Replace, hjkl0^$, insert entries, x, undo/redo
@@ -120,3 +120,25 @@ construct `JsError` (wasm-bindgen imported fn); parse errors are
 checked via `run_case_inner`. wasm-bindgen string crossing still copies
 UTF-8 ↔ UTF-16 on every `text()` / `typeKeys` — bulk benches must not
 call `text()` per iteration. Size-opt artefact is phase 6.
+
+## Phase 3 done-note
+
+**What landed.** `packages/vici-wasm/test/fixtures.test.ts` parses all
+411 `editor.vici` cases via `@beetle/contract` `parseCases` and runs
+each through Rust `run_case` (`runCase` in `@beetle/vici-wasm`). The
+concatenated blocks match `fixtures/editor_cases.snap`
+character-for-character. No wrapper or Rust renderer change was
+needed: every case already matched. The only snap-file difference is
+insta collapsing the last `render_case` blank line to a single POSIX
+newline; the test applies that same trim. `npm run test:wasm` is now
+the 411-case gate. Root `npm test` stays contract-only and does not
+rebuild wasm. `vici-js` was not started.
+
+**Gates.** `npm run test:wasm` green (tsc + vitest: smoke + 411-case
+snap). `npm test` green (17 contract tests, typecheck clean). Rust
+untouched, so cargo fmt/clippy/test were not re-run.
+
+**Leftover risk.** The JS `renderCase` path is still only unit-tested
+against a fake engine, not the live `WasmEngine`. Phase 5 will need
+that when `vici-js` is the subject. wasm-bindgen string copies and
+the size-opt artefact are unchanged.
